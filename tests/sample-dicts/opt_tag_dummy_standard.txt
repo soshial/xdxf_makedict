@@ -1,0 +1,12 @@
+key: a
+key: aI
+key: aa
+key: aba
+key: United States
+key: United States of America
+key: The United States
+key: The United States of America
+data: <k>a<opt>I</opt></k>
+<k>a<opt>b</opt>a</k>
+<k><opt>The</opt> United States <opt>of America</opt></k>
+<dtrn><c>A</c></dtrn>

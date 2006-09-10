@@ -1,0 +1,2 @@
+To compile code from cvs run "autoreconf -i" to generate valid 
+configure script and some other staff

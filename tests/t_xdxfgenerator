@@ -1,0 +1,16 @@
+#!/bin/sh
+
+TESTDIR=/tmp/xdxf_generator_test1
+
+rm -fr $TESTDIR
+mkdir $TESTDIR
+
+../src/xdxf_generator --work-dir $TESTDIR < sample-dicts/xdxfgenerator_test1.xdxf
+
+if ! diff -u $TESTDIR/test1/dict.xdxf sample-dicts/xdxfgenerator_test1_std.xdxf; then
+		exit 1
+fi
+
+rm -fr $TESTDIR
+
+exit 0

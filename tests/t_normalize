@@ -1,0 +1,32 @@
+#!/bin/sh
+
+normalize() {
+./normalize "$1" <<EOF
+<b>
+</b>
+<i>
+</i>
+<c>
+</c>
+<abr>
+</abr>
+EOF
+}
+
+test() {
+#		normalize "$1"
+
+		GET=`normalize "$1"`
+		if [ "$GET" != "$2" ]; then
+				echo "expect |$1|, got: |$GET|"
+				exit 1
+		fi
+}
+
+test "get <b> <i>done</b></i>" "get <b> <i>done</i></b>"
+test "AAA <i> BBB" "AAA <i> BBB</i>"
+test "AAA <i> AAA <c></i> DDD</c>" "AAA <i> AAA </i><c> DDD</c>"
+test "<i><c>AAA</c></i>" "<i><c>AAA</c></i>"
+test "<abr><i><c>AAA</c></i></abr>" "<abr><i><c>AAA</c></i></abr>"
+
+exit 0

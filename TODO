@@ -1,0 +1,7 @@
+- fix duplication in rus_bse(Ядерная физика)
+- merge old scheme of plugins from 0.2 with 0.3
+- dsl_parser: change testing code for file exist
+- more informatical error messages in generator.cpp
+- check if "make dist" to work
+- refactor xml special characters handling, avoid code duplication
+- fix pipe test

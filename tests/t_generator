@@ -1,0 +1,20 @@
+#!/bin/sh
+
+CREATER="../src/dummy_generator -w work-directory"
+
+check() {
+		$CREATER < $1 > $2
+		if ! diff -u $3 $2; then
+				echo $4 >&2
+				exit 1
+		fi		
+		rm -f $2
+}
+
+check "./sample-dicts/opt_tag.xdxf" "/tmp/a_dummy.txt" "./sample-dicts/opt_tag_dummy_standard.txt" "opt tag test failed"
+
+check "./sample-dicts/quote_amp_etc.xdxf" "/tmp/a_dummy.txt" "./sample-dicts/quote_amp_etc_standard.dummy" "quote, amp, gt, lt test failed"
+
+check "./sample-dicts/tag_attribute.xdxf" "/tmp/a_dummy.txt" "./sample-dicts/tag_attribute_standard.dummy" "tag attribute test failed"
+
+exit 0

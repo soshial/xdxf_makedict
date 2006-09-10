@@ -1,0 +1,14 @@
+#!/bin/sh
+
+FILE=./sample-dicts/dummy_simple_input.txt
+STANDARD=./sample-dicts/dummy_simple_output.txt
+OUT=/tmp/output
+
+cat $FILE | ../src/makedict -i dummy -o dummy - > $OUT
+
+if ! diff -u $STANDARD $OUT; then
+	echo "FAILURE: $STANDARD $OUT is not the same" >&2
+	exit 1
+fi
+
+rm -f $OUT

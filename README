@@ -1,0 +1,13 @@
+After or before installation you should put "codecs" to 
+somewhere like "/usr/share/makedict/codecs". 
+"codecs" is executable files except makedict in "src" subdirectory.
+
+After that add "export MAKEDICT_PLUGIN_DIR=/usr/share/makedict/codecs"
+somewhere into ~/.bashrc.
+After that if you want parse "dictd" file, you should type
+makedict -o stardict file.index
+or 
+makedict -o xdxf path/file.index
+"makedict" create directory "path/file" and 
+put result of work to this directory.
+
