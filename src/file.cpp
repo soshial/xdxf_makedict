@@ -23,6 +23,7 @@
 #endif
 
 #include <cstdarg>
+#include <glib/gi18n.h>
 
 #include "file.hpp"
 
@@ -58,4 +59,24 @@ File& File::printf(const char *fmt, ...)
 		va_end(ap);
 	}
 	return *this;
+}
+
+bool File::copy(File& in, File& out)
+{
+	char buf[1024];
+	size_t readb;
+
+	do {
+		readb = fread(buf, 1, sizeof(buf), in.stream_);
+		if (ferror(in.stream_)) {
+			StdErr.printf(_("I/O error: can not read from stream\n"));
+			return false;
+		}
+		if (fwrite(buf, 1, readb, out.stream_) != readb) {
+			StdErr.printf(_("I/O error: can not write to stream\n"));
+			return false;
+		}
+	} while (readb == sizeof(buf));
+
+	return true;
 }

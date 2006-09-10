@@ -12,7 +12,9 @@ noinst_PYTHON = $(SCRIPT_CODECS)
 PARSER_LIB = parser.cpp parser.hpp utils.cpp utils.hpp file.cpp file.hpp
 GENERATOR_LIB = generator.cpp generator.hpp utils.cpp utils.hpp
 
-makedict_SOURCES = makedict.cpp dummy_parser.cpp $(PARSER_LIB)
+makedict_SOURCES = \
+	process.cpp process.hpp \
+	makedict.cpp dummy_parser.cpp $(PARSER_LIB)
 
 dummy_generator_SOURCES = dummy_generator.cpp  $(GENERATOR_LIB)
 stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)

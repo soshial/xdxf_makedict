@@ -6,13 +6,18 @@
 
 class File {
 public:
-	File(FILE *stream, bool close_on_exit = true) : 
+	File(FILE *stream = NULL, bool close_on_exit = true) : 
 		stream_(stream), close_on_exit_(close_on_exit) {}
 	void close() {
 		if (stream_ && close_on_exit_) {
 			fclose(stream_);
 			stream_ = NULL;
 		}
+	}
+	File& reset(FILE *stream) {
+		close();
+		stream_ = stream;
+		return *this;
 	}
 	~File() { 
 		close();
@@ -36,6 +41,7 @@ public:
             static Tester t;
             return &t;
         }
+	static bool copy(File& in, File& out);
 private:
 	FILE *stream_;
 	bool close_on_exit_;

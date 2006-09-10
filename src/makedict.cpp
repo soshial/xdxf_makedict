@@ -40,11 +40,12 @@
 
 #include "utils.hpp"
 #include "parser.hpp"
+#include "process.hpp"
 
 //#define DEBUG
 
 
-class makedict {
+class MakeDict {
 public:
 	int run(int argc, char *argv[]);
 private:
@@ -65,7 +66,7 @@ private:
 static void unknown_output_format(const StringMap& output_codecs, const std::string& format="");
 static long width_of_first(const StringMap &sm);
 
-void makedict::list_codecs()
+void MakeDict::list_codecs()
 {
 	long w = width_of_first(input_codecs);
 	std::cout << _("Input formats:") << std::endl;
@@ -92,7 +93,7 @@ void makedict::list_codecs()
 }
 
 
-int makedict::run(int argc, char *argv[])
+int MakeDict::run(int argc, char *argv[])
 {
 #ifdef HAVE_LOCALE_H
 	setlocale(LC_ALL, "");
@@ -165,9 +166,8 @@ int makedict::run(int argc, char *argv[])
 			break;
 		case '?':
 		default:
-			std::cerr <<
-				g_strdup_printf(_("Unknwon option.\nTry '%s --help' for more information.\n"),
-						argv[0]);
+			StdErr.printf(_("Unknwon option.\nTry '%s --help' for more information.\n"),
+				      argv[0]);
 			return EXIT_FAILURE;
 		}
 
@@ -193,8 +193,8 @@ int makedict::run(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	for (int i=optind; i<argc; ++i)
-		if (convert(argv[i])!=EXIT_SUCCESS)
+	for (int i = optind; i < argc; ++i)
+		if (convert(argv[i]) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;
@@ -215,30 +215,28 @@ static bool start_cmd(const std::string& cmd, gchar *&std_output)
 	return false;
 }
 
-bool makedict::fill_codecs_table(const std::string& prgname, const std::string& dirname_)
+bool MakeDict::fill_codecs_table(const std::string& prgname, const std::string& dirname_)
 {
-	gchar *tmp_dirname=g_path_get_dirname(prgname.c_str());
-	std::string dirname(dirname_.empty() ? tmp_dirname : dirname_);
-	g_free(tmp_dirname);
+	glib::CharStr tmp_dirname(g_path_get_dirname(prgname.c_str()));
+	std::string dirname(dirname_.empty() ? get_impl(tmp_dirname) : dirname_);
 
-	GError *err=NULL;
-	GDir *dir = g_dir_open(dirname.c_str(), 0, &err);
-	if (dir==NULL) {
-		std::cerr<<err->message<<std::endl;
-		g_error_free(err);
+	glib::Error err;
+	typedef ResourceWrapper<GDir, GDir, g_dir_close> MyGDir;
+
+	MyGDir dir(g_dir_open(dirname.c_str(), 0, get_addr(err)));
+	if (!dir) {
+		StdErr.printf(_("Can not read %s: %s\n"), dirname.c_str(), err->message);
 		return false;
 	}
 
-	gchar *th = g_path_get_basename(prgname.c_str());
+	glib::CharStr th(g_path_get_basename(prgname.c_str()));
 	const gchar *filename;
-	while ((filename = g_dir_read_name(dir)) != NULL) {
-		std::string realname(dirname+G_DIR_SEPARATOR+filename);
-		gchar *cur = g_path_get_basename(realname.c_str());
-		if (strcmp(cur, th)==0) {
-			g_free(cur);
+	while ((filename = g_dir_read_name(get_impl(dir))) != NULL) {
+		std::string realname = dirname + G_DIR_SEPARATOR + filename;
+		glib::CharStr cur(g_path_get_basename(realname.c_str()));
+		if (strcmp(get_impl(cur), get_impl(th)) == 0)
 			continue;
-		}
-		g_free(cur);
+
 		if (g_file_test(realname.c_str(), G_FILE_TEST_IS_EXECUTABLE)) {
 			gchar *std_output;
 
@@ -256,8 +254,6 @@ bool makedict::fill_codecs_table(const std::string& prgname, const std::string& 
 
 		}
 	}
-	g_free(th);
-	g_dir_close(dir);
 
 	return true;
 }
@@ -282,7 +278,7 @@ static long width_of_first(const StringMap &sm)
 	return res;
 }
 
-void makedict::unknown_input_format(const std::string& format)
+void MakeDict::unknown_input_format(const std::string& format)
 {
 	if (!format.empty())
 		std::cerr<<_("Unknown input format: ") << format << std::endl;
@@ -298,7 +294,7 @@ void makedict::unknown_input_format(const std::string& format)
 		std::cerr << *it << std::endl;
 }
 
-const char *makedict::find_input_codec(const std::string &url)
+const char *MakeDict::find_input_codec(const std::string &url)
 {
 	if (!input_format.empty()) {
 		StringMap::const_iterator it = input_codecs.find(input_format);
@@ -322,17 +318,17 @@ const char *makedict::find_input_codec(const std::string &url)
 	return NULL;
 }
 
-ParserBase *makedict::find_parser(const std::string& url)
+ParserBase *MakeDict::find_parser(const std::string& url)
 {
 	ParserBase *parser = NULL;
 
 	if (!input_format.empty())
 		parser =
-			ParsersRepo::get_instance().find_parser(input_format);		
+			ParsersRepo::get_instance().find_parser(input_format);
 	else
 		parser =
 			ParsersRepo::get_instance().find_suitable_parser(url);
-	
+
 
 	if (!parser) {
 		unknown_input_format(input_format);
@@ -342,7 +338,7 @@ ParserBase *makedict::find_parser(const std::string& url)
 	return parser;
 }
 
-int makedict::convert(const char *arg)
+int MakeDict::convert(const char *arg)
 {
 	if (!arg)
 		return EXIT_FAILURE;
@@ -367,7 +363,30 @@ int makedict::convert(const char *arg)
 			arg + "'" + parser_options;
 		std::string output_cmd = "'" + output_codecs[output_format] +
 			"' --work-dir '"+cur_workdir+"'";
+#if 1
+		Process input_codec, output_codec;
+		if (!input_codec.run_async(input_cmd, Process::OPEN_PIPE_FOR_READ) ||
+		    !output_codec.run_async(output_cmd, Process::OPEN_PIPE_FOR_WRITE))
+			return EXIT_FAILURE;
+		if (!File::copy(input_codec.output(), output_codec.input()))
+			return EXIT_FAILURE;
+		int res;
+		if (!output_codec.wait(res))
+			return EXIT_FAILURE;
 
+		if (res == EXIT_FAILURE) {
+			StdErr.printf(_("Output codec failed\n"));
+			return EXIT_FAILURE;
+		}
+
+		if (!input_codec.wait(res))
+			return EXIT_FAILURE;
+
+		if (res == EXIT_FAILURE) {
+			StdErr.printf(_("Input codec failed\n"));
+			return EXIT_FAILURE;
+		}
+#else
 		std::string cmd = input_cmd + " | " + output_cmd;
 
 		int status = system(cmd.c_str());
@@ -380,46 +399,29 @@ int makedict::convert(const char *arg)
 
 		if (WEXITSTATUS(status) == EXIT_FAILURE)
 			return EXIT_FAILURE;
+#endif
 	} else {
 		ParserBase *parser = find_parser(arg);
-		std::vector<char *> output_args;
-		gchar *output_codec = g_strdup(output_codecs[output_format].c_str());
-		output_args.push_back(output_codec);
-		output_args.push_back("--work-dir");
-		gchar *cur_dir = g_strdup(cur_workdir.c_str());
-		output_args.push_back(cur_dir);
-		output_args.push_back(NULL);
-		GError *err = NULL;
-		GPid codec_pid;
-		gint codec_input;
-		if (!g_spawn_async_with_pipes(NULL, &output_args[0], NULL,
-					      GSpawnFlags(G_SPAWN_DO_NOT_REAP_CHILD),
-					      NULL, NULL, &codec_pid, &codec_input,
-					      NULL, NULL, &err)) {
-			StdErr.printf(_("Execution of %s failed: %s\n"),
-				      output_codec, err->message);
-			g_error_free(err);
+		std::string output_cmd = "'" + output_codecs[output_format] +
+			"' --work-dir '"+cur_workdir+"'";
+
+		Process output_codec;
+		if (!output_codec.run_async(output_cmd, Process::OPEN_PIPE_FOR_WRITE))
 			return EXIT_FAILURE;
-		}
-		File codec_pipe(fdopen(codec_input, "w"));
-		if (!codec_pipe) {
-			StdErr.printf(_("Can not open pipe to %s\n"), output_codec);
-			return EXIT_FAILURE;
-		}
-		parser->reset_ops(new PipeParserDictOps(codec_pipe));
+
+		parser->reset_ops(new PipeParserDictOps(output_codec.input()));
 
 		if (parser->run(arg) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
-		codec_pipe.close();
-		int status;
-		if (waitpid(codec_pid, &status, 0) == -1) {
-			StdErr.printf(_("Can get status of codec: %s\n"), strerror(errno));
+		int res;
+		if (!output_codec.wait(res))
 			return EXIT_FAILURE;
-		}
-		if (WEXITSTATUS(status) == EXIT_FAILURE) {
+
+		if (res == EXIT_FAILURE) {
 			StdErr.printf(_("Output codec failed\n"));
 			return EXIT_FAILURE;
 		}
+
 	}
 
 	return EXIT_SUCCESS;
@@ -427,5 +429,5 @@ int makedict::convert(const char *arg)
 
 int main(int argc, char *argv[])
 {
-	return makedict().run(argc, argv);
+	return MakeDict().run(argc, argv);
 }

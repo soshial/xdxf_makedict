@@ -496,12 +496,12 @@ s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
 s,@CYGPATH_W@,echo,;t t
 s,@PACKAGE@,makedict,;t t
 s,@VERSION@,0.3alpha4,;t t
-s,@ACLOCAL@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run aclocal-1.9,;t t
-s,@AUTOCONF@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run autoconf,;t t
-s,@AUTOMAKE@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run automake-1.9,;t t
-s,@AUTOHEADER@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run autoheader,;t t
-s,@MAKEINFO@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run makeinfo,;t t
-s,@install_sh@,/home/evgeniy/projects/sdcv-project/makedict/install-sh,;t t
+s,@ACLOCAL@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run aclocal-1.9,;t t
+s,@AUTOCONF@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run automake-1.9,;t t
+s,@AUTOHEADER@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run makeinfo,;t t
+s,@install_sh@,/home/evgeniy/projects/sdcv-project/makedict/trunk/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
@@ -509,7 +509,7 @@ s,@mkdir_p@,mkdir -p --,;t t
 s,@AWK@,gawk,;t t
 s,@SET_MAKE@,,;t t
 s,@am__leading_dot@,.,;t t
-s,@AMTAR@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/missing --run tar,;t t
+s,@AMTAR@,${SHELL} /home/evgeniy/projects/sdcv-project/makedict/trunk/missing --run tar,;t t
 s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
 s,@am__untar@,${AMTAR} xf -,;t t
 s,@CC@,gcc,;t t
