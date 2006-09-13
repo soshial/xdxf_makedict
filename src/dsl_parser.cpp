@@ -29,32 +29,38 @@
 
 #include <ctype.h>
 #include <cerrno>
-#include <iostream>
 #include <algorithm>
 #include <iterator>
 #include <fstream>
 #include <list>
-using namespace std;
 #include <glib/gi18n.h>
 
 #include "charset_conv.hpp"
 #include "mapfile.hpp"
 #include "normalize_tags.hpp"
 #include "utils.hpp"
+#include "file.hpp"
 
 #include "parser.hpp"
 
 //#define DEBUG
+namespace dsl {
+	class ParserReg : public ICreator<ParserBase> {
+	public:
+		ParserReg();
+		ParserBase *create() const;
+	} parser_reg;
 
-class dsl_parser : public ParserBase {
+
+class Parser : public ParserBase {
 public:
-	dsl_parser();
-	~dsl_parser() {}
+	Parser();
+	~Parser() {}
 protected:
 	bool is_my_format(const std::string& url) {
 		return g_str_has_suffix(url.c_str(), ".dsl");
 	}
-	int parse(const string& filename);
+	int parse(const std::string& filename);
 private:
 	typedef enum {
 		NAME=0, INDEX_LANGUAGE=1,
@@ -64,20 +70,20 @@ private:
 
 
 	static TagInfoList taginfo_list;
-	string basename;
+	std::string basename;
 
 	bool utf16;//mean that source file in utf16
 	bool little_endian;//mean that order of bytes in little_endian
 
 	guint32 linenum;//number of current line
-	string line;
-	string name, index_language, contents_language;
-	string from_codeset;
+	std::string line;
+	std::string name, index_language, contents_language;
+	std::string from_codeset;
 
 	static Str2StrTable code_page_table;
 	static Str2StrTable short_lang_table;
 	static Str2StrTable replace_table;
-	typedef map<char, char*, std::less<char> > Char2Str;
+	typedef std::map<char, char*, std::less<char> > Char2Str;
 	static  Char2Str text2xml;
 	static std::map<gunichar, std::string> ipa_to_unicode;
 	char *end_of_file;
@@ -85,8 +91,8 @@ private:
 
 	bool getline(MapFile& in);
 	enHeaderTags is_line_has_tag(void);
-	bool get_tag_value(const char* tag_name, string& value);
-	static bool long_to_short(string& longlang, string& shortlang);
+	bool get_tag_value(const char* tag_name, std::string& value);
+	static bool long_to_short(std::string& longlang, std::string& shortlang);
 
 	//this is a real function which parse file,
 	//because of in additition to dsl by itself,
@@ -95,22 +101,35 @@ private:
 	int parse(MapFile& in, bool only_info, bool abr);
 	int print_info();
 	bool parse_header(MapFile& in, CharsetConv& conv);
-	bool read_keys(MapFile& in, const CharsetConv& conv, vector<string>& key_list);
+	bool read_keys(MapFile& in, const CharsetConv& conv, StringList& key_list);
 	void utf16_to_machine(guint16 &ch);
 	void parse_abbrs(const std::string&, const std::string&);
 	void trans_ipa_to_utf(const char *p, const char *end, std::string& resstr);
 	bool encode_article(CharsetConv& conv, std::string& datastr);
-	void article2xdxf(vector<string>&, string&);
+	void article2xdxf(StringList&, std::string&);
 };
 
-Str2StrTable dsl_parser::code_page_table;
-Str2StrTable dsl_parser::replace_table;
-Str2StrTable dsl_parser::short_lang_table;
-dsl_parser::Char2Str dsl_parser::text2xml;
-TagInfoList dsl_parser::taginfo_list;
-std::map<gunichar, std::string> dsl_parser::ipa_to_unicode;
+	ParserReg::ParserReg()
+	{
+		ParsersRepo::get_instance().register_codec("dsl", this);
+	}
 
-dsl_parser::dsl_parser()
+	ParserBase *ParserReg::create() const
+	{
+		return new Parser;
+	}
+}
+
+using namespace dsl;
+
+Str2StrTable Parser::code_page_table;
+Str2StrTable Parser::replace_table;
+Str2StrTable Parser::short_lang_table;
+Parser::Char2Str Parser::text2xml;
+TagInfoList Parser::taginfo_list;
+std::map<gunichar, std::string> Parser::ipa_to_unicode;
+
+Parser::Parser()
 {
 	not_close_comment=false;
 
@@ -310,7 +329,7 @@ dsl_parser::dsl_parser()
 #endif
 }
 
-void dsl_parser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
+void Parser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
 {
 	std::map<gunichar, std::string>::const_iterator it;
 	Char2Str::const_iterator xt;
@@ -344,17 +363,17 @@ void dsl_parser::trans_ipa_to_utf(const char *p, const char *end, std::string& r
 
 //convert from Long language name, like English
 //to short, like eng
-inline bool dsl_parser::long_to_short(string& longlang,
-				      string& shortlang)
+inline bool Parser::long_to_short(std::string& longlang,
+				      std::string& shortlang)
 {
 	tolower(longlang);
 	Str2StrTable::iterator lang=short_lang_table.find(longlang.c_str());
 	if (lang==short_lang_table.end()) {
-		cerr<<_("Unknwon language: ")<<longlang<<endl;
-		cerr<<_("Possible languages:")<<endl;
+		StdErr.printf(_("Unknwon language %s\nPossible languages:\n"), longlang.c_str());
+
 		for (lang=short_lang_table.begin(); lang!=short_lang_table.end(); ++lang)
-			cerr<<lang->first<<'\t';
-		cerr<<endl;
+			StdErr << lang->first << "\t";
+		StdErr<<"\n";
 		return false;
 	}
 	shortlang=lang->second;
@@ -362,7 +381,7 @@ inline bool dsl_parser::long_to_short(string& longlang,
 	return true;
 }
 
-void dsl_parser::parse_abbrs(const std::string& dirname,
+void Parser::parse_abbrs(const std::string& dirname,
 				   const std::string& basename)
 {
 	MapFile map_file;
@@ -377,38 +396,38 @@ void dsl_parser::parse_abbrs(const std::string& dirname,
 		map_file.open(it->c_str());
 
 		if (map_file) {
-			cerr<<_("Parse file with abbrevations: ") << *it << endl;
+			StdErr.printf(_("Parse file with abbrevations: %s\n"), it->c_str());
 			name=index_language=contents_language=from_codeset="";
 			if (parse(map_file, false, true) != EXIT_SUCCESS) {
-				cerr << _("Error during parse abbrevation this file: ")
-				     << *it << endl;
+				StdErr << _("Error during parse abbrevation this file: ")
+				     << *it << "\n";
 				break;
 			}
-			cerr<<_("done")<<endl;
+			StdErr<<_("done")<<"\n";
 			break;
 		}
 	}
 }
 
-int dsl_parser::parse(const string& filename)
+int Parser::parse(const std::string& filename)
 {
 	int res=EXIT_FAILURE;
 
 	basename.assign(filename);
-	string::size_type pos=basename.rfind('.');
-	if (pos!=string::size_type(-1))
+	std::string::size_type pos=basename.rfind('.');
+	if (pos!=std::string::size_type(-1))
 		basename.erase(pos, basename.length()-pos);
 
 
 	//search icon
-	string icon_name=basename+".bmp";
+	std::string icon_name=basename+".bmp";
 	if (is_file_exist(icon_name))
 		set_dict_info("icon", icon_name);
 
 
-	string dirname(filename);
+	std::string dirname(filename);
 	pos=dirname.rfind(G_DIR_SEPARATOR);
-	if (pos!=string::size_type(-1))
+	if (pos!=std::string::size_type(-1))
 		dirname.erase(pos, dirname.length()-pos);
 	else
 		dirname=".";
@@ -416,7 +435,7 @@ int dsl_parser::parse(const string& filename)
 	{
 		MapFile in;
 		if (!in.open(filename.c_str())) {
-			cerr<<_("Can not open file: ")<<filename<<endl;
+			StdErr.printf(_("Can not open %s\n"), filename.c_str());
 			return res;
 		}
 		if ((res=parse(in, true, false))!=EXIT_SUCCESS)
@@ -429,8 +448,7 @@ int dsl_parser::parse(const string& filename)
 
 	MapFile in;
 	if (!in.open(filename.c_str())) {
-
-		cerr<<_("Can not open file: ")<<filename<<endl;
+		StdErr.printf(_("Can not open %s\n"), filename.c_str());
 		return res;
 	}
 
@@ -442,11 +460,11 @@ int dsl_parser::parse(const string& filename)
 	return EXIT_SUCCESS;
 }
 
-int dsl_parser::print_info()
+int Parser::print_info()
 {
 	int res=EXIT_FAILURE;
 	if (name.empty() && parser_options_["full_name"].empty()) {
-		cerr<<_("NAME not defined\n");
+		StdErr<<_("NAME not defined\n");
 		return res;
 	} else if (!parser_options_["full_name"].empty()) {
 		name=parser_options_["full_name"];
@@ -455,10 +473,10 @@ int dsl_parser::print_info()
 	set_dict_info("full_name", name);
 	//set_dict_info("description", std::string("Copyright: ")+copyright+"; Version: "+version);
 
-	string lang;
+	std::string lang;
 
 	if (index_language.empty() && parser_options_["lang_from"].empty()) {
-		cerr<<_("INDEX_LANGUAGE not defined\n");
+		StdErr<<_("INDEX_LANGUAGE not defined\n");
 		return res;
 	} else if (!parser_options_["lang_from"].empty()) {
 		lang=parser_options_["lang_from"];
@@ -468,7 +486,7 @@ int dsl_parser::print_info()
 	set_dict_info("lang_from", lang);
 	lang.clear();
 	if (contents_language.empty() && parser_options_["lang_to"].empty()) {
-		cerr<<_("CONTENTS_LANGUAGE not defined\n");
+		StdErr<<_("CONTENTS_LANGUAGE not defined\n");
 		return res;
 	} else if (!parser_options_["lang_to"].empty()) {
 		lang=parser_options_["lang_to"];
@@ -478,24 +496,24 @@ int dsl_parser::print_info()
 	set_dict_info("lang_to", lang);
 
 	//read annotation
-	string anot_name=basename+".ann";
-	ifstream annotation(anot_name.c_str(), std::ios::in|std::ios::binary);
+	std::string anot_name=basename+".ann";
+	std::ifstream annotation(anot_name.c_str(), std::ios::in|std::ios::binary);
 	if (annotation) {
-		cerr<<_("Reading: ")<<anot_name<<endl;
+		StdErr.printf(_("Reading: %s\n"), anot_name.c_str());
 		annotation.seekg(0, std::ios::end);
-		vector<char> annot_buf(annotation.tellg());
+		std::vector<char> annot_buf(annotation.tellg());
 		annotation.seekg(0);
 		annotation.read(&annot_buf[0], annot_buf.size());
 
-		string anot_str(&annot_buf[0], annot_buf.size());
-		vector<string> from_codesets;
+		std::string anot_str(&annot_buf[0], annot_buf.size());
+		StringList from_codesets;
 		if (!from_codeset.empty())
 			from_codesets.push_back(from_codeset);
 		from_codesets.push_back("UTF-16");
 		from_codesets.push_back("UCS-2");
-		string convstr;
-		vector<string>::iterator it;
-		for (it=from_codesets.begin(); it!=from_codesets.end(); ++it) {
+		std::string convstr;
+		StringList::iterator it;
+		for (it = from_codesets.begin(); it != from_codesets.end(); ++it) {
 			CharsetConv conv(it->c_str(), "UTF-8");
 			convstr.clear();
 
@@ -506,21 +524,18 @@ int dsl_parser::print_info()
 				break;
 		}
 
-		if (it==from_codesets.end()) {
-			gchar *mes =
-				g_strdup_printf(_("Annotation of dictionary is not in %s\n"
-						  "Recode it to %s, and try again\n"),
-						from_codesets[0].c_str(),
-						from_codesets[0].c_str());
-			cerr << mes;
-			g_free(mes);
+		if (it == from_codesets.end()) {
+			StdErr.printf(_("Annotation of dictionary is not in %s\n"
+					"Recode it to %s, and try again\n"),
+				      from_codesets[0].c_str(),
+				      from_codesets[0].c_str());
 			return res;
 		}
 
 		Str2StrTable end_of_line;
 		end_of_line["\r\n"]="\n";
 		end_of_line["\n\r"]="\n";
-		string new_convstr;
+		std::string new_convstr;
 		replace(end_of_line, convstr.c_str(), new_convstr);
 		Str2StrTable str2xml;
 		str2xml["<"]="&lt;";
@@ -535,7 +550,7 @@ int dsl_parser::print_info()
 	return EXIT_SUCCESS;
 }
 
-inline void dsl_parser::utf16_to_machine(guint16 &ch)
+inline void Parser::utf16_to_machine(guint16 &ch)
 {
 	if (little_endian)
 		ch = GINT16_FROM_LE(ch);
@@ -545,7 +560,7 @@ inline void dsl_parser::utf16_to_machine(guint16 &ch)
 
 //read one line from file
 //and convert it to utf8, if file in utf16
-bool dsl_parser::getline(MapFile& in)
+bool Parser::getline(MapFile& in)
 {
 reread_line:
 	++linenum;
@@ -587,14 +602,14 @@ reread_line:
 		} else
 			in.cur++;//so in::eof return true
 
-		string convstr;
+		std::string convstr;
 		if (conv.convert(line, convstr))
 			line=convstr;
 	}
 
 	if (not_close_comment) {
-		string::size_type com_end=line.find("}}");
-		if (com_end==string::npos) {
+		std::string::size_type com_end=line.find("}}");
+		if (com_end==std::string::npos) {
 			if (!(in.cur<end_of_file)) {
 				line.clear();
 				return false;
@@ -605,10 +620,10 @@ reread_line:
 		not_close_comment=false;
 	}
 
-	string::size_type pos;
-	while ((pos=line.find("{{"))!=string::npos) {
-		string::size_type com_end=line.find("}}", pos+2);
-		if (com_end==string::npos) {
+	std::string::size_type pos;
+	while ((pos=line.find("{{"))!=std::string::npos) {
+		std::string::size_type com_end=line.find("}}", pos+2);
+		if (com_end==std::string::npos) {
 			not_close_comment=true;
 			break;
 		}
@@ -618,7 +633,7 @@ reread_line:
 	return in.cur < end_of_file;
 }
 
-dsl_parser::enHeaderTags dsl_parser::is_line_has_tag(void)
+Parser::enHeaderTags Parser::is_line_has_tag(void)
 {
 	static const char* possible_tags[]={
 		"#NAME", "#INDEX_LANGUAGE", "#CONTENTS_LANGUAGE",
@@ -626,46 +641,46 @@ dsl_parser::enHeaderTags dsl_parser::is_line_has_tag(void)
 	};
 	int i;
 	for (i=0; i<UNKNOWN; ++i)
-		if (line.find(possible_tags[i])!=string::size_type(-1))
+		if (line.find(possible_tags[i])!=std::string::size_type(-1))
 			return enHeaderTags(i);
 	return enHeaderTags(i);
 }
 
-bool dsl_parser::get_tag_value(const char* tag_name, string& value)
+bool Parser::get_tag_value(const char* tag_name, std::string& value)
 {
 	value.resize(0);
 
-	string::size_type pos, end;
+	std::string::size_type pos, end;
 
-	if ((pos=line.find(tag_name))==string::size_type(-1))
+	if ((pos=line.find(tag_name))==std::string::size_type(-1))
 		return false;
 
 	pos+=strlen(tag_name);
 	while (pos<=line.length()-1 && (line[pos]=='\t' || line[pos]==' '))
 		++pos;
 	if (line[pos]!='"') {
-		cerr<<linenum<<": "<<_("value of tag must be in \"\n");
+		StdErr.printf(_("%d: value of tag must be in \"\n"), linenum);
 		return false;
 	}
 	end=++pos;
 	while (end<=line.length()-1 && line[end]!='"')
 		++end;
 	if (end>=line.length()) {
-		cerr<<linenum<<": "<<_("there are no twin \"\n");
+		StdErr.printf(_("%d: there are no twin \"\n"), linenum);
 		return false;
 	}
 	value=line.substr(pos, end-pos);
 	return true;
 }
 
-bool dsl_parser::parse_header(MapFile& in, CharsetConv& conv)
+bool Parser::parse_header(MapFile& in, CharsetConv& conv)
 {
 	//read all tags
 	while (in) {
 		while (getline(in) && line.empty())
 			;
 		if (!in) {
-			cerr<<_("There are no not empty stirngs")<<endl;
+			StdErr << _("There are no not empty stirngs\n");
 			return false;
 		}
 		enHeaderTags tag=is_line_has_tag();
@@ -681,7 +696,7 @@ bool dsl_parser::parse_header(MapFile& in, CharsetConv& conv)
 		{
 			if (!get_tag_value("#INDEX_LANGUAGE", index_language))
 				return false;
-			string shortlang;
+			std::string shortlang;
 			if (!long_to_short(index_language, shortlang))
 				return false;
 		}
@@ -691,7 +706,7 @@ bool dsl_parser::parse_header(MapFile& in, CharsetConv& conv)
 		{
 			if (!get_tag_value("#CONTENTS_LANGUAGE", contents_language))
 				return false;
-			string shortlang;
+			std::string shortlang;
 			if (!long_to_short(contents_language, shortlang))
 				return false;
 		}
@@ -699,16 +714,17 @@ bool dsl_parser::parse_header(MapFile& in, CharsetConv& conv)
 
 		case SOURCE_CODE_PAGE:
 		{
-			string source_code_page;
+			std::string source_code_page;
 			if (!get_tag_value("#SOURCE_CODE_PAGE", source_code_page))
 				return false;
 			Str2StrTable::iterator codeset=code_page_table.find(source_code_page.c_str());
 			if (codeset==code_page_table.end()) {
-				cerr<<_("This value is not valid #SOURCE_CODE_PAGE value: ")
-				    <<source_code_page<<endl;
-				cerr<<_("Possible values:")<<endl;
-				for (Str2StrTable::iterator cp=code_page_table.begin(); cp!=code_page_table.end(); ++cp)
-					cerr<<cp->first<<endl;
+				StdErr.printf(_("This value is not valid #SOURCE_CODE_PAGE value: %s\n"
+						"Possible values:\n"),
+					      source_code_page.c_str());
+				for (Str2StrTable::iterator cp = code_page_table.begin();
+				     cp!=code_page_table.end(); ++cp)
+					StdErr<<cp->first<<"\n";
 				return false;
 			}
 
@@ -725,23 +741,19 @@ bool dsl_parser::parse_header(MapFile& in, CharsetConv& conv)
 	return true;
 }
 
-bool dsl_parser::read_keys(MapFile& in, const CharsetConv& conv,
-			   vector<string>& key_list)
+bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
+			   StringList& key_list)
 {
 	Char2Str::iterator c2si;
-	string *cur_line;
+	std::string *cur_line;
 
 	do {
-		string utf8str;
+		std::string utf8str;
 
 		if (!from_codeset.empty()) {
 			if (!conv.convert(line, utf8str)) {
-				gchar *mes =
-					g_strdup_printf(
-						_("Can not convert from %s to UTF-8"),
-						from_codeset.c_str());
-				cerr<<mes<<endl;
-				g_free(mes);
+				StdErr.printf(_("Can not convert from %s to UTF-8"),
+					      from_codeset.c_str());
 				return false;
 			}
 			cur_line=&utf8str;
@@ -749,12 +761,12 @@ bool dsl_parser::read_keys(MapFile& in, const CharsetConv& conv,
 			cur_line=&line;
 
 		if (!g_utf8_validate(cur_line->c_str(), gssize(-1), NULL)) {
-			cerr<<_("Not valid UTF-8 string: ")<<linenum<<endl
-			    <<_("Convert it to UTF-8, and try again")<<endl;
+			StdErr.printf(_("Not valid UTF-8 string: %d\n"
+					"Convert it to UTF-8, and try again\n"), linenum);
 			return false;
 		}
 
-		string key_enc;
+		std::string key_enc;
 		const char *p = cur_line->c_str();
 
 		while (*p) {
@@ -770,8 +782,7 @@ bool dsl_parser::read_keys(MapFile& in, const CharsetConv& conv,
 //TODO: more good solution?
 				p  = strchr(p, '}');
 				if (!p) {
-					std::cerr << _("There is no '}' here: ") 
-						  << std::endl;
+					StdErr.printf(_("There is no '}' here: %s\n"), p);
 					return false;
 				}
 			} else {
@@ -785,7 +796,7 @@ bool dsl_parser::read_keys(MapFile& in, const CharsetConv& conv,
 		}
 
 		//remove last blank characters
-		string::reverse_iterator ri;
+		std::string::reverse_iterator ri;
 		for (ri=key_enc.rbegin(); ri!=key_enc.rend(); ++ri)
 			if (*ri!=' ' && *ri!='\t')
 				break;
@@ -797,18 +808,15 @@ bool dsl_parser::read_keys(MapFile& in, const CharsetConv& conv,
 	return true;
 }
 
-bool dsl_parser::encode_article(CharsetConv& conv, std::string& datastr)
+bool Parser::encode_article(CharsetConv& conv, std::string& datastr)
 {
-	string encoded_str;
+	std::string encoded_str;
 	size_t tr_pos, tr_prev_pos = 0;
 
 	if (!from_codeset.empty()) {
 		if (!conv.convert(datastr, encoded_str)) {
-			gchar *mes =
-				g_strdup_printf(_("Can not convert from %s to UTF-8"),
-						from_codeset.c_str());
-			cerr << mes << endl;
-			g_free(mes);
+			StdErr.printf(_("Can not convert from %s to UTF-8\n"),
+				      from_codeset.c_str());
 			return false;
 		}
 		datastr = encoded_str;
@@ -822,8 +830,8 @@ bool dsl_parser::encode_article(CharsetConv& conv, std::string& datastr)
 		tr_prev_pos = tr_pos;
 
 		if ((tr_pos = datastr.find("[/t]", tr_prev_pos)) == std::string::npos) {
-			std::cerr << _("[t] doesn't close, article: ")
-				  << datastr  << std::endl;
+			StdErr.printf(_("[t] doesn't close, article: %s\n"),
+				      datastr.c_str());
 			return false;
 		}
 
@@ -848,10 +856,10 @@ bool dsl_parser::encode_article(CharsetConv& conv, std::string& datastr)
 	return true;
 }
 
-void dsl_parser::article2xdxf(vector<string>& key_list, string& datastr)
+void Parser::article2xdxf(StringList& key_list, std::string& datastr)
 {
 	Char2Str::iterator c2si;
-	string resstr;
+	std::string resstr;
 	NormalizeTags norm_tags(taginfo_list);
 	const char *p=datastr.c_str();
 	bool have_subarticle=false;
@@ -879,7 +887,7 @@ void dsl_parser::article2xdxf(vector<string>& key_list, string& datastr)
 					if (closed_braket != NULL)
 						p = closed_braket + 1;
 					else
-						cerr << _("Tag [lang didn't closed") << endl;
+						StdErr << _("Tag [lang didn't closed\n");
 				} else {
 					if (!norm_tags.add_open_tag(resstr, p))
 						goto end_of_handle;
@@ -903,8 +911,8 @@ void dsl_parser::article2xdxf(vector<string>& key_list, string& datastr)
 				const char *not_blank=end_of_line;
 				while (not_blank>p && (*not_blank=='\t' || *not_blank==' '))
 					--not_blank;
-				string key(p, not_blank-p);
-				resstr+=string("<su>")+"<k>"+key+"</k>\n";
+				std::string key(p, not_blank-p);
+				resstr+=std::string("<su>")+"<k>"+key+"</k>\n";
 				have_subarticle=true;
 				p=end_of_line+1;
 				continue;
@@ -932,7 +940,7 @@ void dsl_parser::article2xdxf(vector<string>& key_list, string& datastr)
 			char buf[7];
 			gint size=g_unichar_to_utf8(ch, buf);
 			buf[size]='\0';
-			resstr+=string(buf)+g_utf8_next_char(key_list.back().c_str());
+			resstr+=std::string(buf)+g_utf8_next_char(key_list.back().c_str());
 			p+=2;
 		} else {
 
@@ -968,9 +976,9 @@ void dsl_parser::article2xdxf(vector<string>& key_list, string& datastr)
 	norm_tags(resstr, datastr);
 }
 
-int dsl_parser::parse(MapFile& in, bool only_info, bool abr)
+int Parser::parse(MapFile& in, bool only_info, bool abr)
 {
-	linenum=0;
+	linenum = 0;
 
 	end_of_file=in.end();
 
@@ -1020,7 +1028,7 @@ int dsl_parser::parse(MapFile& in, bool only_info, bool abr)
 
 	Char2Str::iterator c2si;
 	do {
-		vector<string> key_list;
+		StringList key_list;
 
 		if (!read_keys(in, conv, key_list))
 			return res;
@@ -1028,14 +1036,14 @@ int dsl_parser::parse(MapFile& in, bool only_info, bool abr)
 		if (!in && line[0]!='\t' && line[0]!=' ')
 			break;
 
-		string datastr;
+		std::string datastr;
 
 		do {
 			const char *real_begin=line.c_str()+1;
 			while (*real_begin && (*real_begin=='\t' || *real_begin==' '))
 				++real_begin;
 			if (*real_begin)
-				datastr += string(real_begin) + "\n";
+				datastr += std::string(real_begin) + "\n";
 		} while (getline(in) && (line[0]=='\t' || line[0]==' '));
 
 
@@ -1044,24 +1052,26 @@ int dsl_parser::parse(MapFile& in, bool only_info, bool abr)
 			while (*real_begin && (*real_begin=='\t' || *real_begin==' '))
 				++real_begin;
 			if (*real_begin)
-				datastr += string(real_begin)+"\n";
+				datastr += std::string(real_begin)+"\n";
 		}
 
 		if (!encode_article(conv, datastr))
 			return res;
 
 		if (!g_utf8_validate(datastr.c_str(), gssize(-1), NULL)) {
-			cerr<<_("Not valid UTF-8 string: ")<<datastr<<endl;
-			cerr<<_("Convert it to UTF-8, and try again\n");
+			StdErr.printf(_("Not valid UTF-8 string: %s\n"
+					"Convert it to UTF-8, and try again\n"),
+				      datastr.c_str());
 			return res;
 		}
 
 		article2xdxf(key_list, datastr);
 
 		if (!g_utf8_validate(datastr.c_str(), gssize(-1), NULL)) {
-			cerr<<_("Not valid UTF-8 string: ")<<datastr<<endl
-			    <<_("Article header: ")<<*key_list.rbegin()<<endl
-			    <<_("Convert it to UTF-8, and try again\n");
+			StdErr.printf(_("Not valid UTF-8 string: %s\n"
+				       "Article header: %s\n"
+				       "Convert it to UTF-8, and try again\n"),
+				     datastr.c_str(), (*key_list.rbegin()).c_str());
 			return res;
 		}
 
@@ -1082,8 +1092,9 @@ int dsl_parser::parse(MapFile& in, bool only_info, bool abr)
 	return EXIT_SUCCESS;
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
-	dsl_parser parser;
-	return parser.run(argc, argv);
+	return dsl::Parser().run(argc, argv);
 }
+#endif

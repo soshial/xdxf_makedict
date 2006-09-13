@@ -1,7 +1,7 @@
 /*
  * This file part of makedict - convertor from any dictionary format to any
  * http://sdcv.sourceforge.net
- * Copyright (C) 2005 Evgeniy <dushistov@mail.ru>
+ * Copyright (C) 2005-2006 Evgeniy <dushistov@mail.ru>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,13 @@
 #include "parser.hpp"
 
 namespace dummy {
+
+	class ParserReg : public ICreator<ParserBase> {
+	public:
+		ParserReg();
+		ParserBase *create() const;
+	} parser_reg;
+
 	class Parser : public ParserBase {
 	public:
 		Parser() {
@@ -38,7 +45,17 @@ namespace dummy {
 		}
 	protected:
 		int parse(const std::string& url);
-	} parser;
+	};
+
+	ParserReg::ParserReg()
+	{
+		ParsersRepo::get_instance().register_codec("dummy", this);
+	}
+
+	ParserBase *ParserReg::create() const
+	{
+		return new Parser;
+	}
 }
 using namespace dummy;
 

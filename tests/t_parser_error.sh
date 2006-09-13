@@ -17,7 +17,7 @@ EOF
 iconv -f utf-8 -t cp1251 "${TMPDSL}" > "${TMPDSL}.dsl" 
 
 if ../src/makedict -o dummy "${TMPDSL}.dsl" >/dev/null 2>&1; then
-	echo "FAILED: Parser do not report about error"
+	echo "Parser do not report about error"
 	exit 1
 fi
 

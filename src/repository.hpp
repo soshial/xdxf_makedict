@@ -1,22 +1,50 @@
 #ifndef __REPOSITORY_HPP__
 #define __REPOSITORY_HPP__
 
-#include <list>
+#include <map>
+#include <vector>
 #include <string>
 
 typedef std::vector<std::string> StringList;
+
+template <class T>
+class ICreator {
+public:
+	virtual ~ICreator() {}
+	virtual T *create() const = 0;
+};
 
 template <class T, typename ResType>
 class CodecsRepo {
 public:
 	static ResType& get_instance();
-	bool register_codec(T *codec);
-	StringList supported_formats() const;
-	T *find_codec(const std::string& format);
+	bool register_codec(const std::string& name, ICreator<T> *codec);
+	T *create_codec(const std::string& name);
+	const StringList& supported_formats();
+	bool supported_format(const std::string& name);
 protected:
-	typedef std::list<T *> CodecsList;
-	CodecsList codecs_;
+	typedef std::map<std::string, ICreator<T> *> CodecsMap;
+	CodecsMap codecs_;
+	StringList names_list_;
 };
+
+template <class T, typename R>
+const StringList& CodecsRepo<T, R>::supported_formats()
+{
+	if (!names_list_.empty())
+		return names_list_;
+	for (typename CodecsMap::const_iterator it = codecs_.begin();
+	     it != codecs_.end(); ++it)
+		names_list_.push_back(it->first);
+	return names_list_;
+}
+
+template <class T, typename R>
+bool CodecsRepo<T, R>::supported_format(const std::string& name)
+{
+	return codecs_.find(name) != codecs_.end();
+}
+
 
 template <class T, typename R>
 R& CodecsRepo<T, R>::get_instance()
@@ -26,38 +54,21 @@ R& CodecsRepo<T, R>::get_instance()
 }
 
 template <class T, typename R>
-bool CodecsRepo<T, R>::register_codec(T *codec)
+T *CodecsRepo<T, R>::create_codec(const std::string& name)
 {
-	if (std::find(codecs_.begin(), codecs_.end(), codec) !=
-	    codecs_.end())
+	typename CodecsMap::const_iterator it = codecs_.find(name);
+	if (it == codecs_.end())
+		return NULL;
+	return (*it->second).create();
+}
+
+template <class T, typename R>
+bool CodecsRepo<T, R>::register_codec(const std::string& name, ICreator<T> *codec)
+{	
+	if (codecs_.find(name) != codecs_.end())
 		return false;
-	codecs_.push_back(codec);
+	codecs_[name] = codec;
 	return true;
 }
-
-template <class T, typename R>
-StringList CodecsRepo<T, R>::supported_formats() const
-{
-	StringList res;
-	typename CodecsList::const_iterator it;
-
-	for (it = codecs_.begin(); it != codecs_.end(); ++it)
-		res.push_back((*it)->format());
-
-	return res;
-}
-
-template <class T, typename R>
-T *CodecsRepo<T, R>::find_codec(const std::string& format)
-{
-	typename CodecsList::const_iterator it;
-	for (it = codecs_.begin(); it != codecs_.end(); ++it)
-		if ((*it)->format() == format)
-			return *it;
-
-	return NULL;
-}
-
-
 
 #endif//!__REPOSITORY_HPP__

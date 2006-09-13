@@ -24,6 +24,10 @@ public:
 	}
 	File& operator<<(const std::string&);
 	File& operator<<(const char *str);
+	File& operator<<(double d) {
+		fprintf(stream_, "%lf", d);
+		return *this;
+	}
 	void flush();
 	File& printf(const char *fmt, ...);
 	bool operator!() const { return !stream_ || feof(stream_) || ferror(stream_); }

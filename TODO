@@ -11,3 +11,4 @@
 - keys <opt> <nu> generator?
 - print where we create dictionary
 - why t_dsl_parser so slow?
+- perfomance test

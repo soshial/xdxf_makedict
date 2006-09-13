@@ -106,12 +106,14 @@ void Connector::fill_key(const std::string& keystr)
 				    (pos + sizeof("<opt>") - 1) + 1);
 		prev_pos = end_opt + sizeof("</opt>") - 1;
 	}
-	key_.parts_.back() += std::string(keystr,
-					  keystr.length() - 1 - prev_pos);
+
+	key_.parts_.back() += std::string(keystr, prev_pos,
+					  keystr.length() - prev_pos);
 }
 
 void Connector::article(const StringList& keylist, const std::string& data)
 {
+
 	StringList real_keylist;
 	std::string keystr;
 	for (StringList::const_iterator it = keylist.begin();

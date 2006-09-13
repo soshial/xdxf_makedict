@@ -140,8 +140,7 @@ bool GeneratorDictPipeOps::get_info()
 }
 
 GeneratorBase::GeneratorBase()
-{
-	GeneratorsRepo::get_instance().register_codec(this);
+{	
 	std_dict_ops_.reset(new GeneratorDictPipeOps(StdIn, *this));
 	dict_ops_ = std_dict_ops_.get();
 }
@@ -433,6 +432,7 @@ void IGeneratorDictOps::generate_keys(StringList& keys)
 		return;
 	}
 	sample_data_.clear();
+
 	sample_data_.push_back(key_.parts_.front());
 	sample(keys, key_.opts_.size());
 

@@ -102,8 +102,7 @@ const std::string& ParserBase::format() const
 }
 
 ParserBase::ParserBase(bool generate_xdxf)
-{
-	ParsersRepo::get_instance().register_codec(this);
+{	
 	generate_xdxf_ = generate_xdxf;
 	std_dict_ops_.reset(new PipeParserDictOps(StdOut));
 	dict_ops_ = std_dict_ops_.get();
@@ -271,12 +270,15 @@ void ParserBase::remove_not_valid(std::string &str)
 	str = valid_data;
 }
 
-ParserBase *ParsersRepo::find_suitable_parser(const std::string& url)
+ParserBase *ParsersRepo::create_suitable_parser(const std::string& url)
 {
-	CodecsList::const_iterator it;
-	for (it = codecs_.begin(); it != codecs_.end(); ++it)
-		if ((*it)->is_my_format(url))
-			return *it;
+	CodecsMap::const_iterator it;
+	for (it = codecs_.begin(); it != codecs_.end(); ++it) {
+		ParserBase *res = (*it->second).create();
+		if (res->is_my_format(url))
+			return res;
+		delete res;
+	}
 
 	return NULL;
 }

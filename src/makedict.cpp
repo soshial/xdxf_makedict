@@ -56,11 +56,10 @@ private:
 	int convert(const char *arg);
 	const char *find_input_codec(const std::string& url);
 	const char *find_output_codec(const std::string& format);
-	ParserBase *find_parser(const std::string& url);
+	ParserBase *create_parser(const std::string& url);
 	bool fill_codecs_table(const std::string& prgname, const std::string& dirname="");
 	void list_codecs();
 	void unknown_input_format(const std::string& format = "");
-	GeneratorBase *find_generator(const std::string& format);
 	void unknown_output_format(const std::string& format = "");
 	std::string parser_options();
 };
@@ -144,17 +143,19 @@ int MakeDict::run(int argc, char *argv[])
 		case 'i':
 		{
 			StringMap::const_iterator i = input_codecs.find(optarg);
-			input_format = optarg;
-			if (i == input_codecs.end() && !find_parser("")) {
+			if (i == input_codecs.end() &&
+			    !ParsersRepo::get_instance().supported_format(optarg)) {
 				unknown_input_format(optarg);
 				return EXIT_FAILURE;
 			}
+			input_format = optarg;
 		}
 		break;
 		case 'o':
 		{
 			StringMap::iterator i = output_codecs.find(optarg);
-			if (i == output_codecs.end() && !find_generator(optarg)) {
+			if (i == output_codecs.end() &&
+			    !GeneratorsRepo::get_instance().supported_format(optarg)) {
 				unknown_output_format(optarg);
 				return EXIT_FAILURE;
 			}
@@ -346,21 +347,16 @@ const char *MakeDict::find_output_codec(const std::string& format)
 	return NULL;
 }
 
-GeneratorBase *MakeDict::find_generator(const std::string& format)
-{
-	return GeneratorsRepo::get_instance().find_codec(format);
-}
-
-ParserBase *MakeDict::find_parser(const std::string& url)
+ParserBase *MakeDict::create_parser(const std::string& url)
 {
 	ParserBase *parser = NULL;
 
 	if (!input_format.empty())
 		parser =
-			ParsersRepo::get_instance().find_codec(input_format);
+			ParsersRepo::get_instance().create_codec(input_format);
 	else
 		parser =
-			ParsersRepo::get_instance().find_suitable_parser(url);
+			ParsersRepo::get_instance().create_suitable_parser(url);
 
 
 	if (!parser) {
@@ -422,8 +418,8 @@ int MakeDict::convert(const char *arg)
 			return EXIT_FAILURE;
 		}
 	} else if (ocodec) {
-		ParserBase *parser = find_parser(arg);
-		g_assert(parser);
+		std::auto_ptr<ParserBase> parser(create_parser(arg));
+		g_assert(parser.get());
 		std::string output_cmd = std::string("'") + ocodec +
 			"' --work-dir '"+cur_workdir+"'";
 
@@ -451,8 +447,9 @@ int MakeDict::convert(const char *arg)
 		Process input_codec;
 		if (!input_codec.run_async(input_cmd, Process::OPEN_PIPE_FOR_READ))
 			return EXIT_FAILURE;
-		GeneratorBase *generator = find_generator(output_format);
-		g_assert(generator);
+		std::auto_ptr<GeneratorBase> generator(
+			GeneratorsRepo::get_instance().create_codec(output_format));
+		g_assert(generator.get());
 		GeneratorDictPipeOps gen_dict_ops(input_codec.output(), *generator);
 		generator->reset_ops(&gen_dict_ops);
 
@@ -468,14 +465,15 @@ int MakeDict::convert(const char *arg)
 			return EXIT_FAILURE;
 		}
 	} else {
-		ParserBase *parser = find_parser(arg);
-		g_assert(parser);
-		GeneratorBase *generator = find_generator(output_format);
-		g_assert(generator);
+		std::auto_ptr<ParserBase> parser(create_parser(arg));
+		g_assert(parser.get());
+		std::auto_ptr<GeneratorBase> generator(
+			GeneratorsRepo::get_instance().create_codec(output_format));
+		g_assert(generator.get());
 		Connector connector(*generator, cur_workdir);
 		parser->reset_ops(&connector);
 		generator->reset_ops(&connector);
-		if (parser->run(parser_options_, arg) != EXIT_FAILURE)
+		if (parser->run(parser_options_, arg) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 	}
 
@@ -484,5 +482,5 @@ int MakeDict::convert(const char *arg)
 
 int main(int argc, char *argv[])
 {
-	return MakeDict().run(argc, argv);
+	return MakeDict().run(argc, argv);	
 }

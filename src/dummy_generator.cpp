@@ -30,9 +30,16 @@
 #include "generator.hpp"
 
 namespace dummy {
+
+	class GeneratorReg : public ICreator<GeneratorBase> {
+	public:
+		GeneratorReg();
+		GeneratorBase *create() const;
+	} generator_reg;
+
 	class Generator : public GeneratorBase {
 	public:
-		Generator() {
+		Generator() {	       
 			set_format("dummy");
 			set_version("dummy_generator, version 1.0");
 		}
@@ -45,7 +52,17 @@ namespace dummy {
 		void on_have_data(const StringList& keys,
 				  const std::string& data);
 
-	} generator;
+	};
+
+	GeneratorReg::GeneratorReg()
+	{
+		GeneratorsRepo::get_instance().register_codec("dummy", this);
+	}
+
+	GeneratorBase *GeneratorReg::create() const
+	{
+		return new Generator;
+	}
 }
 
 using namespace dummy;

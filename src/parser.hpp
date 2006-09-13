@@ -111,7 +111,7 @@ private:
 
 class ParsersRepo : public CodecsRepo<ParserBase, ParsersRepo> {
 public:
-	ParserBase *find_suitable_parser(const std::string& url);
+	ParserBase *create_suitable_parser(const std::string& url);
 };
 
 #endif//!PARSER_HPP
