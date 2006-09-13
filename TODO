@@ -4,4 +4,9 @@
 - more informatical error messages in generator.cpp
 - check if "make dist" to work
 - refactor xml special characters handling, avoid code duplication
-- fix pipe test
+- rentrant parser and generator code?
+- fix formatation of makedict -l output
+- pass parser's options to parser, test
+- test all cases parser<->generator, makedict<->generator etc
+- keys <opt> <nu> generator?
+- print where we create dictionary

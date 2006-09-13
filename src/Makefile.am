@@ -4,19 +4,26 @@ CODECS = \
 
 bin_PROGRAMS = makedict
 
-noinst_PROGRAMS = dummy_generator $(CODECS)
+noinst_PROGRAMS = $(CODECS)
 
 SCRIPT_CODECS = mueller7_parser.py mdparser.py apresyan.py
 noinst_PYTHON = $(SCRIPT_CODECS)
 
 PARSER_LIB = parser.cpp parser.hpp utils.cpp utils.hpp file.cpp file.hpp
-GENERATOR_LIB = generator.cpp generator.hpp utils.cpp utils.hpp
+GENERATOR_LIB = generator.cpp generator.hpp utils.cpp utils.hpp file.cpp file.hpp
 
 makedict_SOURCES = \
+	makedict.cpp \
 	process.cpp process.hpp \
-	makedict.cpp dummy_parser.cpp $(PARSER_LIB)
+	repository.hpp \
+	dummy_parser.cpp \
+	dummy_generator.cpp \
+	utils.cpp utils.hpp \
+	parser.cpp parser.hpp \
+	generator.cpp generator.hpp \
+	file.cpp file.hpp \
+	connector.cpp connector.hpp
 
-dummy_generator_SOURCES = dummy_generator.cpp  $(GENERATOR_LIB)
 stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)
 xdxf_generator_SOURCES = xdxf_generator.cpp $(GENERATOR_LIB)
 dictd_generator_SOURCES = dictd_generator.cpp $(GENERATOR_LIB)

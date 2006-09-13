@@ -29,9 +29,10 @@
 #include <glib.h>
 
 #include "file.hpp"
+#include "repository.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
-typedef std::list<std::string> StringList;
+typedef std::vector<std::string> StringList;
 
 class IParserDictOps {
 public:
@@ -42,8 +43,8 @@ public:
 
 	virtual void abbrs_begin() = 0;
 	virtual void abbrs_end() = 0;
-	virtual void abbr(std::vector<std::string>&, const std::string&) = 0;
-	virtual void article(std::vector<std::string>&, const std::string&) = 0;
+	virtual void abbr(const StringList&, const std::string&) = 0;
+	virtual void article(const StringList&, const std::string&) = 0;
 	virtual void end() = 0;
 };
 
@@ -57,27 +58,32 @@ public:
 	}
 	void abbrs_begin();
 	void abbrs_end();
-	void abbr(std::vector<std::string>&, const std::string&);
-	void article(std::vector<std::string>&, const std::string&);
+	void abbr(const StringList&, const std::string&);
+	void article(const StringList&, const std::string&);
 	void end();
 private:
 	StringMap dict_info_;
 	File &out_;
 };
 
-
 class ParserBase {
 public:
 	ParserBase(bool generate_xdxf = true);
 	virtual ~ParserBase() {}
 	int run(int argc, char *argv[]);
-	int run(const std::string& url);
+	int run(const StringList& options, const std::string& url);
 	const std::string& format() const;
 	virtual bool is_my_format(const std::string& url) { return false; }
-	void reset_ops(IParserDictOps *dict_ops) { dict_ops_.reset(dict_ops); }
+	void reset_ops(IParserDictOps *dict_ops) { 
+		if (dict_ops) 
+			dict_ops_ = dict_ops; 
+		else
+			dict_ops_ = std_dict_ops_.get();
+	}
 protected:
+	std::auto_ptr<IParserDictOps> std_dict_ops_;
+	IParserDictOps *dict_ops_;
 	StringMap parser_options_;
-	std::auto_ptr<IParserDictOps> dict_ops_;
 
 	virtual int parse(const std::string& url);
 
@@ -88,8 +94,8 @@ protected:
 	void begin();
 	void abbrs_begin();
 	void abbrs_end();
-	void abbr(std::vector<std::string>& keys, const std::string& val);
-	void article(std::vector<std::string>& keys, const std::string& val);
+	void abbr(const StringList& keys, const std::string& val);
+	void article(const StringList& keys, const std::string& val);
 
 	//usefull routine for some parsers
 	std::set<gunichar> not_valid_chars;
@@ -98,18 +104,14 @@ protected:
 private:
 	StringMap parser_info_;
 	bool generate_xdxf_;
+
+	bool parse_option(const std::string& optarg);
+	int do_run(const std::string& url);
 };
 
-class ParsersRepo {
+class ParsersRepo : public CodecsRepo<ParserBase, ParsersRepo> {
 public:
-	static ParsersRepo& get_instance();
-	bool register_parser(ParserBase *parser);
-	StringList supported_formats() const;
-	ParserBase *find_parser(const std::string& format);
 	ParserBase *find_suitable_parser(const std::string& url);
-private:
-	typedef std::list<ParserBase *> ParsersList;
-	ParsersList parsers_;
 };
 
 #endif//!PARSER_HPP

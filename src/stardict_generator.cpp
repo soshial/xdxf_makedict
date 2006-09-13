@@ -267,7 +267,7 @@ stardict_generator::create_ifo_file(const std::string& basename,
 	newline_tbl["\n"]=" ";
 	newline_tbl["\r"]=" ";
 	std::string descr;
-	replace(newline_tbl, get_dict_info("description"), descr);
+	replace(newline_tbl, get_dict_info("description").c_str(), descr);
 	if (!descr.empty())
 		f<<"description="<<descr<<"\n";
 

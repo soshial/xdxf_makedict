@@ -1,5 +1,5 @@
 /*
- * This file part of makedict - convertor from any 
+ * This file part of makedict - convertor from any
  * dictionary format to any http://xdxf.sourceforge.net
  * Copyright (C) 2005-2006 Evgeniy <dushistov@mail.ru>
  *
@@ -24,43 +24,43 @@
 
 #include <cstdlib>
 #include <string>
-#include <iostream>
-using namespace std;
+
+#include "file.hpp"
 
 #include "generator.hpp"
 
-class dummy_generator : public GeneratorBase {
-public:
-	dummy_generator()
-	{
-		set_format("dummy");
-		set_version("dummy_generator, version 1.0");
-	}
-protected:
-	int generate();
-	void on_have_data(const StringList& keys,
-			  const std::string& data);
-	bool on_prepare_generator(const std::string&,
-				  const std::string&) { 
-		return true; 
-	}
-		
-};
+namespace dummy {
+	class Generator : public GeneratorBase {
+	public:
+		Generator() {
+			set_format("dummy");
+			set_version("dummy_generator, version 1.0");
+		}
+	protected:
+		int generate() { return EXIT_SUCCESS; }
+		bool on_prepare_generator(const std::string&,
+					  const std::string&) {
+			return true;
+		}
+		void on_have_data(const StringList& keys,
+				  const std::string& data);
 
-int dummy_generator::generate()
-{	
-	return EXIT_SUCCESS;
+	} generator;
 }
 
-void dummy_generator::on_have_data(const StringList& keys,
-				   const std::string& data)
+using namespace dummy;
+
+void Generator::on_have_data(const StringList& keys,
+			     const std::string& data)
 {
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
-		cout << "key: " << *p << endl;
-	cout << "data: " << data << endl;
+		StdOut << "key: " << *p << "\n";
+	StdOut << "data: " << data << "\n";
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
-	return dummy_generator().run(argc, argv);
+	return Generator().run(argc, argv);
 }
+#endif

@@ -1,9 +1,9 @@
 #!/bin/sh
 
-CREATER="../src/dummy_generator -w work-directory"
+CREATER="../src/makedict -i xdxf -o dummy --work-dir work-directory"
 
 check() {
-		$CREATER < $1 > $2
+		$CREATER  $1 > $2
 		if ! diff -u $3 $2; then
 				echo $4 >&2
 				exit 1

@@ -24,13 +24,12 @@
 
 #include <cstring>
 #include <glib/gi18n.h>
-#include <unistd.h>
 #include <getopt.h>
 #include <glib.h>
-#include <iostream>
 #include <numeric>
 
 #include "utils.hpp"
+#include "file.hpp"
 
 #include "generator.hpp"
 
@@ -47,9 +46,8 @@ public:
 						 void *data);
 	~xml_parser() {	XML_ParserFree(xmlp); }
 	void xml_error(const std::string& line) const {
-		std::cerr << _("xml parser error: ")
-			  << XML_ErrorString(XML_GetErrorCode(xmlp)) << std::endl
-			  <<_("Can not parse such line: ") << line << std::endl;
+		StdErr.printf(_("XML parser error: %s\nCan not parse such line: %s\n"),
+			      XML_ErrorString(XML_GetErrorCode(xmlp)), line.c_str());
 	}
 	bool parse_line(const std::string& line) {
 		if (XML_Parse(xmlp, &line[0], line.size(), 0)!=XML_STATUS_OK) {
@@ -82,8 +80,8 @@ xml_parser::xml_parser(XML_StartElementHandler on_start,
 	XML_SetUserData(xmlp, data);
 }
 
-GeneratorDictPipeOps::GeneratorDictPipeOps(GeneratorBase& gen) :
-	IGeneratorDictOps(gen)
+GeneratorDictPipeOps::GeneratorDictPipeOps(File &in, GeneratorBase& gen) :
+	IGeneratorDictOps(gen), in_(in)
 {
 	meta_mode_ = mmNONE;
 
@@ -112,7 +110,7 @@ bool GeneratorDictPipeOps::get_meta_info()
 
 	xml_parser meta_parser(on_meta_start, on_meta_end, on_meta_data, this);
 
-	while (std::getline(std::cin, line) &&
+	while (File::getline(in_, line) &&
 	       line.find("</meta_info>") == std::string::npos) {
 		line += '\n';
 		if (!meta_parser.parse_line(line))
@@ -131,7 +129,7 @@ bool GeneratorDictPipeOps::get_info()
 
 	xml_parser xdxf_parser(xml_start, xml_end, xml_char_data, this);
 
-	while (std::getline(std::cin, line)) {
+	while (File::getline(in_, line)) {
 		line += '\n';
 		if (!xdxf_parser.parse_line(line))
 			return false;
@@ -143,7 +141,9 @@ bool GeneratorDictPipeOps::get_info()
 
 GeneratorBase::GeneratorBase()
 {
-	dict_ops_.reset(new GeneratorDictPipeOps(*this));
+	GeneratorsRepo::get_instance().register_codec(this);
+	std_dict_ops_.reset(new GeneratorDictPipeOps(StdIn, *this));
+	dict_ops_ = std_dict_ops_.get();
 }
 
 int GeneratorBase::run(int argc, char *argv[])
@@ -171,37 +171,43 @@ int GeneratorBase::run(int argc, char *argv[])
 				   &option_index))!=-1) {
 		switch (optc) {
 		case 'h':
-			std::cout<<help<<std::endl;
+			StdOut << help << "\n";
 			return EXIT_SUCCESS;
 		case 0:
-			std::cout << version_ << std::endl;
+			StdOut << version_ << "\n";
 			return EXIT_SUCCESS;
 		case 'o':
-			std::cout << format_ << std::endl;
+			StdOut << format_ << "\n";
 			return EXIT_SUCCESS;
 		case 'w':
-			workdir=optarg;
+			workdir = optarg;
 			break;
 		case '?':
 		default:
-			std::cerr<<help<<std::endl;
+			StdErr << help << "\n";
 			return EXIT_FAILURE;
 		}
 	}
 
 	if (optind != argc) {
-		std::cout<<help<<std::endl;
+		StdErr << help << "\n";
 		return EXIT_FAILURE;
 	}
-	if (workdir.empty()) {
-		std::string appname(argv[0]);
-		std::string::size_type pos=appname.rfind(G_DIR_SEPARATOR);
 
-		if (pos!=std::string::size_type(-1)) {
+	return run(argv[0], workdir);
+}
+
+int GeneratorBase::run(const std::string& appname, std::string& workdir)
+{
+	if (workdir.empty()) {
+		std::string::size_type pos = appname.rfind(G_DIR_SEPARATOR);
+
+		if (pos != std::string::npos)
 			workdir.assign(appname, 0, pos);
-		} else
-			workdir=".";
+		else
+			workdir = ".";
 	}
+
 	if (!dict_ops_->get_meta_info())
 		return EXIT_FAILURE;
 	if (!on_prepare_generator(workdir, dict_ops_->get_dict_info("basename")))
@@ -211,6 +217,11 @@ int GeneratorBase::run(int argc, char *argv[])
 	return generate();
 }
 
+void GeneratorDictPipeOps::set_dict_info(const std::string& name, const std::string& val)
+{
+	dict_info_[name] = val;
+	generator_.on_new_dict_info(name, val);
+}
 
 void XMLCALL GeneratorDictPipeOps::on_meta_start(void *user_arg,
 						 const XML_Char *name,
@@ -257,7 +268,7 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 					     const XML_Char **atts)
 {
 #ifdef DEBUG
-	std::cerr << "xml_start: name=" << name << std::endl;
+	std::cerr << "xml_start: name=" << name << "\n";
 #endif
 
 	GeneratorDictPipeOps *gen =
@@ -300,10 +311,10 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 			for (int i = 0; atts[i]; i += 2)
 				if (strcmp(atts[i], "lang_from") == 0) {
 					if (atts[i + 1])
-						gen->generator_.set_dict_info("lang_from", atts[i + 1]);
+						gen->set_dict_info("lang_from", atts[i + 1]);
 				} else if (strcmp(atts[i], "lang_to") == 0) {
 					if (atts[i + 1])
-						gen->generator_.set_dict_info("lang_to", atts[i + 1]);
+						gen->set_dict_info("lang_to", atts[i + 1]);
 				}
 			break;
 		default:
@@ -312,22 +323,15 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 		gen->state_stack_.push(it->second);
 #ifdef DEBUG
 		std::cerr << "xml_start: tag added, data=" << gen->data_
-			  << std::endl;
+			  << "\n";
 #endif
 	}
-}
-
-void GeneratorBase::set_dict_info(const std::string& name,
-				  const std::string& val)
-{
-	dict_ops_->set_dict_info(name, val);
-	on_new_dict_info(name, val);
 }
 
 void XMLCALL GeneratorDictPipeOps::xml_end(void *userData, const XML_Char *name)
 {
 #ifdef DEBUG
-	std::cerr<<"xml_end: name="<<name<<std::endl;
+	std::cerr<<"xml_end: name="<<name<<"\n";
 #endif
 
 	GeneratorDictPipeOps *gen = static_cast<GeneratorDictPipeOps *>(userData);
@@ -344,7 +348,7 @@ void XMLCALL GeneratorDictPipeOps::xml_end(void *userData, const XML_Char *name)
 		switch (gen->state_stack_.top()) {
 		case FULL_NAME:
 		case DESCRIPTION:
-			gen->generator_.set_dict_info(it->first, gen->data_);
+			gen->set_dict_info(it->first, gen->data_);
 			gen->data_.clear();
 			break;
 		case OPT:
@@ -352,7 +356,7 @@ void XMLCALL GeneratorDictPipeOps::xml_end(void *userData, const XML_Char *name)
 			break;
 		case K:
 			gen->data_ += std::string("</") + name + ">";
-			gen->generate_keys();
+			gen->generate_keys(gen->keys_);
 			gen->key_.clear();
 			break;
 		case AR:
@@ -381,7 +385,7 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 		return;
 
 #ifdef DEBUG
-	std::cerr<<"xml_char_data, data="<<gen->data_<<std::endl;
+	std::cerr<<"xml_char_data, data="<<gen->data_<<"\n";
 #endif
 
 	std::string data;
@@ -401,36 +405,36 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 
 
 
-void GeneratorDictPipeOps::sample(std::vector<std::string>::size_type n)
+void IGeneratorDictOps::sample(StringList& keys, std::vector<std::string>::size_type n)
 {
 	if (n==0) {
 		std::string res =
 			accumulate(sample_data_.begin(), sample_data_.end(),
 				   std::string());
-		keys_.push_back(res);
+		keys.push_back(res);
 		return;
 	}
 	sample_data_.push_back(key_.parts_[n + 1 - key_.opts_.size()]);
-	sample(n-1);
+	sample(keys, n-1);
 	sample_data_.pop_back();
 
 	sample_data_.push_back(key_.opts_[key_.opts_.size() - n]);
 	sample_data_.push_back(key_.parts_[key_.opts_.size() - n + 1]);
-	sample(n-1);
+	sample(keys, n-1);
 	sample_data_.pop_back();
 	sample_data_.pop_back();
 }
 
-void GeneratorDictPipeOps::generate_keys()
+void IGeneratorDictOps::generate_keys(StringList& keys)
 {
 	if (key_.parts_.empty()) {
-		std::cerr<<_("Internal error, can not generate key list, there is no parts of key")
-			 << std::endl;
+		StdErr <<
+			_("Internal error, can not generate key list, there is no parts of key\n");
 		return;
 	}
 	sample_data_.clear();
 	sample_data_.push_back(key_.parts_.front());
-	sample(key_.opts_.size());
+	sample(keys, key_.opts_.size());
 
-	std::for_each(keys_.begin(), keys_.end(), strip);
+	std::for_each(keys.begin(), keys.end(), strip);
 }

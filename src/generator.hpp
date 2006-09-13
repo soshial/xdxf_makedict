@@ -29,9 +29,11 @@
 #include <memory>
 
 #include "utils.hpp"
+#include "repository.hpp"
+#include "file.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
-typedef std::list<std::string> StringList;
+typedef std::vector<std::string> StringList;
 
 class GeneratorBase;
 
@@ -42,26 +44,36 @@ public:
 
 	virtual bool get_meta_info() = 0;
 	virtual bool get_info() = 0;
-	virtual void set_dict_info(const std::string&, const std::string&) = 0;
-	virtual const char *get_dict_info(const std::string&) const = 0;
+	virtual const std::string& get_dict_info(const std::string&) const = 0;
 protected:
+	struct Key {
+		std::vector<std::string> parts_;
+		std::vector<std::string> opts_;
+		void clear() { parts_.clear(); opts_.clear(); }
+	} key_;
+
 	GeneratorBase& generator_;
+	void generate_keys(StringList& keys);
+private:	
+	std::list<std::string> sample_data_;
+
+	void sample(StringList& keys, std::vector<std::string>::size_type n);
 };
 
 
 class GeneratorDictPipeOps : public IGeneratorDictOps {
 public:
-	GeneratorDictPipeOps(GeneratorBase& generator);
+	GeneratorDictPipeOps(File& in, GeneratorBase& generator);
 	bool get_meta_info();
 	bool get_info();
-	void set_dict_info(const std::string& name, const std::string& val) {
-		dict_info_[name] = val;
-	}
-	const char *get_dict_info(const std::string& name) const {
+	void set_dict_info(const std::string& name, const std::string& val);
+	const std::string& get_dict_info(const std::string& name) const {
+		static std::string empty;
+
 		StringMap::const_iterator it = dict_info_.find(name);
 		if (it == dict_info_.end())
-			return "";
-		return it->second.c_str();
+			return empty;
+		return it->second;
 	}
 private:
 	enum {mmNONE, mmICON, mmBASENAME} meta_mode_;
@@ -73,14 +85,9 @@ private:
 	static TagTable tag_table_;
 	std::stack<StateType> state_stack_;
 	std::string data_;
-	struct Key {
-		std::vector<std::string> parts_;
-		std::vector<std::string> opts_;
-		void clear() { parts_.clear(); opts_.clear(); }
-	} key_;
 	StringList keys_;
 	static Str2StrTable xml_spec_seq_;
-	std::list<std::string> sample_data_;
+	File &in_;
 
 	static void XMLCALL on_meta_start(void *, const XML_Char *,
 					  const XML_Char **);
@@ -91,9 +98,6 @@ private:
 				      const XML_Char **);
 	static void XMLCALL xml_end(void *, const XML_Char *);
 	static void XMLCALL xml_char_data(void *, const XML_Char *, int);
-
-	void generate_keys();
-	void sample(std::vector<std::string>::size_type n);
 };
 
 class GeneratorBase {
@@ -101,27 +105,36 @@ public:
 	GeneratorBase();
 	virtual ~GeneratorBase() {}
 	int run(int argc, char *argv[]);
+	int run(const std::string& appname, std::string& workdir);
 
 	virtual void on_abbr_begin() {}
 	virtual void on_abbr_end() {}
 	virtual void on_have_data(const StringList&, const std::string&) {}
-	void set_dict_info(const std::string&, const std::string&);
-	void generate_keys();
-protected:
-	void set_format(const std::string& val)	{ format_ = val; }
-	void set_version(const std::string& val) { version_ = val; }
-	virtual int generate() = 0;
-
-	virtual void on_new_dict_info(const std::string&, const std::string&) {}	
+	virtual void on_new_dict_info(const std::string&, const std::string&) {}
 	virtual bool on_prepare_generator(const std::string&,
 					  const std::string&) = 0;
-	const char *get_dict_info(const std::string& name) const {
+	virtual int generate() = 0;
+	const std::string& format() const { return format_; }
+	void reset_ops(IGeneratorDictOps *dict_ops) { 
+		if (dict_ops)
+			dict_ops_ = dict_ops; 
+		else
+			dict_ops_ = std_dict_ops_.get();
+	}
+protected:
+	void set_format(const std::string& val)	{ format_ = val; }
+	void set_version(const std::string& val) { version_ = val; }	
+
+	const std::string& get_dict_info(const std::string& name) const {
 		return dict_ops_->get_dict_info(name);
 	}
 private:
 	std::string format_;
 	std::string version_;
-	std::auto_ptr<IGeneratorDictOps> dict_ops_;	
+	std::auto_ptr<IGeneratorDictOps> std_dict_ops_;
+	IGeneratorDictOps *dict_ops_;
 };
+
+class GeneratorsRepo : public CodecsRepo<GeneratorBase, GeneratorsRepo> {};
 
 #endif//!GENERATOR_HPP

@@ -65,8 +65,8 @@ int xdxf_parser::parse(const std::string& url)
 		return EXIT_FAILURE;
 	}
 	std::string line;
-	while (getline(ifs, line))
-		std::cout<<line<<'\n';
+	while (std::getline(ifs, line))
+		std::cout << line << '\n';	
 
 	return EXIT_SUCCESS;
 }

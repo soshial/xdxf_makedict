@@ -25,7 +25,6 @@
 #include <glib/gi18n.h>
 #include <getopt.h>
 #include <unistd.h>
-#include <iostream>
 
 #include "utils.hpp"
 
@@ -39,6 +38,7 @@ void PipeParserDictOps::send_meta_info()
 		out_ << "<" << p->first << ">"
 			  << p->second 
 			  << "</" << p->first << ">\n";
+
 	out_ << "</meta_info>\n";
 }
 
@@ -65,23 +65,21 @@ void PipeParserDictOps::abbrs_end()
 	out_ << "</abbreviations>\n";
 }
 
-void PipeParserDictOps::abbr(std::vector<std::string>& keys,
+void PipeParserDictOps::abbr(const StringList& keys,
 			     const std::string& val)
 {
 	out_ << "<abr_def>";
-	for (std::vector<std::string>::iterator p = keys.begin();
-	     p != keys.end(); ++p)
-		out_ << "<k>" << strip(*p) << "</k>";
+	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
+		out_ << "<k>" << Strip(*p) << "</k>";
 	out_ << "<v>" << val << "</v>"
 		  << "</abr_def>\n";
 }
 
-void PipeParserDictOps::article(std::vector<std::string>& keys, const std::string& val)
+void PipeParserDictOps::article(const StringList& keys, const std::string& val)
 {
 	out_ << "<ar>";
-	for (std::vector<std::string>::iterator p = keys.begin();
-	     p != keys.end(); ++p)
-		out_ << "<k>" << strip(*p) << "</k>\n";
+	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
+		out_ << "<k>" << Strip(*p) << "</k>\n";
 	out_ << val << "</ar>\n";
 }
 
@@ -105,9 +103,30 @@ const std::string& ParserBase::format() const
 
 ParserBase::ParserBase(bool generate_xdxf)
 {
-	ParsersRepo::get_instance().register_parser(this);
+	ParsersRepo::get_instance().register_codec(this);
 	generate_xdxf_ = generate_xdxf;
-	dict_ops_.reset(new PipeParserDictOps(StdOut));
+	std_dict_ops_.reset(new PipeParserDictOps(StdOut));
+	dict_ops_ = std_dict_ops_.get();
+}
+
+bool ParserBase::parse_option(const std::string& optarg)
+{
+	std::vector<std::string> l = split(optarg, '=');			
+	if (l.size() != 2) {
+		StdErr <<
+			_("Invalid usage of parser-option: didn't find '=' in option\n");
+		return false;
+	}
+	StringMap::iterator opt_ptr = parser_options_.find(l[0]);
+	if (opt_ptr == parser_options_.end()) {
+		StdErr << _("Invalid parser option, possible options:\n");
+		for (StringMap::iterator it = parser_options_.begin();
+		     it != parser_options_.end(); ++it)
+			StdErr << it->first << "\n";
+		return false;
+	}
+	opt_ptr->second = l[1];
+	return true;
 }
 
 int ParserBase::run(int argc, char *argv[])
@@ -134,55 +153,43 @@ int ParserBase::run(int argc, char *argv[])
 				   &option_index))!=-1) {
 		switch (optc) {
 		case 'h':
-			std::cout << help << std::endl;
+			StdOut << help << "\n";
 			return EXIT_SUCCESS;
 		case 0:
-			std::cout << parser_info_["version"] << std::endl;
+			StdOut << parser_info_["version"] << "\n";
 			return EXIT_SUCCESS;
 		case 1:
 			return is_my_format(optarg) ? EXIT_SUCCESS : EXIT_FAILURE;
 		case 'i':
-			std::cout << parser_info_["format"] << std::endl;
+			StdOut << parser_info_["format"] << "\n";
 			return EXIT_SUCCESS;
-		case 2:	{
-			std::vector<std::string> l = split(optarg, '=');			
-			if (l.size()!=2) {
-				std::cerr << 
-					_("Invalid usage of parser-option: didn't find '=' in option")
-					  <<std::endl<<help<<std::endl;
-				return EXIT_FAILURE;
-			}
-			StringMap::iterator opt_ptr = parser_options_.find(l[0]);
-			if (opt_ptr == parser_options_.end()) {
-				std::cerr<<_("Invalid parser option, possible options:")<<std::endl;
-				for (StringMap::iterator it = parser_options_.begin();
-				     it != parser_options_.end(); ++it)
-					std::cerr << it->first << std::endl;
-				return EXIT_FAILURE;
-			}
-			opt_ptr->second=l[1];
-		}
+		case 2:
+			if (!parse_option(optarg))
+				return EXIT_FAILURE;		
 			break;
 		case '?':
 		default:
-			std::cerr<<help<<std::endl;
+			StdErr << help << "\n";
 			return EXIT_FAILURE;
 		}
 	}
-	if (optind==argc) {
-		std::cout << argv[0] << ": " << _("No input files") 
-			  << std::endl;
+	if (optind == argc) {
+		StdErr.printf(_("%s: no input files\n"), argv[0]);
 		return EXIT_FAILURE;
 	}
-
-	basename(argv[optind]);
-	int res = parse(argv[optind]);
-	if (generate_xdxf_)
-		dict_ops_->end();
-	return res;
+	return do_run(argv[optind]);
 }
 
-int ParserBase::run(const std::string& url)
+int ParserBase::run(const StringList& options, const std::string& url)
+{
+	for (StringList::const_iterator it = options.begin(); 
+	     it != options.end(); ++it)
+		if (!parse_option(*it))
+			return EXIT_FAILURE;
+	return do_run(url);
+}
+
+int ParserBase::do_run(const std::string& url)
 {
 	basename(url);
 	int res = parse(url);
@@ -234,12 +241,12 @@ void ParserBase::abbrs_end()
 	dict_ops_->abbrs_end();
 }
 
-void ParserBase::abbr(std::vector<std::string>& keys, const std::string& val)
+void ParserBase::abbr(const StringList& keys, const std::string& val)
 {
 	dict_ops_->abbr(keys, val);
 }
 
-void ParserBase::article(std::vector<std::string>& keys, const std::string& val)
+void ParserBase::article(const StringList& keys, const std::string& val)
 {
 	dict_ops_->article(keys, val);
 }
@@ -264,45 +271,12 @@ void ParserBase::remove_not_valid(std::string &str)
 	str = valid_data;
 }
 
-ParsersRepo& ParsersRepo::get_instance()
-{
-	static ParsersRepo repo;
-	return repo;
-}
-
-bool ParsersRepo::register_parser(ParserBase *parser)
-{
-	if (std::find(parsers_.begin(), parsers_.end(), parser) !=
-	    parsers_.end())
-		return false;
-	parsers_.push_back(parser);
-	return true;
-}
-
-StringList ParsersRepo::supported_formats() const
-{
-	StringList res;
-	for (ParsersList::const_iterator it = parsers_.begin();
-	     it != parsers_.end(); ++it)
-		res.push_back((*it)->format());
-	return res;
-}
-
-ParserBase *ParsersRepo::find_parser(const std::string& format)
-{
-	for (ParsersList::const_iterator it = parsers_.begin();
-	     it != parsers_.end(); ++it)
-		if ((*it)->format() == format)
-			return *it;
-	return NULL;
-}
-
 ParserBase *ParsersRepo::find_suitable_parser(const std::string& url)
 {
-	for (ParsersList::const_iterator it = parsers_.begin();
-	     it != parsers_.end(); ++it)
+	CodecsList::const_iterator it;
+	for (it = codecs_.begin(); it != codecs_.end(); ++it)
 		if ((*it)->is_my_format(url))
 			return *it;
+
 	return NULL;
 }
-

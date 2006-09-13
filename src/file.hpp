@@ -26,7 +26,7 @@ public:
 	File& operator<<(const char *str);
 	void flush();
 	File& printf(const char *fmt, ...);
-	bool operator!() const { return !stream_ || ferror(stream_); }
+	bool operator!() const { return !stream_ || feof(stream_) || ferror(stream_); }
 private:
 	struct Tester {
 		Tester() {}
@@ -42,11 +42,22 @@ public:
             return &t;
         }
 	static bool copy(File& in, File& out);
+	static File& getline(File& in, std::string& line);
+	File& write(const char *buf, size_t len);
 private:
 	FILE *stream_;
 	bool close_on_exit_;
 };
 
+class Strip {
+public:
+	Strip(const std::string& str) : str_(str) {}
+	friend File& operator<<(File& out, const Strip& st);
+private:
+	const std::string& str_;
+};
+
+extern File StdIn;
 extern File StdOut;
 extern File StdErr;
 

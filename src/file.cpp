@@ -27,6 +27,7 @@
 
 #include "file.hpp"
 
+File StdIn(stdin, false);
 File StdOut(stdout, false);
 File StdErr(stderr, false);
 
@@ -79,4 +80,35 @@ bool File::copy(File& in, File& out)
 	} while (readb == sizeof(buf));
 
 	return true;
+}
+
+File& File::getline(File& in, std::string& line)
+{
+	int ch;
+
+	line.clear();
+
+	while ((ch = fgetc(in.stream_)) != EOF && ch != '\n')
+		line += char(ch);
+
+	return in;
+}
+
+File& operator<<(File& out, const Strip& st)
+{
+	const std::string& str = st.str_;
+	size_t beg;
+	for (beg = 0; beg < str.length() && g_ascii_isspace(str[beg]); ++beg)
+		;
+	size_t end;
+	for (end = str.length(); end > 0 && g_ascii_isspace(str[end - 1]); --end)
+		;
+
+	return out.write(str.c_str() + beg, end - beg);
+}
+
+File& File::write(const char *buf, size_t len)
+{
+	fwrite(buf, 1, len, stream_);
+	return *this;
 }
