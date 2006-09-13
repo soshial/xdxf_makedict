@@ -32,7 +32,9 @@ namespace dummy {
 	public:
 		Parser() {
 			set_parser_info("format", "dummy");
-			set_parser_info("version", "dummy_parser, version 1.0");			
+			set_parser_info("version", "dummy_parser, version 1.0");
+			parser_options_["lang_from"] = "";
+			parser_options_["lang_to"] = "";
 		}
 	protected:
 		int parse(const std::string& url);
@@ -48,6 +50,8 @@ int Parser::parse(const std::string& url)
 		return EXIT_FAILURE;
 	}
 #endif
+	set_dict_info("lang_from", parser_options_["lang_from"]);
+	set_dict_info("lang_to", parser_options_["lang_to"]);
 	begin();
 	abbrs_begin();
 	abbrs_end();

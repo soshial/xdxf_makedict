@@ -6,7 +6,8 @@
 - refactor xml special characters handling, avoid code duplication
 - rentrant parser and generator code?
 - fix formatation of makedict -l output
-- pass parser's options to parser, test
+- test for this, test for external parser plugin
 - test all cases parser<->generator, makedict<->generator etc
 - keys <opt> <nu> generator?
 - print where we create dictionary
+- why t_dsl_parser so slow?
