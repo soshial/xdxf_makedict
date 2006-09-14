@@ -3,7 +3,7 @@
 RES=/tmp/dsl-test.dummy
 
 check() {
-		../src/makedict -o dummy "$1" > "$2"
+		../src/makedict -i dsl -o dummy "$1" > "$2"
 
 		if ! diff -u "$2" "$3"; then
 				echo "$0 failed with data: $1, see $RES" >&2

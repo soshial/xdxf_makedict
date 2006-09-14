@@ -12,3 +12,6 @@
 - print where we create dictionary
 - why t_dsl_parser so slow?
 - perfomance test
+- generator results, if parser and generator are internal
+- split utils.h to resource.hpp and utils.hpp by it self
+- "nu" implementation

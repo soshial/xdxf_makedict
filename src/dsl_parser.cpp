@@ -27,11 +27,10 @@
 #  include "config.h"
 #endif
 
-#include <ctype.h>
+#include <cctype>
 #include <cerrno>
 #include <algorithm>
 #include <iterator>
-#include <fstream>
 #include <list>
 #include <glib/gi18n.h>
 
@@ -45,12 +44,6 @@
 
 //#define DEBUG
 namespace dsl {
-	class ParserReg : public ICreator<ParserBase> {
-	public:
-		ParserReg();
-		ParserBase *create() const;
-	} parser_reg;
-
 
 class Parser : public ParserBase {
 public:
@@ -108,6 +101,12 @@ private:
 	bool encode_article(CharsetConv& conv, std::string& datastr);
 	void article2xdxf(StringList&, std::string&);
 };
+
+	class ParserReg : public ICreator<ParserBase> {
+	public:
+		ParserReg();
+		ParserBase *create() const;
+	} parser_reg;
 
 	ParserReg::ParserReg()
 	{
@@ -496,16 +495,18 @@ int Parser::print_info()
 	set_dict_info("lang_to", lang);
 
 	//read annotation
-	std::string anot_name=basename+".ann";
-	std::ifstream annotation(anot_name.c_str(), std::ios::in|std::ios::binary);
-	if (annotation) {
+	std::string anot_name = basename+".ann";
+	if (is_file_exist(anot_name)) {
 		StdErr.printf(_("Reading: %s\n"), anot_name.c_str());
-		annotation.seekg(0, std::ios::end);
-		std::vector<char> annot_buf(annotation.tellg());
-		annotation.seekg(0);
-		annotation.read(&annot_buf[0], annot_buf.size());
+		glib::CharStr content;
+		glib::Error err;
+		if (!g_file_get_contents(anot_name.c_str(), get_addr(content),
+					 NULL, get_addr(err))) {
+			StdErr.printf(_("Can not read %s: %s\n"), anot_name.c_str(),
+				      err->message);
+			goto out;
+		}
 
-		std::string anot_str(&annot_buf[0], annot_buf.size());
 		StringList from_codesets;
 		if (!from_codeset.empty())
 			from_codesets.push_back(from_codeset);
@@ -517,8 +518,8 @@ int Parser::print_info()
 			CharsetConv conv(it->c_str(), "UTF-8");
 			convstr.clear();
 
-			if (!conv.convert(anot_str, convstr))
-				convstr=anot_str;
+			if (!conv.convert(get_impl(content), convstr))
+				convstr = get_impl(content);
 
 			if (g_utf8_validate(convstr.c_str(), convstr.length(), NULL))
 				break;
@@ -529,7 +530,7 @@ int Parser::print_info()
 					"Recode it to %s, and try again\n"),
 				      from_codesets[0].c_str(),
 				      from_codesets[0].c_str());
-			return res;
+			goto out;
 		}
 
 		Str2StrTable end_of_line;
@@ -545,7 +546,7 @@ int Parser::print_info()
 		replace(str2xml, new_convstr.c_str(), convstr);
 		set_dict_info("description", convstr);
 	}
-
+out:
 	begin();
 	return EXIT_SUCCESS;
 }
