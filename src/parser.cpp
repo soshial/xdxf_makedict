@@ -25,6 +25,7 @@
 #include <glib/gi18n.h>
 #include <getopt.h>
 #include <unistd.h>
+#include <iostream>
 
 #include "utils.hpp"
 
@@ -80,7 +81,11 @@ void PipeParserDictOps::article(const StringList& keys, const std::string& val)
 	out_ << "<ar>";
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
 		out_ << "<k>" << Strip(*p) << "</k>\n";
+
 	out_ << val << "</ar>\n";
+
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
 void PipeParserDictOps::end()

@@ -50,7 +50,7 @@ public:
 			      XML_ErrorString(XML_GetErrorCode(xmlp)), line.c_str());
 	}
 	bool parse_line(const std::string& line) {
-		if (XML_Parse(xmlp, &line[0], line.size(), 0)!=XML_STATUS_OK) {
+		if (XML_Parse(xmlp, line.c_str(), line.size(), 0) != XML_STATUS_OK) {
 			xml_error(line);
 			return false;
 		}
@@ -58,7 +58,7 @@ public:
 		return true;
 	}
 	bool finish(const std::string& line) {
-		if (XML_Parse(xmlp, &line[0], line.size(), 1)!=XML_STATUS_OK) {
+		if (XML_Parse(xmlp, line.c_str(), line.size(), 1) != XML_STATUS_OK) {
 			xml_error(line);
 			return false;
 		}

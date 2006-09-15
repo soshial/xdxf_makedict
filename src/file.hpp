@@ -28,9 +28,14 @@ public:
 		fprintf(stream_, "%lf", d);
 		return *this;
 	}
+	File& operator<<(unsigned int i) {
+		fprintf(stream_, "%u", i);
+		return *this;
+	}
 	void flush();
 	File& printf(const char *fmt, ...);
 	bool operator!() const { return !stream_ || feof(stream_) || ferror(stream_); }
+	void not_use_buffer() { setbuf(stream_, NULL); }
 private:
 	struct Tester {
 		Tester() {}

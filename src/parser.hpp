@@ -114,4 +114,15 @@ public:
 	ParserBase *create_suitable_parser(const std::string& url);
 };
 
+#define REGISTER_PARSER(Class,name) \
+	class Class##name##Registrator : public ICreator<ParserBase> { \
+	public: \
+		Class##name##Registrator() { \
+			ParsersRepo::get_instance().register_codec(#name, this); \
+		} \
+		ParserBase *create() const { \
+			return new Class; \
+		} \
+	} Class##name##_registrator
+
 #endif//!PARSER_HPP

@@ -15,3 +15,5 @@
 - generator results, if parser and generator are internal
 - split utils.h to resource.hpp and utils.hpp by it self
 - "nu" implementation
+- check all to do items in code
+- superfluous copy when string->StringList

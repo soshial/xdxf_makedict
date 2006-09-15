@@ -31,17 +31,18 @@ File StdIn(stdin, false);
 File StdOut(stdout, false);
 File StdErr(stderr, false);
 
+//TODO: replace fprintf with?
 File& File::operator<<(const char *str)
 {
 	if (stream_)
 		fprintf(stream_, str);
 	return *this;
 }
-
+//TODO: replace fprintf with?
 File& File::operator<<(const std::string& str)
 {
 	if (stream_)
-		fprintf(stream_, str.c_str());
+		fprintf(stream_, "%s", str.c_str());
 	return *this;
 }
 
@@ -53,18 +54,19 @@ void File::flush()
 
 File& File::printf(const char *fmt, ...)
 {	
-	if (stream_) {
-		va_list ap;
-		va_start(ap, fmt);
-		vfprintf(stream_, fmt, ap);
-		va_end(ap);
-	}
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (stream_)
+		vfprintf(stream_, fmt, ap);	
+	va_end(ap);
+
 	return *this;
 }
 
 bool File::copy(File& in, File& out)
 {
-	char buf[1024];
+	char buf[2048];
 	size_t readb;
 
 	do {
@@ -73,6 +75,7 @@ bool File::copy(File& in, File& out)
 			StdErr.printf(_("I/O error: can not read from stream\n"));
 			return false;
 		}
+
 		if (fwrite(buf, 1, readb, out.stream_) != readb) {
 			StdErr.printf(_("I/O error: can not write to stream\n"));
 			return false;
@@ -86,10 +89,10 @@ File& File::getline(File& in, std::string& line)
 {
 	int ch;
 
-	line.clear();
+	line = "";
 
 	while ((ch = fgetc(in.stream_)) != EOF && ch != '\n')
-		line += char(ch);
+		line += guchar(ch);
 
 	return in;
 }
@@ -101,7 +104,7 @@ File& operator<<(File& out, const Strip& st)
 	for (beg = 0; beg < str.length() && g_ascii_isspace(str[beg]); ++beg)
 		;
 	size_t end;
-	for (end = str.length(); end > 0 && g_ascii_isspace(str[end - 1]); --end)
+	for (end = str.length(); end > beg && g_ascii_isspace(str[end - 1]); --end)
 		;
 
 	return out.write(str.c_str() + beg, end - beg);

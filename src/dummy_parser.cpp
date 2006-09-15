@@ -28,13 +28,6 @@
 #include "parser.hpp"
 
 namespace dummy {
-
-	class ParserReg : public ICreator<ParserBase> {
-	public:
-		ParserReg();
-		ParserBase *create() const;
-	} parser_reg;
-
 	class Parser : public ParserBase {
 	public:
 		Parser() {
@@ -47,15 +40,7 @@ namespace dummy {
 		int parse(const std::string& url);
 	};
 
-	ParserReg::ParserReg()
-	{
-		ParsersRepo::get_instance().register_codec("dummy", this);
-	}
-
-	ParserBase *ParserReg::create() const
-	{
-		return new Parser;
-	}
+	REGISTER_PARSER(Parser, dummy);
 }
 using namespace dummy;
 

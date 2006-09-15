@@ -102,21 +102,7 @@ private:
 	void article2xdxf(StringList&, std::string&);
 };
 
-	class ParserReg : public ICreator<ParserBase> {
-	public:
-		ParserReg();
-		ParserBase *create() const;
-	} parser_reg;
-
-	ParserReg::ParserReg()
-	{
-		ParsersRepo::get_instance().register_codec("dsl", this);
-	}
-
-	ParserBase *ParserReg::create() const
-	{
-		return new Parser;
-	}
+	REGISTER_PARSER(Parser,dsl);
 }
 
 using namespace dsl;

@@ -42,46 +42,49 @@
 //#define DEBUG
 //#define TEST
 
-class sdict_parser : public ParserBase {
-public:
-  sdict_parser();
-  ~sdict_parser() {}
-protected:
-  int parse(const std::string& filename);
-	bool is_my_format(const std::string& url) { 
-		return g_str_has_suffix(url.c_str(), ".dct"); 
-	}
-private:
-  enum {none, gzip, bzip2} compression_method;
-  std::string title, copyright, version;
-  std::vector<char> data_buffer;
+namespace sdict {
+	class Parser : public ParserBase {
+	public:
+		Parser();
+		~Parser() {}
+	protected:
+		int parse(const std::string& filename);
+		bool is_my_format(const std::string& url) { 
+			return g_str_has_suffix(url.c_str(), ".dct"); 
+		}
+	private:
+		enum {none, gzip, bzip2} compression_method;
+		std::string title, copyright, version;
+		std::vector<char> data_buffer;
   
-  static Str2StrTable replace_table;
-  typedef std::map<char, char*, std::less<char> > Char2Str; 
-  static  Char2Str text2xml;  
+		static Str2StrTable replace_table;
+		typedef std::map<char, char*, std::less<char> > Char2Str; 
+		static  Char2Str text2xml;  
 
-  static TagInfoList taginfo_list;
-	std::map<std::string, std::string> langs;
+		static TagInfoList taginfo_list;
+		std::map<std::string, std::string> langs;
 
-  bool read_unit(std::ifstream& f, guint32 offset);
-	std::string convert_lang(const std::string& lang)
-	{
-		std::string buf(lang);
-		tolower(buf);
-		std::map<std::string, std::string>::iterator it=langs.find(buf);
-		if (it==langs.end())
-			return "unkown language: "+lang;
+		bool read_unit(std::ifstream& f, guint32 offset);
+		std::string convert_lang(const std::string& lang) {
+			std::string buf(lang);
+			tolower(buf);
+			std::map<std::string, std::string>::iterator it=langs.find(buf);
+			if (it == langs.end())
+				return "unkown language: " + lang;
 
-		return it->second;
-	}
-};
+			return it->second;
+		}
+	};
+}
 
-Str2StrTable sdict_parser::replace_table;
-sdict_parser::Char2Str sdict_parser::text2xml;
-TagInfoList sdict_parser::taginfo_list;
+using namespace sdict;
+
+Str2StrTable Parser::replace_table;
+Parser::Char2Str Parser::text2xml;
+TagInfoList Parser::taginfo_list;
 
 
-sdict_parser::sdict_parser() : langs(langs_2to3, langs_2to3+langs_2to3_count)
+Parser::Parser() : langs(langs_2to3, langs_2to3+langs_2to3_count)
 {
 	set_parser_info("format", "sdict");
 	set_parser_info("version", "sdict_parser, version 0.1");
@@ -135,7 +138,7 @@ sdict_parser::sdict_parser() : langs(langs_2to3, langs_2to3+langs_2to3_count)
 	text2xml['\"']="&quot;";  
 }
 
-int sdict_parser::parse(const std::string& filename)
+int Parser::parse(const std::string& filename)
 {
 	guint16 next_word, prev_word;
 	guint32 article_pointer, index_size;
@@ -197,11 +200,11 @@ int sdict_parser::parse(const std::string& filename)
 #endif
 		break;
 	case '2':
-#ifdef DEBUG
 		compression_method=bzip2;
-#endif
+#ifdef DEBUG
 		std::cout<<_("Compression method: bzip2\n");
-		break;
+#endif
+		//break; //TODO: bzip2 not supported yet
 	default:
 		std::cerr<<_("Unkown compression method: ")<<char(buffer[0])<<std::endl;
 		return res;
@@ -249,19 +252,19 @@ int sdict_parser::parse(const std::string& filename)
 	}
 	if (!read_unit(f, title_offset)) 
 		return res;
-	title=&(data_buffer[0]);
+	title = &data_buffer[0];
 #ifdef DEBUG
 	std::cout<<_("Title: ")<<title<<std::endl;
 #endif
 	if (!read_unit(f, copyright_offset))
 		return res;
-	copyright=&(data_buffer[0]);
+	copyright = &data_buffer[0];
 #ifdef DEBUG
 	std::cout<<_("Copyright: ")<<copyright<<std::endl;
 #endif
 	if (!read_unit(f, version_offset))
 		return res;
-	version=&(data_buffer[0]);
+	version = &data_buffer[0];
 #ifdef DEBUG
 	std::cout<<_("Versioin: ")<<version<<std::endl;
 #endif
@@ -292,14 +295,14 @@ int sdict_parser::parse(const std::string& filename)
 
 		index_size=next_word-sizeof(guint16)*2-sizeof(guint32);
 
-		std::string index_value(index_size, char());
+		std::vector<char> index_value(index_size + 1);
 		if (!f.read(&index_value[0], index_size)) {
 			std::cerr<<_("Can not read word/phrase")<<std::endl;
 			return res;
 		}
-
+		index_value[index_size] = '\0';
 		Char2Str::iterator c2si;
-		const char *q=index_value.c_str();
+		const char *q = &index_value[0];
 		std::string encoded_index;
 		while (*q) {
 			if ((c2si=text2xml.find(*q))==text2xml.end())
@@ -317,7 +320,7 @@ int sdict_parser::parse(const std::string& filename)
 		}
 
 		encoded_data.resize(0);//may be this help clear std::string without free memory
-		const char *p=&data_buffer[0];
+		const char *p = &data_buffer[0];
 		NormalizeTags norm_tags(taginfo_list);
 		while (*p) {
 			if (*p=='<') {
@@ -368,8 +371,7 @@ int sdict_parser::parse(const std::string& filename)
 		}
 #endif
 		
-		std::vector<std::string> key_list(1, encoded_index);
-		article(key_list, encoded_data);
+		article(StringList(1, encoded_index), encoded_data);
 		
 		f.seekg(cur_offset);
 	}
@@ -380,7 +382,7 @@ int sdict_parser::parse(const std::string& filename)
 	return res;
 }
 
-bool sdict_parser::read_unit(std::ifstream& f, guint32 offset)
+bool Parser::read_unit(std::ifstream& f, guint32 offset)
 {
   if (!f.seekg(offset)) {
     std::cerr<<_("Can not set current position to: ")<<offset<<std::endl;
@@ -394,39 +396,38 @@ bool sdict_parser::read_unit(std::ifstream& f, guint32 offset)
   }
 
   if (data_buffer.size() < record_size+1) 
-    data_buffer.resize(record_size+1);
+    data_buffer.resize(record_size + 1);
   
-  if (!f.read(&data_buffer[0], sizeof(gchar)*record_size)) {
+  if (!f.read(&data_buffer[0], record_size)) {
     std::cerr<<_("Can not read unit data")<<std::endl;
     return false;
   }
   
-  if (compression_method==gzip) {
-    std::vector<char> dest;
-    dest.resize(record_size*4);
-    uLongf dest_len;
-    for(;;) {
-      dest_len=dest.size();
-      int res=uncompress((Bytef *)&dest[0], (uLongf *)&dest_len, 
-			 (Bytef *)&data_buffer[0], record_size);
+  if (compression_method == gzip) {
+	  std::vector<char> dest(record_size * 4);
+	  uLongf dest_len;
+	  for(;;) {
+		  dest_len = dest.size();
+		  int res = uncompress((Bytef *)&dest[0], (uLongf *)&dest_len,
+				       (Bytef *)&data_buffer[0], record_size);
+		  
+		  if (Z_OK == res)
+			  break;
+		  if (Z_BUF_ERROR == res) {
+			  dest.resize(dest.size() + record_size);
+			  continue;
+		  }
 
-      if (Z_OK==res)
-				break;
-      if (Z_BUF_ERROR==res) {
-				dest.resize(dest.size()+record_size);
-				continue;
-      }
+		  return false;
+	  }
 
-      return false;
-    }
-
-    data_buffer=dest;
+	  data_buffer = dest;
     
-    if (data_buffer.size()<=dest_len+1)
-      data_buffer.resize(dest_len+1);
-    data_buffer[dest_len]='\0';
+	  if (data_buffer.size() <= dest_len + 1)
+		  data_buffer.resize(dest_len + 1);
+	  data_buffer[dest_len] = '\0';
   } else {
-    data_buffer[record_size]='\0';
+    data_buffer[record_size] = '\0';
   }
 
   return true;
@@ -434,6 +435,5 @@ bool sdict_parser::read_unit(std::ifstream& f, guint32 offset)
 
 int main(int argc, char *argv[])
 {
-	sdict_parser parser;
-	return parser.run(argc, argv);
+	 return Parser().run(argc, argv);
 }
