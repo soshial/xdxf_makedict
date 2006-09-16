@@ -28,7 +28,6 @@
 #include <cstring>
 #include <fstream>
 #include <glib/gi18n.h>
-#include <iostream>
 #include <map>
 #include <zlib.h>
 
@@ -36,6 +35,7 @@
 #include "langs_2to3.hpp"
 #include "normalize_tags.hpp"
 #include "utils.hpp"
+#include "file.hpp"
 
 #include "parser.hpp"
 
@@ -49,17 +49,17 @@ namespace sdict {
 		~Parser() {}
 	protected:
 		int parse(const std::string& filename);
-		bool is_my_format(const std::string& url) { 
-			return g_str_has_suffix(url.c_str(), ".dct"); 
+		bool is_my_format(const std::string& url) {
+			return g_str_has_suffix(url.c_str(), ".dct");
 		}
 	private:
 		enum {none, gzip, bzip2} compression_method;
 		std::string title, copyright, version;
 		std::vector<char> data_buffer;
-  
+
 		static Str2StrTable replace_table;
-		typedef std::map<char, char*, std::less<char> > Char2Str; 
-		static  Char2Str text2xml;  
+		typedef std::map<char, char*, std::less<char> > Char2Str;
+		static  Char2Str text2xml;
 
 		static TagInfoList taginfo_list;
 		std::map<std::string, std::string> langs;
@@ -74,6 +74,7 @@ namespace sdict {
 
 			return it->second;
 		}
+		void convert_article(std::string& encoded_data);
 	};
 	REGISTER_PARSER(Parser,sdict);
 }
@@ -136,7 +137,55 @@ Parser::Parser() : langs(langs_2to3, langs_2to3+langs_2to3_count)
 	text2xml['<']="&lt;";
 	text2xml['>']="&gt;";
 	text2xml['&']="&amp;";
-	text2xml['\"']="&quot;";  
+	text2xml['\"']="&quot;";
+}
+
+void Parser::convert_article(std::string& encoded_data)
+{
+	Char2Str::iterator c2si;
+	const char *p = &data_buffer[0];
+	NormalizeTags norm_tags(taginfo_list);
+	while (*p) {
+		if (*p=='<') {
+			if (*(p+1)!='/') {
+				if (!norm_tags.add_open_tag(encoded_data, p))
+					goto end_of_handle;
+			} else {
+				if (!norm_tags.add_close_tag(encoded_data, p))
+					goto end_of_handle;
+			}
+		} else {
+		end_of_handle:
+			const char *beg=p;
+			Str2StrTable::const_iterator i;
+			for (i=replace_table.begin(); i!=replace_table.end(); ++i) {
+				p=beg;
+				const char *q=i->first;
+				while (*p && *q && *p==*q)
+					++p, ++q;
+
+				if (*q=='\0') {
+					encoded_data+=i->second;
+					break;
+				}
+			}
+			if (i==replace_table.end()) {
+				p=beg;
+				if ((c2si=text2xml.find(*p))==text2xml.end())
+					encoded_data+=*p;
+				else
+					encoded_data+=c2si->second;
+				++p;
+			}
+		}
+	}
+	{
+		std::string datastr;
+		norm_tags(encoded_data, datastr);
+		encoded_data=datastr;
+	}
+
+	remove_not_valid(encoded_data);
 }
 
 int Parser::parse(const std::string& filename)
@@ -151,20 +200,20 @@ int Parser::parse(const std::string& filename)
 	int res=EXIT_FAILURE;
 	std::ifstream f(filename.c_str(), std::ios::binary | std::ios::in);
 	if (!f) {
-		std::cerr<<_("Can not open: ")<<filename<<std::endl;
+		StdErr.printf(_("Can not open: %s\n"), filename.c_str());
 		return res;
 	}
 	guint8 buffer[10];
 	if (!f.read((char *)buffer, sizeof(guint8)*4)) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	if (strncmp((char *)buffer, "sdct", 4)!=0) {
-		std::cerr<<_("Signature did not match\n");
+		StdErr<<_("Signature did not match\n");
 		return res;
 	}
 	if (!f.read((char *)buffer, sizeof(guint8)*3)) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	buffer[3]=0;
@@ -174,7 +223,7 @@ int Parser::parse(const std::string& filename)
 		set_dict_info("lang_from", parser_options_["lang_from"]);
 
 	if (!f.read((char *)buffer, sizeof(guint8)*3)) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	buffer[3]=0;
@@ -184,93 +233,105 @@ int Parser::parse(const std::string& filename)
 		set_dict_info("lang_to", parser_options_["lang_to"]);
 
 	if (!f.read((char *)buffer, sizeof(guint8))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
-	switch (buffer[0]) {
-	case '0':
+	switch (buffer[0] & 0x0F) {
+	case 0:
 		compression_method=none;
 #ifdef DEBUG
-		std::cout<<"Compression method: none\n";
+		StdOut<<"Compression method: none\n";
 #endif
 		break;
-	case '1':
+	case 1:
 		compression_method=gzip;
 #ifdef DEBUG
-		std::cout<<"Compression method: gzip\n";
+		StdOut<<"Compression method: gzip\n";
 #endif
 		break;
-	case '2':
+	case 2:
 		compression_method=bzip2;
 #ifdef DEBUG
-		std::cout<<_("Compression method: bzip2\n");
+		StdOut<<_("Compression method: bzip2\n");
 #endif
 		//break; //TODO: bzip2 not supported yet
 	default:
-		std::cerr<<_("Unkown compression method: ")<<char(buffer[0])<<std::endl;
-		return res;
-	}
-
-	if (!f.read((char *)&wordcount, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr.printf(_("Unkown compression method: %c\n"), char(buffer[0]));
 		return res;
 	}
 #ifdef DEBUG
-	std::cout<<_("Amount of words: ")<<wordcount<<std::endl;
+	StdOut.printf("Index level: %d\n", int(buffer[0] >> 4));
+#endif
+	if (!f.read((char *)&wordcount, sizeof(guint32))) {
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
+		return res;
+	}
+#ifdef DEBUG
+	StdOut << "Amount of words: " << wordcount << "\n";
 #endif
 	if (!f.read((char *)&short_index_length, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 #ifdef DEBUG
-	std::cout<<_("Short index length: ")<<short_index_length<<std::endl;
+	StdOut << "Short index length: " << short_index_length << "\n";
 #endif
 
 	if (!f.read((char *)&title_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 
 	if (!f.read((char *)&copyright_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	if (!f.read((char *)&version_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	if (!f.read((char *)&short_index_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
+#ifdef DEBUG
+	StdOut.printf("short_index_offset: %u\n", short_index_offset);
+#endif
 	if (!f.read((char *)&full_index_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
+#ifdef DEBUG
+	StdOut.printf("full_index_offset: %u\n", full_index_offset);
+#endif
 	if (!f.read((char *)&articles_offset, sizeof(guint32))) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr<<_("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
-	if (!read_unit(f, title_offset)) 
+#ifdef DEBUG
+	StdOut.printf("article_offset: %u\n", articles_offset);
+#endif
+	if (!read_unit(f, title_offset))
 		return res;
 	title = &data_buffer[0];
 #ifdef DEBUG
-	std::cout<<_("Title: ")<<title<<std::endl;
+	StdOut << "Title: " << title << "\n";
 #endif
 	if (!read_unit(f, copyright_offset))
 		return res;
 	copyright = &data_buffer[0];
 #ifdef DEBUG
-	std::cout<<_("Copyright: ")<<copyright<<std::endl;
+	StdOut << "Copyright: " << copyright << "\n";
 #endif
 	if (!read_unit(f, version_offset))
 		return res;
 	version = &data_buffer[0];
 #ifdef DEBUG
-	std::cout<<_("Versioin: ")<<version<<std::endl;
+	StdOut << "Versioin: " << version << "\n";
 #endif
+
 	if (!f.seekg(full_index_offset)) {
-		std::cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr << _("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 	set_dict_info("full_name", title);
@@ -278,27 +339,35 @@ int Parser::parse(const std::string& filename)
 
 	begin();
 
-	std::string encoded_data;  
+	std::string encoded_data;
 
-	for (guint32 i=0; i<wordcount; ++i) {      
+	for (gulong i = 0; i < wordcount; ++i) {
+#ifdef DEBUG
+		StdOut.printf("Parse %luth article, current offset %ld\n",
+			      i, long(f.tellg()));
+#endif
 		if (!f.read((char *)&next_word, sizeof(guint16))) {
-			std::cerr<<_("Can not read next_word field")<<std::endl;
+#ifdef DEBUG
+			StdOut.printf("current offset: %ld, error: %s\n",
+				      long(f.tellg()), strerror(errno));
+#endif
+			StdErr << _("Can not read next_word field\n");
 			return res;
 		}
 		if (!f.read((char *)&prev_word, sizeof(guint16))) {
-			std::cerr<<_("Can not read prev_word field")<<std::endl;
+			StdErr << _("Can not read prev_word field\n");
 			return res;
 		}
 		if (!f.read((char *)&article_pointer, sizeof(guint32))) {
-			std::cerr<<_("Can not read article_pointer")<<std::endl;
+			StdErr << _("Can not read article_pointer\n");
 			return res;
 		}
 
-		index_size=next_word-sizeof(guint16)*2-sizeof(guint32);
+		index_size = next_word - sizeof(guint16) * 2 - sizeof(guint32);
 
 		std::vector<char> index_value(index_size + 1);
 		if (!f.read(&index_value[0], index_size)) {
-			std::cerr<<_("Can not read word/phrase")<<std::endl;
+			StdErr << _("Can not read word/phrase\n");
 			return res;
 		}
 		index_value[index_size] = '\0';
@@ -316,69 +385,26 @@ int Parser::parse(const std::string& filename)
 
 		long cur_offset=f.tellg();
 		if (!read_unit(f, articles_offset+article_pointer)) {
-			std::cerr<<_("Can not read article")<<std::endl;
+			StdErr << _("Can not read article\n");
 			return res;
 		}
 
-		encoded_data.resize(0);//may be this help clear std::string without free memory
-		const char *p = &data_buffer[0];
-		NormalizeTags norm_tags(taginfo_list);
-		while (*p) {
-			if (*p=='<') {
-				if (*(p+1)!='/') {
-					if (!norm_tags.add_open_tag(encoded_data, p))
-						goto end_of_handle;
-				} else {
-					if (!norm_tags.add_close_tag(encoded_data, p))
-						goto end_of_handle;
-				}
-			} else {
-			end_of_handle:
-				const char *beg=p;
-				Str2StrTable::const_iterator i;
-				for (i=replace_table.begin(); i!=replace_table.end(); ++i) {
-					p=beg;
-					const char *q=i->first;
-					while (*p && *q && *p==*q)
-						++p, ++q;
-					
-					if (*q=='\0') {
-						encoded_data+=i->second;
-						break;
-					}
-				}
-				if (i==replace_table.end()) {
-					p=beg;
-					if ((c2si=text2xml.find(*p))==text2xml.end())
-						encoded_data+=*p;
-					else
-						encoded_data+=c2si->second;
-					++p;
-				}
-			}
-		}
-		{
-			std::string datastr;
-			norm_tags(encoded_data, datastr);
-			encoded_data=datastr;
-		}
-
-		remove_not_valid(encoded_data);
-
+		encoded_data.resize(0);//may be this help clear std::string without free memory		
+		convert_article(encoded_data);
 #if 1
 		if (!g_utf8_validate(encoded_data.c_str(), gssize(-1), NULL)) {
-			std::cerr<<_("Not valid utf-8")<<std::endl;
+			StdErr << _("Article contains not valid utf-8 text data\n");
 			return res;
 		}
 #endif
-		
+
 		article(StringList(1, encoded_index), encoded_data);
-		
+
 		f.seekg(cur_offset);
 	}
 
-  
-	res=EXIT_SUCCESS;
+
+	res = EXIT_SUCCESS;
 
 	return res;
 }
@@ -386,24 +412,24 @@ int Parser::parse(const std::string& filename)
 bool Parser::read_unit(std::ifstream& f, guint32 offset)
 {
   if (!f.seekg(offset)) {
-    std::cerr<<_("Can not set current position to: ")<<offset<<std::endl;
-    return false;
+	  StdErr.printf(_("Can not set current position to: %u\n"), offset);
+	  return false;
   }
   guint32 record_size;
   //FIXME: add reoder bytes in integer
   if (!f.read((char *)&record_size, sizeof(guint32))) {
-    std::cerr<<_("Can not read unit size")<<std::endl;
+    StdErr << _("Can not read unit size\n");
     return false;
   }
 
-  if (data_buffer.size() < record_size+1) 
+  if (data_buffer.size() < record_size+1)
     data_buffer.resize(record_size + 1);
-  
+
   if (!f.read(&data_buffer[0], record_size)) {
-    std::cerr<<_("Can not read unit data")<<std::endl;
+    StdErr << _("Can not read unit data\n");
     return false;
   }
-  
+
   if (compression_method == gzip) {
 	  std::vector<char> dest(record_size * 4);
 	  uLongf dest_len;
@@ -411,7 +437,7 @@ bool Parser::read_unit(std::ifstream& f, guint32 offset)
 		  dest_len = dest.size();
 		  int res = uncompress((Bytef *)&dest[0], (uLongf *)&dest_len,
 				       (Bytef *)&data_buffer[0], record_size);
-		  
+
 		  if (Z_OK == res)
 			  break;
 		  if (Z_BUF_ERROR == res) {
@@ -423,7 +449,7 @@ bool Parser::read_unit(std::ifstream& f, guint32 offset)
 	  }
 
 	  data_buffer = dest;
-    
+
 	  if (data_buffer.size() <= dest_len + 1)
 		  data_buffer.resize(dest_len + 1);
 	  data_buffer[dest_len] = '\0';

@@ -25,7 +25,6 @@
 #include <glib/gi18n.h>
 #include <getopt.h>
 #include <unistd.h>
-#include <iostream>
 
 #include "utils.hpp"
 

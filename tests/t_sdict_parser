@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if ! ../src/makedict -i sdict -o xdxf --work-dir /tmp ./sample-dicts/sample1.dct; then
+	echo "makedict return error" >&2
+	exit 1
+fi
+
+if ! diff -u /tmp/sample1/dict.xdxf ./sample-dicts/sample1_sdict_std.xdxf; then
+	echo "/tmp/sample1/dict.xdxf ./sample-dicts/sample1_sdict_std.xdxf are not the same" >&2
+	exit 1
+fi
+
+rm -fr /tmp/sample1

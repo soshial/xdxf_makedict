@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xdxf SYSTEM "http://xdxf.sourceforge.net/xdxf_lousy.dtd">
+<xdxf lang_from="ENG" lang_to="FIN" format="visual">
+<full_name>Sample 1 test dictionary</full_name>
+<description>Copyright: GNU Public License.; Version: 0.1</description>
+<ar><k>abacus</k>
+helmitaulu</ar>
+<ar><k>abandon</k>
+heitteille luopua</ar>
+<ar><k>abandonment</k>
+hylkaaminen</ar>
+<ar><k>abate</k>
+heiketa, talttua</ar>
+<ar><k>abattoir</k>
+teurastamo. See also<kref>abacus</kref> and <kref>abandon</kref> *eos*</ar>
+<ar><k>ya</k>
+rrr</ar>
+<ar><k>z</k>
+zap</ar>
+<ar><k>ЙЦУКЕНГШЩЗ äääÄÄÄ öööÖÖÖ</k>
+ЙЦУКЕНГШЩЗ ||| äääÄÄÄ öööÖÖÖ QQWWEERRRTT</ar>
+</xdxf>
