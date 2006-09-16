@@ -1,5 +1,3 @@
-- rentrant parser and generator code?
-- fix formatation of makedict -l output
 - test for this, test for external parser plugin
 - test all cases parser<->generator, makedict<->generator etc
 - keys <opt> <nu> generator?
@@ -14,3 +12,4 @@
 - xdxf_generator: whats happened if abbr list keys contains opt and nu
 - more good solution for lang table: put table also here, convert to not std::pair array
 - handle ['] tag in dsl
+- xml -> text when converting to stardict and dictd

@@ -64,7 +64,7 @@ private:
 	std::string parser_options();
 };
 
-static long width_of_first(const StringMap &sm);
+static int width_of_first(const StringMap &, const StringList&);
 
 std::string MakeDict::parser_options()
 {
@@ -77,29 +77,30 @@ std::string MakeDict::parser_options()
 
 void MakeDict::list_codecs()
 {
-	long w = width_of_first(input_codecs);
+	StringList myformats = ParsersRepo::get_instance().supported_formats();
+	int w = width_of_first(input_codecs, myformats);
 	StdOut << _("Input formats:\n");
 	for (StringMap::const_iterator it = input_codecs.begin();
 	     it != input_codecs.end(); ++it)
-		StdOut.printf(_("%s  input codec: %s\n"), it->first.c_str(),
+		StdOut.printf(_("%*s  input codec: %s\n"), w, it->first.c_str(),
 			      it->second.c_str());
 
-	StringList myformats = ParsersRepo::get_instance().supported_formats();
 	for (StringList::const_iterator it = myformats.begin();
 	     it != myformats.end(); ++it)
-		StdOut.printf(_("%s  supported by me\n"), it->c_str());
+		StdOut.printf(_("%*s  supported by me\n"), w, it->c_str());
 
-	w = width_of_first(output_codecs);
+	myformats = GeneratorsRepo::get_instance().supported_formats();
+	w = width_of_first(output_codecs, myformats);
+
 	StdOut << _("Output formats:\n");
 	for (StringMap::const_iterator it = output_codecs.begin();
 	     it != output_codecs.end(); ++it)
-		StdOut.printf(_("%s  output codec: %s\n"), it->first.c_str(),
+		StdOut.printf(_("%*s  output codec: %s\n"), w, it->first.c_str(),
 			      it->second.c_str());
 
-	myformats = GeneratorsRepo::get_instance().supported_formats();
 	for (StringList::const_iterator it = myformats.begin();
 	     it != myformats.end(); ++it)
-		StdOut.printf(_("%s  supported by me\n"), it->c_str());
+		StdOut.printf(_("%*s  supported by me\n"), w, it->c_str());
 }
 
 
@@ -273,12 +274,16 @@ bool MakeDict::fill_codecs_table(const std::string& prgname, const std::string& 
 	return true;
 }
 
-static long width_of_first(const StringMap &sm)
+static int width_of_first(const StringMap &sm, const StringList& sl)
 {
-	long res=0;
-	for (StringMap::const_iterator it=sm.begin(); it!=sm.end(); ++it)
-		if (res<long(it->first.length()))
-			res=it->first.length();
+	int res = 0;
+	for (StringMap::const_iterator it = sm.begin(); it != sm.end(); ++it)
+		if (res < int(it->first.length()))
+			res = it->first.length();
+
+	for (StringList::const_iterator it = sl.begin(); it != sl.end(); ++it)
+		if (res < int(it->length()))
+			res = it->length();
 	return res;
 }
 
