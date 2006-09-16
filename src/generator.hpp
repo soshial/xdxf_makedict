@@ -39,20 +39,23 @@ class GeneratorBase;
 
 class IGeneratorDictOps {
 public:
-	IGeneratorDictOps(GeneratorBase& generator) : generator_(generator) {}
+	IGeneratorDictOps(GeneratorBase& generator) : 
+		generator_(generator), enc_keys_(false) {}
 	virtual ~IGeneratorDictOps() {}
 
 	virtual bool get_meta_info() = 0;
 	virtual bool get_info() = 0;
 	virtual const std::string& get_dict_info(const std::string&) const = 0;
+	void encode_keys(bool enc_keys) { enc_keys_ = enc_keys; }
 protected:
 	struct Key {
 		std::vector<std::string> parts_;
 		std::vector<std::string> opts_;
 		void clear() { parts_.clear(); opts_.clear(); }
 	} key_;
-
 	GeneratorBase& generator_;
+	bool enc_keys_;
+
 	void generate_keys(StringList& keys);
 private:	
 	std::list<std::string> sample_data_;
@@ -101,7 +104,7 @@ private:
 
 class GeneratorBase {
 public:
-	GeneratorBase();
+	GeneratorBase(bool enc_key);
 	virtual ~GeneratorBase() {}
 	int run(int argc, char *argv[]);
 	int run(const std::string& appname, std::string& workdir);
@@ -119,6 +122,7 @@ public:
 			dict_ops_ = dict_ops; 
 		else
 			dict_ops_ = std_dict_ops_.get();
+		dict_ops_->encode_keys(enc_key_);
 	}
 protected:
 	void set_format(const std::string& val)	{ format_ = val; }
@@ -130,6 +134,7 @@ protected:
 private:
 	std::string format_;
 	std::string version_;
+	bool enc_key_;
 	std::auto_ptr<IGeneratorDictOps> std_dict_ops_;
 	IGeneratorDictOps *dict_ops_;
 };

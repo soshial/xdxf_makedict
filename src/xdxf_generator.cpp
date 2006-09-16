@@ -31,7 +31,7 @@
 namespace xdxf {
 	class Generator : public GeneratorBase {
 	public:
-		Generator() {
+		Generator(): GeneratorBase(false) {
 			abbr_ = false;
 			set_format("xdxf");
 			set_version("xdxf_generator, version 0.2");

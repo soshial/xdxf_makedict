@@ -81,7 +81,7 @@ std::vector<std::string> split(const std::string& str, char sep)
 	return res;
 }
 
-std::string& strip(std::string& str)
+void strip(std::string& str)
 {
 	std::string::size_type i;
 	for (i=str.length(); i>0 && g_ascii_isspace(str[i-1]); --i)
@@ -89,7 +89,7 @@ std::string& strip(std::string& str)
 	str.resize(i);
 	for (i=0; i<str.length() && g_ascii_isspace(str[i]); ++i)
 		;
-	return str.erase(0, i);
+	str.erase(0, i);
 }
 
 #define XX 100

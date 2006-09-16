@@ -10,7 +10,8 @@ class Process {
 public:
 	enum {
 		OPEN_PIPE_FOR_READ = 1 << 0,
-		OPEN_PIPE_FOR_WRITE = 1 << 1
+		OPEN_PIPE_FOR_WRITE = 1 << 1,
+		INHERIT_STDIN = 1 << 2
 	};
 	bool run_async(const std::string& cmd, int flags);
 	bool wait(int &res);

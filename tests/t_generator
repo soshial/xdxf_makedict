@@ -1,5 +1,8 @@
 #!/bin/sh
 
+source funcs.sh
+set_md_plugin_dir
+
 CREATER="../src/makedict -i xdxf -o dummy --work-dir work-directory"
 
 check() {

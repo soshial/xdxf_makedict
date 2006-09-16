@@ -33,8 +33,8 @@ namespace dummy {
 
 	class Generator : public GeneratorBase {
 	public:
-		Generator() {	       
-			set_format("dummy");
+		Generator(): GeneratorBase(true) {	       
+			set_format(DUMMY_FORMAT_NAME);
 			set_version("dummy_generator, version 1.0");
 		}
 	protected:
@@ -61,7 +61,7 @@ void Generator::on_have_data(const StringList& keys,
 	StdOut << "data: " << data << "\n";
 }
 
-#if 0
+#ifdef DUMMY_GENERATOR_ALONE
 int main(int argc, char *argv[])
 {
 	return Generator().run(argc, argv);

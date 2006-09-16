@@ -1,5 +1,8 @@
 #!/bin/sh
 
+source funcs.sh
+set_md_plugin_dir
+
 convert() {
 	if ! ../src/makedict --parser-option "remove-duplication=yes" -i sdict -o xdxf --work-dir /tmp "${1}"; then
 		echo "makedict return error" >&2

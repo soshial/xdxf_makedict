@@ -125,6 +125,10 @@ bool GeneratorDictPipeOps::get_info()
 	XmlParser xdxf_parser(xml_start, xml_end, xml_char_data, this);
 
 	while (File::getline(in_, line)) {
+#ifdef DEBUG
+		StdOut << "GeneratorDictPipeOps::get_info(): line: " 
+		       << line << "\n";
+#endif
 		line += '\n';
 		if (!xdxf_parser.parse_line(line))
 			return false;
@@ -134,10 +138,12 @@ bool GeneratorDictPipeOps::get_info()
 	return true;
 }
 
-GeneratorBase::GeneratorBase()
+GeneratorBase::GeneratorBase(bool enc_key)
 {	
+	enc_key_ = enc_key;
 	std_dict_ops_.reset(new GeneratorDictPipeOps(StdIn, *this));
 	dict_ops_ = std_dict_ops_.get();
+	dict_ops_->encode_keys(enc_key_);
 }
 
 int GeneratorBase::run(int argc, char *argv[])
@@ -431,5 +437,9 @@ void IGeneratorDictOps::generate_keys(StringList& keys)
 	sample_data_.push_back(key_.parts_.front());
 	sample(keys, key_.opts_.size());
 
-	std::for_each(keys.begin(), keys.end(), strip);
+	for (StringList::iterator it = keys.begin(); it != keys.end(); ++it) {
+		strip(*it);
+		if (enc_keys_)
+			Xml::decode(*it);
+	}
 }

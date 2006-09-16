@@ -6,3 +6,7 @@ c
 C
 d
 D
+'
+quote
+<
+less

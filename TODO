@@ -1,12 +1,9 @@
-- test for this, test for external parser plugin
-- test all cases parser<->generator, makedict<->generator etc
 - keys <opt> <nu> generator?
+- "nu" implementation
 - print where we create dictionary
-- why t_dsl_parser so slow?
 - perfomance test
 - generator results, if parser and generator are internal
 - split utils.h to resource.hpp and utils.hpp by it self
-- "nu" implementation
 - check all to do items in code
 - superfluous copy when string->StringList
 - xdxf_generator: whats happened if abbr list keys contains opt and nu

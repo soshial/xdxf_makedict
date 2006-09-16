@@ -117,11 +117,13 @@ int MakeDict::run(int argc, char *argv[])
 		return EXIT_FAILURE;
 
 #ifdef DEBUG
-	for (StringMap::iterator p=input_codecs.begin(); p!=input_codecs.end(); ++p)
-		std::cout<<p->first<<" "<<p->second<<std::endl;
+	for (StringMap::const_iterator p = input_codecs.begin();
+	     p != input_codecs.end(); ++p)
+		StdOut << p->first << " " << p->second << "\n";
 
-	for (StringMap::iterator p=output_codecs.begin(); p!=output_codecs.end(); ++p)
-		std::cout<<p->first<<" "<<p->second<<std::endl;
+	for (StringMap::const_iterator p = output_codecs.begin();
+	     p != output_codecs.end(); ++p)
+		StdOut << p->first << " " << p->second << "\n";
 #endif
 	option longopts[] ={
 		{"version", no_argument, NULL, 'v' },
@@ -401,7 +403,9 @@ int MakeDict::convert(const char *arg)
 			"' --work-dir '"+cur_workdir+"'";
 
 		Process input_codec, output_codec;
-		if (!input_codec.run_async(input_cmd, Process::OPEN_PIPE_FOR_READ) ||
+		if (!input_codec.run_async(input_cmd, 
+					   Process::OPEN_PIPE_FOR_READ |
+					   Process::INHERIT_STDIN) ||
 		    !output_codec.run_async(output_cmd, Process::OPEN_PIPE_FOR_WRITE))
 			return EXIT_FAILURE;
 		if (!File::copy(input_codec.output(), output_codec.input()))
@@ -450,7 +454,12 @@ int MakeDict::convert(const char *arg)
 			arg + "'" + parser_options();
 
 		Process input_codec;
-		if (!input_codec.run_async(input_cmd, Process::OPEN_PIPE_FOR_READ))
+#ifdef DEBUG
+		StdOut << "Run: " << input_cmd << "\n";
+#endif
+		if (!input_codec.run_async(input_cmd,
+					   Process::OPEN_PIPE_FOR_READ |
+					   Process::INHERIT_STDIN))
 			return EXIT_FAILURE;
 		std::auto_ptr<GeneratorBase> generator(
 			GeneratorsRepo::get_instance().create_codec(output_format));

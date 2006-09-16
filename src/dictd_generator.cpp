@@ -34,7 +34,7 @@
 
 class dictd_generator : public GeneratorBase {
 public:
-	dictd_generator()
+	dictd_generator(): GeneratorBase(true)
 	{
 		set_format("dictd");
 		set_version("dictd_generator, version 0.1");

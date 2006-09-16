@@ -28,6 +28,7 @@
 
 const char Xml::raw_entrs[] = { '<',   '>',   '&',    '\'',    '\"',    0 };
 const char* Xml::xml_entrs[] = { "lt;", "gt;", "amp;", "apos;", "quot;", 0 };
+static const int xml_ent_len[] = { 3,     3,     4,      5,       5 };
 
 void Xml::add_and_encode(std::string& str, char ch)
 {
@@ -65,4 +66,36 @@ void Xml::encode(const std::string& str, std::string& res)
 			res += str[irep];
 		++irep;
 	}
+}
+
+void Xml::decode(std::string& str)
+{
+	std::string::size_type iamp = str.find('&');
+	if (iamp == std::string::npos) {
+		return;
+	}
+    
+	std::string decoded(str, 0, iamp);
+	std::string::size_type iSize = str.size();
+	decoded.reserve(iSize);
+  
+	const char* ens = str.c_str();
+	while (iamp != iSize) {
+		if (str[iamp] == '&' && iamp+1 < iSize) {
+			int ient;
+			for (ient = 0; xml_entrs[ient] != 0; ++ient)
+				if (strncmp(ens+iamp+1, xml_entrs[ient], xml_ent_len[ient]) == 0) {
+					decoded += raw_entrs[ient];
+					iamp += xml_ent_len[ient]+1;
+					break;
+				} 
+			if (xml_entrs[ient] == 0)    // unrecognized sequence
+				decoded += str[iamp++];   
+
+		} else {
+			decoded += str[iamp++];
+		} 
+	} 
+   
+	str = decoded;
 }

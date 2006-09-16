@@ -79,7 +79,7 @@ static inline bool is_file_exist(const std::string& file)
 }
 
 extern std::vector<std::string> split(const std::string& str, char sep);
-extern std::string& strip(std::string& str);
+extern void strip(std::string& str);
 extern const char *b64_encode(guint32 val);
 extern guint32 b64_decode(const char *val);
 extern void copy_file(const std::string& from, const std::string& to);

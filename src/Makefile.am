@@ -47,8 +47,9 @@ LDADD = @MAKEDICT_LIBS@
 #makedict_LDADD = @MAKEDICT_LIBS@ 
 #localedir = $(datadir)/locale
 
-INCLUDES = @MAKEDICT_CFLAGS@  -I$(top_builddir) -DCODECSDIR=\""$(bindir)/makedict-codecs"\"
+INCLUDES = @MAKEDICT_CFLAGS@  -I$(top_builddir) 
 #DEFS=-DLOCALEDIR=\"$(localedir)\" @DEFS@
+DEFS = -DDUMMY_FORMAT_NAME=\"dummy\" -DCODECSDIR=\""$(bindir)/makedict-codecs"\" @DEFS@ 
 
 install-exec-local:
 	$(INSTALL_PROGRAM) -d $(bindir)/makedict-codecs/

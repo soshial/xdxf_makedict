@@ -1,6 +1,7 @@
 #!/bin/sh
 
 source funcs.sh
+set_md_plugin_dir
 
 FILE=/tmp/dummy_parser_input
 NWORDS=10

@@ -10,3 +10,9 @@ C
 key: d
 data: <k>d</k>
 D
+key: '
+data: <k>&apos;</k>
+quote
+key: <
+data: <k>&lt;</k>
+less

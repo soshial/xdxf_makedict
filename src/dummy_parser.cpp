@@ -1,6 +1,6 @@
 /*
  * This file part of makedict - convertor from any dictionary format to any
- * http://sdcv.sourceforge.net
+ * http://xdxf.sourceforge.net
  * Copyright (C) 2005-2006 Evgeniy <dushistov@mail.ru>
  *
  * This program is free software; you can redistribute it and/or modify
@@ -23,7 +23,9 @@
 #endif
 
 #include <cstdlib>
-#include <iostream>
+
+#include "xml.hpp"
+#include "file.hpp"
 
 #include "parser.hpp"
 
@@ -31,7 +33,7 @@ namespace dummy {
 	class Parser : public ParserBase {
 	public:
 		Parser() {
-			set_parser_info("format", "dummy");
+			set_parser_info("format", DUMMY_FORMAT_NAME);
 			set_parser_info("version", "dummy_parser, version 1.0");
 			parser_options_["lang_from"] = "";
 			parser_options_["lang_to"] = "";
@@ -58,16 +60,19 @@ int Parser::parse(const std::string& url)
 	abbrs_begin();
 	abbrs_end();
 
-	std::string key, data;
-	while (std::getline(std::cin, key) && std::getline(std::cin, data)) {
-		std::vector<std::string> key_list(1, key);
-		article(key_list, data);
+	std::string key, data, enc_data, enc_key;
+	while (File::getline(StdIn, key) && File::getline(StdIn, data)) {
+		enc_key = enc_data = "";
+		Xml::encode(key, enc_key);
+		Xml::encode(data, enc_data);
+
+		article(StringList(1, enc_key), enc_data);
 	}
 
 	return EXIT_SUCCESS;
 }
 
-#if 0
+#ifdef DUMMY_PARSER_ALONE
 int main(int argc, char *argv[])
 {
 	 return Parser().run(argc, argv);

@@ -8,3 +8,10 @@ generate_file() {
 				echo $RANDOM | uuencode -m /dev/stdout | grep -v "/dev/stdout" >> $2
 		done
 }
+
+set_md_plugin_dir() {
+	local cur_dir=`pwd`
+	cd ../src
+	export MAKEDICT_PLUGIN_DIR=`pwd`
+	cd "${cur_dir}"
+}

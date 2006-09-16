@@ -51,9 +51,12 @@ bool Process::run_async(const std::string& cmd, int flags)
 
 	if (flags & OPEN_PIPE_FOR_READ)
 		out = &outfd;
+	int spawn_flags = G_SPAWN_DO_NOT_REAP_CHILD;
+	if (flags & INHERIT_STDIN)
+		spawn_flags |= G_SPAWN_CHILD_INHERITS_STDIN;
 
 	if (!g_spawn_async_with_pipes(NULL, get_impl(argv), NULL,
-				      GSpawnFlags(G_SPAWN_DO_NOT_REAP_CHILD),
+				      GSpawnFlags(spawn_flags),
 				      NULL, NULL, &pid_, in, out,
 				      NULL, get_addr(err))) {
 		StdErr.printf(_("Can not execute %s: %s\n"),

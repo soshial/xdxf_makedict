@@ -1,5 +1,8 @@
 #!/bin/sh
 
+source funcs.sh
+set_md_plugin_dir
+
 DATA=sample-dicts/dummy_simple_input.txt
 RES=makedict_parser_options_test
 

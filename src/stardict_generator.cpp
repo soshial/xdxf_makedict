@@ -41,7 +41,7 @@
 
 class stardict_generator : public GeneratorBase {
 public:
-	stardict_generator()
+	stardict_generator(): GeneratorBase(true)
 	{
 		set_format("stardict");
 		set_version(_("stardict_generator, version 0.2"));

@@ -1,5 +1,8 @@
 #!/bin/sh
 
+source funcs.sh
+set_md_plugin_dir
+
 RES=/tmp/dsl-test.dummy
 
 check() {

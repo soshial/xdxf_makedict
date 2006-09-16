@@ -1,5 +1,8 @@
 #!/bin/sh
 
+source funcs.sh
+set_md_plugin_dir
+
 TESTDIR=/tmp/xdxf_generator_test1
 
 rm -fr $TESTDIR
