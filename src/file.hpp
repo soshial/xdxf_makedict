@@ -53,6 +53,14 @@ public:
 	static bool copy(File& in, File& out);
 	static File& getline(File& in, std::string& line);
 	File& write(const char *buf, size_t len);
+	File& read(char *buf, size_t len) {
+		fread(buf, 1, len, stream_);
+		return *this;
+	}
+	bool seek(long off) {
+		return fseek(stream_, off, SEEK_SET) == 0;
+	}
+	long tell() { return ftell(stream_); }
 private:
 	FILE *stream_;
 	bool close_on_exit_;

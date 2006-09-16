@@ -14,4 +14,5 @@ right_tag_order.dsl right_tag_order_std.dummy \
 col_param.dsl col_param_std.dummy \
 dsl_transc.dsl dsl_transc_std.dummy \
 parser_options_std.xdxf \
-sample1.dct sample1_sdict_std.xdxf
+sample1.dct sample1_sdict_std.xdxf \
+sample2.dct sample2_sdict_std.xdxf

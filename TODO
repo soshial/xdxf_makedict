@@ -1,5 +1,3 @@
-- fix duplication in rus_bse(Ядерная физика)
-- merge old scheme of plugins from 0.2 with 0.3
 - dsl_parser: change testing code for file exist
 - more informatical error messages in generator.cpp
 - check if "make dist" to work
@@ -18,3 +16,4 @@
 - check all to do items in code
 - superfluous copy when string->StringList
 - xdxf_generator: whats happened if abbr list keys contains opt and nu
+- more good solution for lang table: put table also here, convert to not std::pair array
