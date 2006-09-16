@@ -17,3 +17,4 @@
 - "nu" implementation
 - check all to do items in code
 - superfluous copy when string->StringList
+- xdxf_generator: whats happened if abbr list keys contains opt and nu

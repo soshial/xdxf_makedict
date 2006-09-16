@@ -31,18 +31,18 @@ File StdIn(stdin, false);
 File StdOut(stdout, false);
 File StdErr(stderr, false);
 
-//TODO: replace fprintf with?
+
 File& File::operator<<(const char *str)
 {
 	if (stream_)
-		fprintf(stream_, str);
+		fputs(str, stream_);
 	return *this;
 }
-//TODO: replace fprintf with?
+
 File& File::operator<<(const std::string& str)
 {
 	if (stream_)
-		fprintf(stream_, "%s", str.c_str());
+		fputs(str.c_str(), stream_);
 	return *this;
 }
 
