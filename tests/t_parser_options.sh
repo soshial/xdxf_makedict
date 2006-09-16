@@ -9,7 +9,7 @@ if ! ../src/makedict -i dummy -o xdxf --parser-option "lang_from=eng" \
 	exit 1
 fi
 
-if ! diff "/tmp/${RES}/dict.xdxf" sample-dicts/parser_options_std.xdxf; then
+if ! diff -u "/tmp/${RES}/dict.xdxf" sample-dicts/parser_options_std.xdxf; then
 	echo "/tmp/${RES}/dict.xdxf sample-dicts/parser_options_std.xdxf not the same" >&2
 	exit 1
 fi

@@ -34,10 +34,10 @@
 void PipeParserDictOps::send_meta_info()
 {
 	out_ << "<meta_info>\n";
-	for (StringMap::const_iterator p = dict_info_.begin(); 
+	for (StringMap::const_iterator p = dict_info_.begin();
 	     p != dict_info_.end(); ++p)
 		out_ << "<" << p->first << ">"
-			  << p->second 
+			  << p->second
 			  << "</" << p->first << ">\n";
 
 	out_ << "</meta_info>\n";
@@ -45,7 +45,7 @@ void PipeParserDictOps::send_meta_info()
 
 void PipeParserDictOps::send_info()
 {
-	out_ << 
+	out_ <<
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 		"<!DOCTYPE xdxf SYSTEM \"http://xdxf.sourceforge.net/xdxf_lousy.dtd\">\n"
 		  << "<xdxf lang_from=\"" << dict_info_["lang_from"]
@@ -95,19 +95,19 @@ void PipeParserDictOps::end()
 }
 
 const std::string& ParserBase::format() const
-{ 
+{
 	static std::string empty;
 
 	StringMap::const_iterator it = parser_info_.find("format");
 
-	if (it == parser_options_.end())		
+	if (it == parser_options_.end())
 		return empty;
-	
+
 	return it->second;
 }
 
 ParserBase::ParserBase(bool generate_xdxf)
-{	
+{
 	generate_xdxf_ = generate_xdxf;
 	std_dict_ops_.reset(new PipeParserDictOps(StdOut));
 	dict_ops_ = std_dict_ops_.get();
@@ -115,7 +115,7 @@ ParserBase::ParserBase(bool generate_xdxf)
 
 bool ParserBase::parse_option(const std::string& optarg)
 {
-	std::vector<std::string> l = split(optarg, '=');			
+	std::vector<std::string> l = split(optarg, '=');
 	if (l.size() != 2) {
 		StdErr <<
 			_("Invalid usage of parser-option: didn't find '=' in option\n");
@@ -169,7 +169,7 @@ int ParserBase::run(int argc, char *argv[])
 			return EXIT_SUCCESS;
 		case 2:
 			if (!parse_option(optarg))
-				return EXIT_FAILURE;		
+				return EXIT_FAILURE;
 			break;
 		case '?':
 		default:
@@ -186,7 +186,7 @@ int ParserBase::run(int argc, char *argv[])
 
 int ParserBase::run(const StringList& options, const std::string& url)
 {
-	for (StringList::const_iterator it = options.begin(); 
+	for (StringList::const_iterator it = options.begin();
 	     it != options.end(); ++it)
 		if (!parse_option(*it))
 			return EXIT_FAILURE;
@@ -226,7 +226,7 @@ void ParserBase::meta_info()
 
 void ParserBase::begin()
 {
-	meta_info();		
+	meta_info();
 	dict_ops_->send_info();
 }
 
@@ -261,8 +261,8 @@ int ParserBase::parse(const std::string& url)
 }
 
 void ParserBase::remove_not_valid(std::string &str)
-{		
-	std::string valid_data;	 
+{
+	std::string valid_data;
 	char utf8buf[8];
 	for (const char *p = str.c_str(); *p; p = g_utf8_next_char(p)) {
 		gunichar ch = g_utf8_get_char(p);

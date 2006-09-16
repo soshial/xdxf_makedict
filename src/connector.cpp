@@ -67,7 +67,10 @@ void Connector::send_meta_info()
 
 void Connector::send_info()
 {
-	//TODO: what we should do?
+	generator_.on_new_dict_info("lang_from", dict_info_["lang_from"]);
+	generator_.on_new_dict_info("lang_to", dict_info_["lang_to"]);
+	generator_.on_new_dict_info("full_name", dict_info_["full_name"]);
+	generator_.on_new_dict_info("description", dict_info_["description"]);
 }
 
 void Connector::abbrs_begin()
