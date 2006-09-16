@@ -10,7 +10,8 @@ SCRIPT_CODECS = mueller7_parser.py mdparser.py apresyan.py
 noinst_PYTHON = $(SCRIPT_CODECS)
 
 PARSER_LIB = parser.cpp parser.hpp utils.cpp utils.hpp file.cpp file.hpp
-GENERATOR_LIB = generator.cpp generator.hpp utils.cpp utils.hpp file.cpp file.hpp
+GENERATOR_LIB = generator.cpp generator.hpp utils.cpp utils.hpp \
+	file.cpp file.hpp xml.cpp xml.hpp
 
 makedict_SOURCES = \
 	makedict.cpp \
@@ -29,7 +30,8 @@ makedict_SOURCES = \
 	normalize_tags.cpp normalize_tags.hpp \
 	sdict_parser.cpp \
 	langs_2to3.cpp langs_2to3.hpp \
-	xdxf_generator.cpp
+	xdxf_generator.cpp \
+	xml.cpp xml.hpp
 
 stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)
 dictd_generator_SOURCES = dictd_generator.cpp $(GENERATOR_LIB)

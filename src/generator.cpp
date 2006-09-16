@@ -30,21 +30,21 @@
 
 #include "utils.hpp"
 #include "file.hpp"
+#include "xml.hpp"
 
 #include "generator.hpp"
 
 //#define DEBUG
 
 GeneratorDictPipeOps::TagTable GeneratorDictPipeOps::tag_table_;
-Str2StrTable GeneratorDictPipeOps::xml_spec_seq_;
 
-class xml_parser {
+class XmlParser {
 public:
-	xml_parser(XML_StartElementHandler on_start,
+	XmlParser(XML_StartElementHandler on_start,
 						 XML_EndElementHandler on_end,
 						 XML_CharacterDataHandler on_char,
 						 void *data);
-	~xml_parser() {	XML_ParserFree(xmlp); }
+	~XmlParser() {	XML_ParserFree(xmlp); }
 	void xml_error(const std::string& line) const {
 		StdErr.printf(_("XML parser error: %s\nCan not parse such line: %s\n"),
 			      XML_ErrorString(XML_GetErrorCode(xmlp)), line.c_str());
@@ -69,7 +69,7 @@ private:
 	XML_Parser xmlp;
 };
 
-xml_parser::xml_parser(XML_StartElementHandler on_start,
+XmlParser::XmlParser(XML_StartElementHandler on_start,
 		       XML_EndElementHandler on_end,
 		       XML_CharacterDataHandler on_char,
 		       void *data)
@@ -84,14 +84,9 @@ GeneratorDictPipeOps::GeneratorDictPipeOps(File &in, GeneratorBase& gen) :
 	IGeneratorDictOps(gen), in_(in)
 {
 	meta_mode_ = mmNONE;
-
-	if (!xml_spec_seq_.empty())
+	
+	if (!tag_table_.empty())
 		return;
-
-	xml_spec_seq_["<"]="&lt;";
-	xml_spec_seq_[">"]="&gt;";
-	xml_spec_seq_["&"]="&amp;";
-	xml_spec_seq_["\""]="&quot;";
 
 	tag_table_["full_name"] = FULL_NAME;
 	tag_table_["description"] = DESCRIPTION;
@@ -108,7 +103,7 @@ bool GeneratorDictPipeOps::get_meta_info()
 {
 	std::string line;
 
-	xml_parser meta_parser(on_meta_start, on_meta_end, on_meta_data, this);
+	XmlParser meta_parser(on_meta_start, on_meta_end, on_meta_data, this);
 
 	while (File::getline(in_, line) &&
 	       line.find("</meta_info>") == std::string::npos) {
@@ -127,7 +122,7 @@ bool GeneratorDictPipeOps::get_info()
 {
 	std::string line;
 
-	xml_parser xdxf_parser(xml_start, xml_end, xml_char_data, this);
+	XmlParser xdxf_parser(xml_start, xml_end, xml_char_data, this);
 
 	while (File::getline(in_, line)) {
 		line += '\n';
@@ -267,7 +262,7 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 					     const XML_Char **atts)
 {
 #ifdef DEBUG
-	std::cerr << "xml_start: name=" << name << "\n";
+	StdErr << "xml_start: name=" << name << "\n";
 #endif
 
 	GeneratorDictPipeOps *gen =
@@ -321,7 +316,7 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 		}
 		gen->state_stack_.push(it->second);
 #ifdef DEBUG
-		std::cerr << "xml_start: tag added, data=" << gen->data_
+		StdErr << "xml_start: tag added, data=" << gen->data_
 			  << "\n";
 #endif
 	}
@@ -330,7 +325,7 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 void XMLCALL GeneratorDictPipeOps::xml_end(void *userData, const XML_Char *name)
 {
 #ifdef DEBUG
-	std::cerr<<"xml_end: name="<<name<<"\n";
+	StdErr<<"xml_end: name="<<name<<"\n";
 #endif
 
 	GeneratorDictPipeOps *gen = static_cast<GeneratorDictPipeOps *>(userData);
@@ -384,11 +379,11 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 		return;
 
 #ifdef DEBUG
-	std::cerr<<"xml_char_data, data="<<gen->data_<<"\n";
+	StdErr<<"xml_char_data, data="<<gen->data_<<"\n";
 #endif
 
 	std::string data;
-	replace(xml_spec_seq_, std::string(s, len).c_str(), data);
+	Xml::encode(std::string(s, len), data);
 	gen->data_ += data;
 	switch (gen->state_stack_.top()) {
 	case K:
@@ -428,7 +423,7 @@ void IGeneratorDictOps::generate_keys(StringList& keys)
 {
 	if (key_.parts_.empty()) {
 		StdErr <<
-			_("Internal error, can not generate key list, there is no parts of key\n");
+			_("Internal error, can not generate key list, there are no parts of key\n");
 		return;
 	}
 	sample_data_.clear();

@@ -39,6 +39,7 @@
 #include "normalize_tags.hpp"
 #include "utils.hpp"
 #include "file.hpp"
+#include "xml.hpp"
 
 #include "parser.hpp"
 
@@ -76,8 +77,7 @@ private:
 	static Str2StrTable code_page_table;
 	static Str2StrTable short_lang_table;
 	static Str2StrTable replace_table;
-	typedef std::map<char, char*, std::less<char> > Char2Str;
-	static  Char2Str text2xml;
+
 	static std::map<gunichar, std::string> ipa_to_unicode;
 	char *end_of_file;
 	bool not_close_comment;
@@ -110,7 +110,6 @@ using namespace dsl;
 Str2StrTable Parser::code_page_table;
 Str2StrTable Parser::replace_table;
 Str2StrTable Parser::short_lang_table;
-Parser::Char2Str Parser::text2xml;
 TagInfoList Parser::taginfo_list;
 std::map<gunichar, std::string> Parser::ipa_to_unicode;
 
@@ -188,12 +187,7 @@ Parser::Parser()
 	replace_table["[m7]"]="       ";
 	replace_table["[m8]"]="        ";
 	replace_table["[m9]"]="         ";
-
-	text2xml['<']="&lt;";
-	text2xml['>']="&gt;";
-	text2xml['&']="&amp;";
-	text2xml['\"']="&quot;";
-
+	
 	taginfo_list.push_back(TagInfo("[b]", "[/b]", "<b>", "</b>",
 				       TagInfo::tB));
 	taginfo_list.push_back(TagInfo("[i]", "[/i]", "<i>", "</i>",
@@ -316,23 +310,14 @@ Parser::Parser()
 
 void Parser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
 {
-	std::map<gunichar, std::string>::const_iterator it;
-	Char2Str::const_iterator xt;
+	std::map<gunichar, std::string>::const_iterator it;	
 	gunichar ch;
 	char buf[7];
-
-#if 0
-	fprintf(stderr, "BEGIN: %p, %p, %c\n", p, end, *p);
-#endif
 
 	while (*p && p < end) {
 		ch = g_utf8_get_char(p);
 
 		it = ipa_to_unicode.find(ch);
-
-#if 0
-		fprintf(stderr, "val %X, %s\n", ch, it->second.c_str());
-#endif
 
 		if (it != ipa_to_unicode.end()) {
 			resstr += it->second;
@@ -412,7 +397,7 @@ int Parser::parse(const std::string& filename)
 
 	std::string dirname(filename);
 	pos=dirname.rfind(G_DIR_SEPARATOR);
-	if (pos!=std::string::size_type(-1))
+	if (pos != std::string::npos)
 		dirname.erase(pos, dirname.length()-pos);
 	else
 		dirname=".";
@@ -524,12 +509,9 @@ int Parser::print_info()
 		end_of_line["\n\r"]="\n";
 		std::string new_convstr;
 		replace(end_of_line, convstr.c_str(), new_convstr);
-		Str2StrTable str2xml;
-		str2xml["<"]="&lt;";
-		str2xml[">"]="&gt;";
-		str2xml["&"]="&amp;";
-		str2xml["\""]="&quot;";
-		replace(str2xml, new_convstr.c_str(), convstr);
+
+		Xml::encode(new_convstr, convstr);
+
 		set_dict_info("description", convstr);
 	}
 out:
@@ -730,8 +712,7 @@ bool Parser::parse_header(MapFile& in, CharsetConv& conv)
 
 bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 			   StringList& key_list)
-{
-	Char2Str::iterator c2si;
+{	
 	std::string *cur_line;
 
 	do {
@@ -743,9 +724,9 @@ bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 					      from_codeset.c_str());
 				return false;
 			}
-			cur_line=&utf8str;
+			cur_line = &utf8str;
 		} else
-			cur_line=&line;
+			cur_line = &line;
 
 		if (!g_utf8_validate(cur_line->c_str(), gssize(-1), NULL)) {
 			StdErr.printf(_("Not valid UTF-8 string: %d\n"
@@ -761,10 +742,10 @@ bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 				if (!(*++p))
 					break;
 				goto add_char;
-			} else if (*p=='(') {
-				key_enc+="<opt>";
-			} else if (*p==')') {
-				key_enc+="</opt>";
+			} else if (*p == '(') {
+				key_enc += "<opt>";
+			} else if (*p == ')') {
+				key_enc += "</opt>";
 			} else if (*p == '{') {
 //TODO: more good solution?
 				p  = strchr(p, '}');
@@ -774,10 +755,7 @@ bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 				}
 			} else {
 			add_char:
-				if ((c2si=text2xml.find(*p))==text2xml.end())
-					key_enc+=*p;
-				else
-					key_enc+=c2si->second;
+				Xml::add_and_encode(key_enc, *p);
 			}
 			++p;
 		}
@@ -844,8 +822,7 @@ bool Parser::encode_article(CharsetConv& conv, std::string& datastr)
 }
 
 void Parser::article2xdxf(StringList& key_list, std::string& datastr)
-{
-	Char2Str::iterator c2si;
+{	
 	std::string resstr;
 	NormalizeTags norm_tags(taginfo_list);
 	const char *p=datastr.c_str();
@@ -855,11 +832,7 @@ void Parser::article2xdxf(StringList& key_list, std::string& datastr)
 			if (!(*++p))
 				break;
 			if (*p!='\n') {
-
-				if ((c2si=text2xml.find(*p))==text2xml.end())
-					resstr+=*p;
-				else
-					resstr+=c2si->second;
+				Xml::add_and_encode(resstr, *p);
 				++p;
 			}
 		} else if (*p=='~') {
@@ -949,10 +922,7 @@ void Parser::article2xdxf(StringList& key_list, std::string& datastr)
 
 			if (i == replace_table.end()) {
 				p = beg;
-				if ((c2si=text2xml.find(*p)) == text2xml.end())
-					resstr += *p;
-				else
-					resstr += c2si->second;
+				Xml::add_and_encode(resstr, *p);
 				++p;
 			}
 		}
@@ -1012,8 +982,7 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 	if (abr)
 		abbrs_begin();
 
-
-	Char2Str::iterator c2si;
+	
 	do {
 		StringList key_list;
 

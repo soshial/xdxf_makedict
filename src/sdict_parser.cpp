@@ -38,6 +38,7 @@
 #include "normalize_tags.hpp"
 #include "utils.hpp"
 #include "file.hpp"
+#include "xml.hpp"
 
 #include "parser.hpp"
 
@@ -107,8 +108,6 @@ namespace sdict {
 		StringMap langs_;
 
 		static Str2StrTable replace_table;
-		typedef std::map<char, char*, std::less<char> > Char2Str;
-		static  Char2Str text2xml;
 		static TagInfoList taginfo_list;
 		typedef std::map<std::string, guint32> ArticlesMap;
 		ArticlesMap articles_map_;
@@ -123,7 +122,6 @@ namespace sdict {
 using namespace sdict;
 
 Str2StrTable Parser::replace_table;
-Parser::Char2Str Parser::text2xml;
 TagInfoList Parser::taginfo_list;
 
 std::string Parser::convert_lang(const char *lang, size_t len)
@@ -185,21 +183,20 @@ Parser::Parser() : langs_(langs_2to3, langs_2to3 + langs_2to3_count)
 	replace_table["</f>"]="";
 	replace_table["&Icirc;"]="Î";
 
-	taginfo_list.push_back(TagInfo("<sub>", "</sub>", "<sub>", "</sub>", TagInfo::tSub));
-	taginfo_list.push_back(TagInfo("<sup>", "</sup>", "<sup>", "</sup>", TagInfo::tSup));
-	taginfo_list.push_back(TagInfo("<b>", "</b>", "<b>", "</b>", TagInfo::tB));
-	taginfo_list.push_back(TagInfo("<i>", "</i>", "<i>", "</i>", TagInfo::tI));
-	taginfo_list.push_back(TagInfo("<u>", "</u>", "<c>", "</c>", TagInfo::tColor));
-
-	text2xml['<']="&lt;";
-	text2xml['>']="&gt;";
-	text2xml['&']="&amp;";
-	text2xml['\"']="&quot;";
+	taginfo_list.push_back(TagInfo("<sub>", "</sub>", "<sub>", "</sub>",
+				       TagInfo::tSub));
+	taginfo_list.push_back(TagInfo("<sup>", "</sup>", "<sup>", "</sup>",
+				       TagInfo::tSup));
+	taginfo_list.push_back(TagInfo("<b>", "</b>", "<b>", "</b>",
+				       TagInfo::tB));
+	taginfo_list.push_back(TagInfo("<i>", "</i>", "<i>", "</i>",
+				       TagInfo::tI));
+	taginfo_list.push_back(TagInfo("<u>", "</u>", "<c>", "</c>",
+				       TagInfo::tColor));
 }
 
 void Parser::convert_article(std::string& encoded_data)
-{
-	Char2Str::iterator c2si;
+{	
 	const char *p = &databuf_[0];
 	NormalizeTags norm_tags(taginfo_list);
 	while (*p) {
@@ -228,10 +225,7 @@ void Parser::convert_article(std::string& encoded_data)
 			}
 			if (i==replace_table.end()) {
 				p=beg;
-				if ((c2si=text2xml.find(*p))==text2xml.end())
-					encoded_data+=*p;
-				else
-					encoded_data+=c2si->second;
+				Xml::add_and_encode(encoded_data, *p);
 				++p;
 			}
 		}
@@ -339,14 +333,11 @@ int Parser::parse(const std::string& filename)
 			return EXIT_FAILURE;
 		}
 		index_value[index_size] = '\0';
-		Char2Str::iterator c2si;
+		
 		const char *q = &index_value[0];
 		std::string encoded_index;
 		while (*q) {
-			if ((c2si=text2xml.find(*q))==text2xml.end())
-				encoded_index+=*q;
-			else
-				encoded_index+=c2si->second;
+			Xml::add_and_encode(encoded_index, *q);
 			++q;
 		}
 		remove_not_valid(encoded_index);

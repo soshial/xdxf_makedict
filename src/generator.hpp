@@ -86,7 +86,6 @@ private:
 	std::stack<StateType> state_stack_;
 	std::string data_;
 	StringList keys_;
-	static Str2StrTable xml_spec_seq_;
 	File &in_;
 
 	static void XMLCALL on_meta_start(void *, const XML_Char *,

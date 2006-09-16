@@ -1,8 +1,11 @@
 SUBDIRS = sample-dicts dtd
 
-noinst_PROGRAMS = validate_stardict normalize
+noinst_PROGRAMS = validate_stardict normalize t_xml
 
 validate_stardict_SOURCES = validate_stardict.cpp
+t_xml_SOURCES = \
+	t_xml.cpp \
+	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp
 
 normalize_SOURCES = normalize.cpp \
  $(top_builddir)/src/normalize_tags.cpp \
@@ -18,4 +21,4 @@ SH_TESTS = \
 	t_sdict_parser
 
 EXTRA_DIST=$(SH_TESTS)
-TESTS=$(SH_TESTS)
+TESTS = $(SH_TESTS) t_xml
