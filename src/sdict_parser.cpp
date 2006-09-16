@@ -75,6 +75,7 @@ namespace sdict {
 			return it->second;
 		}
 	};
+	REGISTER_PARSER(Parser,sdict);
 }
 
 using namespace sdict;
@@ -433,7 +434,9 @@ bool Parser::read_unit(std::ifstream& f, guint32 offset)
   return true;
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
 	 return Parser().run(argc, argv);
 }
+#endif

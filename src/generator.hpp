@@ -137,4 +137,15 @@ private:
 
 class GeneratorsRepo : public CodecsRepo<GeneratorBase, GeneratorsRepo> {};
 
+#define REGISTER_GENERATOR(Class,name) \
+	class Class##name##Registrator : public ICreator<GeneratorBase> { \
+	public: \
+		Class##name##Registrator() { \
+			GeneratorsRepo::get_instance().register_codec(#name, this); \
+		} \
+		GeneratorBase *create() const { \
+			return new Class; \
+		} \
+	} Class##name##_registrator
+
 #endif//!GENERATOR_HPP

@@ -1,5 +1,3 @@
 SUBDIRS = m4 src tests
 
-# EXTRA_DIST =
-
 ACLOCAL_AMFLAGS = -I m4

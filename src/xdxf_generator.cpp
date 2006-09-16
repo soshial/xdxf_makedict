@@ -34,7 +34,7 @@ namespace xdxf {
 		Generator() {
 			abbr_ = false;
 			set_format("xdxf");
-			set_version("xdxf_generator, version 0.1");
+			set_version("xdxf_generator, version 0.2");
 		}
 	protected:
 		std::ofstream dict_;
@@ -48,6 +48,7 @@ namespace xdxf {
 		bool on_prepare_generator(const std::string& workdir,
 					  const std::string& bname);
 	};
+	REGISTER_GENERATOR(Generator, xdxf);
 }
 
 using namespace xdxf;
@@ -132,8 +133,9 @@ int Generator::generate()
 }
 
 
-
+#if 0
 int main(int argc, char *argv[])
 {
 	return xdxf::Generator().run(argc, argv);
 }
+#endif

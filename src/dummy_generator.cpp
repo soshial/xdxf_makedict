@@ -31,12 +31,6 @@
 
 namespace dummy {
 
-	class GeneratorReg : public ICreator<GeneratorBase> {
-	public:
-		GeneratorReg();
-		GeneratorBase *create() const;
-	} generator_reg;
-
 	class Generator : public GeneratorBase {
 	public:
 		Generator() {	       
@@ -54,15 +48,7 @@ namespace dummy {
 
 	};
 
-	GeneratorReg::GeneratorReg()
-	{
-		GeneratorsRepo::get_instance().register_codec("dummy", this);
-	}
-
-	GeneratorBase *GeneratorReg::create() const
-	{
-		return new Generator;
-	}
+	REGISTER_GENERATOR(Generator,dummy);
 }
 
 using namespace dummy;

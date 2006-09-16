@@ -1,0 +1,3 @@
+
+- introduce new scheme of parser<->generator cooperation to speedup makedict
+0.3alpha4

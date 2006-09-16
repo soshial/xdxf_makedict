@@ -1,6 +1,6 @@
 CODECS = \
-	stardict_generator xdxf_generator dictd_generator \
-	sdict_parser dictd_parser xdxf_parser
+	stardict_generator dictd_generator \
+	dictd_parser xdxf_parser
 
 bin_PROGRAMS = makedict
 
@@ -26,18 +26,14 @@ makedict_SOURCES = \
 	dsl_parser.cpp \
 	charset_conv.cpp charset_conv.hpp \
 	mapfile.hpp \
-	normalize_tags.cpp normalize_tags.hpp
+	normalize_tags.cpp normalize_tags.hpp \
+	sdict_parser.cpp \
+	langs_2to3.cpp langs_2to3.hpp \
+	xdxf_generator.cpp
 
 stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)
-xdxf_generator_SOURCES = xdxf_generator.cpp $(GENERATOR_LIB)
 dictd_generator_SOURCES = dictd_generator.cpp $(GENERATOR_LIB)
 xdxf_parser_SOURCES = xdxf_parser.cpp $(PARSER_LIB)
-
-sdict_parser_SOURCES = \
-	sdict_parser.cpp \
-	normalize_tags.cpp normalize_tags.hpp \
-	$(PARSER_LIB) \
-	langs_2to3.cpp langs_2to3.hpp
 
 dictd_parser_SOURCES = \
 	dictd_parser.cpp \
