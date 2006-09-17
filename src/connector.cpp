@@ -27,6 +27,8 @@
 
 #include "connector.hpp"
 
+//#define DEBUG
+
 void Connector::set_dict_info(const std::string& name, const std::string& val)
 {
 	dict_info_[name] = val;
@@ -92,26 +94,48 @@ void Connector::fill_key(const std::string& keystr)
 {
 	key_.clear();
 	key_.parts_.push_back(std::string());
-	std::string::size_type pos, prev_pos = 0, end_opt;
 
-	while ((pos = keystr.find("<opt>", prev_pos)) != std::string::npos) {
-		key_.parts_.back() += std::string(keystr, pos - prev_pos);
-		end_opt = keystr.find("</opt>", pos);
-		if (end_opt == std::string::npos) {
-			StdErr.printf(_("Invalid key, there are not </opt>: %s\n"),
-				      keystr.c_str());
+	const char *p = keystr.c_str(), *q, *end;
+	while ((q = strchr(p, '<')) != NULL) {
+		if (strncmp(q + 1, "opt>", 4) == 0) {
+#ifdef DEBUG
+			StdErr << "Part: " << std::string(p, q - p) << "\n";
+#endif
+			key_.parts_.back().append(p, q - p);
+			q += sizeof("<opt>") - 1;
+			end = strstr(q, "</opt>");
+			if (!end) {
+				StdErr.printf(_("Invalid key, there are no </opt>: %s\n"),
+					      keystr.c_str());
+				exit(EXIT_FAILURE);
+			}
+			key_.parts_.push_back(std::string());
+			key_.opts_.push_back(std::string());
+#ifdef DEBUG
+			StdErr << "Opt: " << std::string(q, end - q) << "\n";
+#endif
+			key_.opts_.back().append(q, end - q);
+			p = end + sizeof("</opt>") - 1;
+		} else if (strncmp(q + 1, "nu />", 5) == 0) {
+			key_.parts_.back().append(p, q - p);
+			q += sizeof("<nu />") - 1;
+			end = strstr(q, "<nu />");
+			if (!end) {
+				StdErr.printf(_("Invalid key, there are no close <nu />: %s\n"),
+					      keystr.c_str());
+				exit(EXIT_FAILURE);
+			}
+#ifdef DEBUG
+			StdErr << "We skip: " << std::string(q, end - q) << "\n";
+#endif
+			p = end + sizeof("<nu />") - 1;
+		} else {
+			StdErr.printf(_("Unkown tag here: %s, line: %s\n"), q, keystr.c_str());
 			exit(EXIT_FAILURE);
 		}
-		key_.opts_.push_back(std::string());
-		key_.parts_.push_back(std::string());
-		key_.opts_.back() +=
-			std::string(keystr, end_opt -
-				    (pos + sizeof("<opt>") - 1) + 1);
-		prev_pos = end_opt + sizeof("</opt>") - 1;
 	}
 
-	key_.parts_.back() += std::string(keystr, prev_pos,
-					  keystr.length() - prev_pos);
+	key_.parts_.back().append(p);
 }
 
 void Connector::article(const StringList& keylist, const std::string& data)

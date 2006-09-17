@@ -747,12 +747,15 @@ bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 			} else if (*p == ')') {
 				key_enc += "</opt>";
 			} else if (*p == '{') {
-//TODO: more good solution?
-				p  = strchr(p, '}');
-				if (!p) {
-					StdErr.printf(_("There is no '}' here: %s\n"), p);
-					return false;
-				}
+				key_enc += "<nu />";
+			} else if (*p == '}') {
+				key_enc += "<nu />";
+			} else if (strncmp(p, "[sub]", sizeof("[sub]") - 1) == 0) {
+				key_enc += "<sub>";
+				p += sizeof("[sub]") - 2;
+			} else if (strncmp(p, "[/sub]", sizeof("[/sub]") - 1) == 0) {
+				key_enc += "</sub>";
+				p += sizeof("[/sub]") - 2;
 			} else {
 			add_char:
 				Xml::add_and_encode(key_enc, *p);

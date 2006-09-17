@@ -10,3 +10,9 @@ data: <k>a<opt>I</opt></k>
 <k>a<opt>b</opt>a</k>
 <k><opt>The</opt> United States <opt>of America</opt></k>
 <dtrn><c>A</c></dtrn>
+key: aa
+key: aac
+key: aba
+key: abac
+data: <k>a<opt>b</opt>a<opt>c</opt></k>
+<dtrn><c>abac</c></dtrn>

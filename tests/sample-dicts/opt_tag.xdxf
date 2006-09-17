@@ -7,4 +7,6 @@
 <k>a<opt>b</opt>a</k>
 <k><opt>The</opt> United States <opt>of America</opt></k>
 <dtrn><c>A</c></dtrn></ar>
+<ar><k>a<opt>b</opt>a<opt>c</opt></k>
+<dtrn><c>abac</c></dtrn></ar>
 </xdxf>

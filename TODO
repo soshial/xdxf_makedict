@@ -1,5 +1,3 @@
-- keys <opt> <nu> generator?
-- "nu" implementation
 - print where we create dictionary
 - perfomance test
 - generator results, if parser and generator are internal
@@ -10,3 +8,5 @@
 - more good solution for lang table: put table also here, convert to not std::pair array
 - handle ['] tag in dsl
 - xml -> text when converting to stardict and dictd
+- log level: makedict --verbose=2
+- convert xdxf_generator to use File:: API

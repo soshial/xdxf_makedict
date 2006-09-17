@@ -82,7 +82,7 @@ private:
 	enum {mmNONE, mmICON, mmBASENAME} meta_mode_;
 	StringMap dict_info_;
 	enum StateType { XDXF, ABBREVIATIONS, AR, ABR_DEF,
-			 FULL_NAME, DESCRIPTION, K, V, OPT
+			 FULL_NAME, DESCRIPTION, K, V, OPT, NU
 	};
 	typedef std::map<std::string, StateType> TagTable;
 	static TagTable tag_table_;
@@ -90,6 +90,7 @@ private:
 	std::string data_;
 	StringList keys_;
 	File &in_;
+	bool skip_mode_;
 
 	static void XMLCALL on_meta_start(void *, const XML_Char *,
 					  const XML_Char **);

@@ -84,7 +84,8 @@ GeneratorDictPipeOps::GeneratorDictPipeOps(File &in, GeneratorBase& gen) :
 	IGeneratorDictOps(gen), in_(in)
 {
 	meta_mode_ = mmNONE;
-	
+	skip_mode_ = false;
+
 	if (!tag_table_.empty())
 		return;
 
@@ -95,6 +96,7 @@ GeneratorDictPipeOps::GeneratorDictPipeOps(File &in, GeneratorBase& gen) :
 	tag_table_["k"] = K;
 	tag_table_["v"] = V;
 	tag_table_["opt"] = OPT;
+	tag_table_["nu"] = NU;
 	tag_table_["xdxf"] = XDXF;
 	tag_table_["abbreviations"] = ABBREVIATIONS;
 }
@@ -126,7 +128,7 @@ bool GeneratorDictPipeOps::get_info()
 
 	while (File::getline(in_, line)) {
 #ifdef DEBUG
-		StdOut << "GeneratorDictPipeOps::get_info(): line: " 
+		StdOut << "GeneratorDictPipeOps::get_info(): line: "
 		       << line << "\n";
 #endif
 		line += '\n';
@@ -139,7 +141,7 @@ bool GeneratorDictPipeOps::get_info()
 }
 
 GeneratorBase::GeneratorBase(bool enc_key)
-{	
+{
 	enc_key_ = enc_key;
 	std_dict_ops_.reset(new GeneratorDictPipeOps(StdIn, *this));
 	dict_ops_ = std_dict_ops_.get();
@@ -291,13 +293,18 @@ void XMLCALL GeneratorDictPipeOps::xml_start(void *user_arg,
 				gen->data_ += std::string("<")+name+">";
 			gen->key_.parts_.push_back(std::string());
 			break;
+		case NU:
+			gen->data_ += "<nu />";
+			gen->skip_mode_ = !gen->skip_mode_;
+			break;
 		case V:
 			gen->data_.clear();
 			break;
 		case OPT:
-			gen->data_ += std::string("<") + name + ">";
-			gen->key_.opts_.push_back(std::string());
-			gen->key_.parts_.push_back(std::string());
+			if (!gen->skip_mode_) {
+				gen->data_ += std::string("<") + name + ">";
+				gen->key_.opts_.push_back(std::string());
+			}
 			break;
 		case ABR_DEF:
 		case AR:
@@ -352,7 +359,10 @@ void XMLCALL GeneratorDictPipeOps::xml_end(void *userData, const XML_Char *name)
 			gen->data_.clear();
 			break;
 		case OPT:
-			gen->data_ += std::string("</") + name + ">";
+			if (!gen->skip_mode_) {
+				gen->data_ += std::string("</") + name + ">";
+				gen->key_.parts_.push_back(std::string());
+			}
 			break;
 		case K:
 			gen->data_ += std::string("</") + name + ">";
@@ -393,10 +403,12 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 	gen->data_ += data;
 	switch (gen->state_stack_.top()) {
 	case K:
-		gen->key_.parts_.back() += std::string(s, len);
+		if (!gen->skip_mode_)
+			gen->key_.parts_.back() += std::string(s, len);
 		break;
 	case OPT:
-		gen->key_.opts_.back() += std::string(s, len);
+		if (!gen->skip_mode_)
+			gen->key_.opts_.back() += std::string(s, len);
 		break;
 	default:
 		/*nothing*/;
@@ -405,22 +417,34 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 
 
 
-void IGeneratorDictOps::sample(StringList& keys, std::vector<std::string>::size_type n)
+void IGeneratorDictOps::sample(StringList& keys, StringList::size_type n)
 {
-	if (n==0) {
+	size_t index = key_.opts_.size() - n;
+	if (index < key_.parts_.size())
+		sample_data_.push_back(key_.parts_[index]);
+#ifdef DEBUG
+	StdErr << "n=" << n << "\n";
+	for (std::list<std::string>::const_iterator it = sample_data_.begin();
+	     it != sample_data_.end(); ++it)
+		StdErr << "sample_data: " << *it << "\n";
+#endif
+	if (n == 0) {
 		std::string res =
-			accumulate(sample_data_.begin(), sample_data_.end(),
-				   std::string());
+			std::accumulate(sample_data_.begin(), sample_data_.end(),
+					std::string());
 		keys.push_back(res);
+		if (index < key_.parts_.size())
+			sample_data_.pop_back();
+#ifdef DEBUG
+		StdErr << "key: " << res << "\n";
+#endif
 		return;
 	}
-	sample_data_.push_back(key_.parts_[n + 1 - key_.opts_.size()]);
-	sample(keys, n-1);
-	sample_data_.pop_back();
+
+	sample(keys, n - 1);
 
 	sample_data_.push_back(key_.opts_[key_.opts_.size() - n]);
-	sample_data_.push_back(key_.parts_[key_.opts_.size() - n + 1]);
-	sample(keys, n-1);
+	sample(keys, n - 1);
 	sample_data_.pop_back();
 	sample_data_.pop_back();
 }
@@ -432,9 +456,13 @@ void IGeneratorDictOps::generate_keys(StringList& keys)
 			_("Internal error, can not generate key list, there are no parts of key\n");
 		return;
 	}
+	if (key_.parts_.back().empty())
+		key_.parts_.pop_back();
 	sample_data_.clear();
-
-	sample_data_.push_back(key_.parts_.front());
+#ifdef DEBUG
+	StdErr << "key_.parts.size() = " << key_.parts_.size() << "\n";
+	StdErr << "key_.opts.size() = " << key_.opts_.size() << "\n";
+#endif
 	sample(keys, key_.opts_.size());
 
 	for (StringList::iterator it = keys.begin(); it != keys.end(); ++it) {
