@@ -120,7 +120,8 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 		std::string ext;
 		if (pos != std::string::npos)
 			ext = icon.substr(pos);
-		copy_file(icon, dirname + G_DIR_SEPARATOR_S"dict" + ext);
+		if (!copy_file(icon, dirname + G_DIR_SEPARATOR_S"dict" + ext))
+			return EXIT_FAILURE;		
 	}
 
 	std::string dictname = dirname + G_DIR_SEPARATOR_S"dict.xdxf";

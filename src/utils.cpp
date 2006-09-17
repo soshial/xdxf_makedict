@@ -22,23 +22,24 @@
 #  include "config.h"
 #endif
 
+#include <cstring>
 #include <cerrno>
 #include <glib.h>
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
-#include <iostream>
-#include <fstream>
+
+#include "file.hpp"
 
 #include "utils.hpp"
 
 bool make_directory(const std::string& dir)
 {
-	if (g_mkdir(dir.c_str(), 0700) && errno!=EEXIST) {
-		std::cerr<<_("Can not create directory: ")<<dir<<':'
-						 <<strerror(errno)<<std::endl;
+	if (g_mkdir(dir.c_str(), 0700) && errno != EEXIST) {
+		StdErr.printf(_("Can not create %s: %s\n"),
+			      dir.c_str(), strerror(errno));
 		return false;
 	}
-  return true;
+	return true;
 }
 
 void replace(const Str2StrTable& replace_table,
@@ -158,11 +159,18 @@ const char *b64_encode(guint32 val)
    return result + 5;
 }
 
-void copy_file(const std::string& from, const std::string& to)
+bool copy_file(const std::string& from, const std::string& to)
 {
-	std::ifstream in(from.c_str(), std::ios::binary|std::ios::in);
-	std::ofstream out(to.c_str(), std::ios::binary|std::ios::out|std::ios::trunc);
-	char c;
-	while (in.get(c))
-		out.put(c);
+	File in(fopen(from.c_str(), "rb"));
+	if (!in) {
+		StdErr.printf(_("Can not open %s for reading\n"), from.c_str());
+		return false;
+	}
+	File out(fopen(to.c_str(), "wb"));
+	if (!out) {
+		StdErr.printf(_("Can not open %s for writing\n"), to.c_str());
+		return false;
+	}
+
+	return File::copy(in, out);
 }
