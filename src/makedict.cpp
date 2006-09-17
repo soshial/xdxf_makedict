@@ -45,6 +45,7 @@
 
 class MakeDict {
 public:
+	MakeDict();
 	int run(int argc, char *argv[]);
 private:
 	StringMap input_codecs;
@@ -53,6 +54,7 @@ private:
 	std::string workdir;
 	std::string input_format, output_format;
 	std::string appname_;
+	int verbose_;
 
 	int convert(const char *arg);
 	const char *find_input_codec(const std::string& url);
@@ -63,9 +65,49 @@ private:
 	void unknown_input_format(const std::string& format = "");
 	void unknown_output_format(const std::string& format = "");
 	std::string parser_options();
+	static void log(const gchar *log_domain,
+			GLogLevelFlags log_level,
+			const gchar *message,
+			gpointer user_data);
 };
 
 static int width_of_first(const StringMap &, const StringList&);
+
+void MakeDict::log(const gchar *log_domain,
+		   GLogLevelFlags log_level,
+		   const gchar *message,
+		   gpointer user_data)
+{
+	MakeDict *md = static_cast<MakeDict *>(user_data);
+	switch (log_level) {
+	case G_LOG_FLAG_RECURSION:
+	case G_LOG_FLAG_FATAL:
+	case G_LOG_LEVEL_ERROR:
+	case G_LOG_LEVEL_CRITICAL:
+		StdErr << message;
+		break;
+	case G_LOG_LEVEL_WARNING:
+		if (md->verbose_ > 0)
+			StdErr << message;
+		break;
+	case G_LOG_LEVEL_MESSAGE:
+		if (md->verbose_ > 1)
+			StdErr << message;
+		break;
+	case G_LOG_LEVEL_INFO:
+		if (md->verbose_ > 2)
+			StdErr << message;
+		break;
+	default:
+		/*nothing*/break;
+	}
+}
+
+MakeDict::MakeDict()
+{
+	verbose_ = 2;
+	g_log_set_default_handler(log, this);
+}
 
 std::string MakeDict::parser_options()
 {
@@ -134,6 +176,7 @@ int MakeDict::run(int argc, char *argv[])
 		{"work-dir", required_argument, NULL, 0},
 		{"list-supported-formats", no_argument, NULL, 'l'},
 		{"parser-option", required_argument, NULL, 1},
+		{"verbose", required_argument, NULL, 2},
 		{ NULL, 0, NULL, 0 }
 	};
 
@@ -192,6 +235,12 @@ int MakeDict::run(int argc, char *argv[])
 			parser_options_.push_back(pars_opt.substr(beg, len - beg));
 			break;
 		}
+		case 2:
+			if (sscanf(optarg, "%d", &verbose_) != 1) {
+				StdErr.printf(_("Expected usage: --verbose=number\n"));
+				return EXIT_FAILURE;
+			}
+			break;
 		case '?':
 		default:
 			StdErr.printf(_("Unknwon option.\nTry '%s --help' for more information.\n"),

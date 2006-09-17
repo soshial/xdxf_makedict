@@ -294,14 +294,20 @@ int Parser::parse(const std::string& filename)
 	if (!read_unit(f, header.title_offset_))
 		return EXIT_FAILURE;
 	title = &databuf_[0];
+	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, _("Sdictionary title: %s\n"),
+	      title.c_str());
 
 	if (!read_unit(f, header.copyright_offset_))
 		return EXIT_FAILURE;
 	copyright = &databuf_[0];
+	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, _("Sdictionary copyrights: %s\n"),
+	      copyright.c_str());
 
 	if (!read_unit(f, header.version_offset_))
 		return EXIT_FAILURE;
 	version = &databuf_[0];
+	g_log(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, _("Sdictionary version: %s\n"),
+	      version.c_str());
 
 	if (!f.seek(header.full_index_offset_)) {
 		StdErr << _("Corrupted dictionary or problem with hard disk\n");

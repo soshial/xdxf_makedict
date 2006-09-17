@@ -144,7 +144,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
 		return false;
 	}
-	StdOut.printf(_("Writing index to %s\n"), file_name.c_str());
+	g_message(_("Writing index to %s\n"), file_name.c_str());
 	file_name = realbasename_ + ".dict";
 	dict_file_.reset(fopen(file_name.c_str(), "wb"));
 
@@ -153,7 +153,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 		return false;
 	}
 
-	StdOut.printf(_("Writing data to %s\n"), file_name.c_str());
+	g_message(_("Writing data to %s\n"), file_name.c_str());
 
 	return true;
 }
@@ -162,9 +162,9 @@ int Generator::generate()
 {
 	int res = EXIT_FAILURE;
 
-	StdOut << _("Sorting...");
+	g_message(_("Sorting..."));
 	std::sort(keys_list.begin(), keys_list.end(), stardict_less());
-	StdOut<<_("done\n");
+	g_message(_("done\n"));
 
 	guint32 wordcount=keys_list.size();
 	guint32 data_size, data_offset=0;
@@ -224,12 +224,11 @@ int Generator::generate()
 		StdErr << _("There are several duplicated keys\n");
 	if (!create_ifo_file(realbasename_, wordcount, idx_file_.tell())) {
 		StdErr << _("Creating ifo file error.\n");
-		return res;
+		return EXIT_FAILURE;
 	}
-	StdOut.printf(_("Count of articles: %u\n"), wordcount);
-	res=EXIT_SUCCESS;
+	g_message(_("Count of articles: %u\n"), wordcount);
 
-	return res;
+	return EXIT_SUCCESS;
 }
 
 bool Generator::on_have_data(const StringList& keys,
@@ -254,6 +253,8 @@ bool Generator::create_ifo_file(const std::string& basename,
 		StdErr.printf(_("Can not create/open: %s\n"), filename.c_str());
 		return false;
 	}
+
+	g_message(_("Writing meta-info to %s\n"), filename.c_str());
 
 	f << "StarDict's dict ifo file\n"
 	  << "version=2.4.2\n"

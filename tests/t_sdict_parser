@@ -4,7 +4,7 @@ source funcs.sh
 set_md_plugin_dir
 
 convert() {
-	if ! ../src/makedict --parser-option "remove-duplication=yes" -i sdict -o xdxf --work-dir /tmp "${1}"; then
+	if ! ../src/makedict --verbose=3 --parser-option "remove-duplication=yes" -i sdict -o xdxf --work-dir /tmp "${1}"; then
 		echo "makedict return error" >&2
 		exit 1
 	fi

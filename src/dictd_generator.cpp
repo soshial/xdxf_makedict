@@ -100,7 +100,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
 		return false;
 	}
-	StdOut.printf(_("Write index to %s\n"), file_name.c_str());
+	g_message(_("Write index to %s\n"), file_name.c_str());
 	dict_file_name=realbasename+".dict";
 	dict_file_.reset(fopen(dict_file_name.c_str(), "wb"));
 
@@ -108,7 +108,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 		StdErr.printf(_("Can not open/create: %s\n"), dict_file_name.c_str());
 		return false;
 	}
-	StdOut.printf(_("Write data to %s\n"), dict_file_name.c_str());
+	g_message(_("Write data to %s\n"), dict_file_name.c_str());
 	return true;
 }
 

@@ -1,7 +1,6 @@
 - more good solution for lang table: put table also here, convert to not std::pair array
 - handle ['] tag in dsl
 - xml -> text when converting to stardict and dictd
-- log level: makedict --verbose=2
 - do not use `exit' to terminate program
 - check all to do items in code
 - do not use external program except standart in tests
