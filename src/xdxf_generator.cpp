@@ -23,6 +23,8 @@
 #endif
 
 #include <glib/gi18n.h>
+#include <cstring>
+#include <cerrno>
 
 #include "file.hpp"
 
@@ -124,8 +126,11 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 	std::string dictname = dirname + G_DIR_SEPARATOR_S"dict.xdxf";
 	dict_.reset(fopen(dictname.c_str(), "wb"));
 
-	if (!dict_)
+	if (!dict_) {
+		StdErr.printf(_("Can not open %s for writting: %s\n"),
+			      dictname.c_str(), strerror(errno));
 		return false;
+	}
 	StdOut.printf(_("Saving result to: %s\n"), dictname.c_str());
 	dict_ <<
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"

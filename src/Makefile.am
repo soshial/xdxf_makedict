@@ -31,7 +31,8 @@ makedict_SOURCES = \
 	xdxf_parser.cpp \
 	stardict_generator.cpp \
 	dictd_generator.cpp \
-	dictd_parser.cpp
+	dictd_parser.cpp \
+	resource.hpp
 
 LDADD = @MAKEDICT_LIBS@ 
 #makedict_LDADD = @MAKEDICT_LIBS@ 

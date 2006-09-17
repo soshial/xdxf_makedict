@@ -40,6 +40,7 @@
 #include "utils.hpp"
 #include "file.hpp"
 #include "xml.hpp"
+#include "resource.hpp"
 
 #include "parser.hpp"
 

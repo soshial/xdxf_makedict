@@ -34,6 +34,7 @@
 #include <string>
 
 #include "utils.hpp"
+#include "resource.hpp"
 #include "parser.hpp"
 #include "process.hpp"
 #include "generator.hpp"

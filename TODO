@@ -1,4 +1,3 @@
-- split utils.h to resource.hpp and utils.hpp by it self
 - superfluous copy when string->StringList
 - xdxf_generator: whats happened if abbr list keys contains opt and nu
 - more good solution for lang table: put table also here, convert to not std::pair array

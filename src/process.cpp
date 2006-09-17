@@ -28,7 +28,9 @@ extern "C" {
 }
 #include <cerrno>
 #include <glib/gi18n.h>
+
 #include "utils.hpp"
+#include "resource.hpp"
 
 #include "process.hpp"
 
