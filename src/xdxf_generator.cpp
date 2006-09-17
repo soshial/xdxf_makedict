@@ -117,7 +117,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 
 	if (!dict_)
 		return false;
-
+	StdOut.printf(_("Saving result to: %s\n"), dictname.c_str());
 	dict_ <<
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
 		"<!DOCTYPE xdxf SYSTEM \"http://xdxf.sourceforge.net/xdxf_lousy.dtd\">\n";

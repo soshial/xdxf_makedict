@@ -2,7 +2,7 @@
  * This file is part of makedict - convertor from any
  * dictionary format to any http://xdxf.sourceforge.net
  *
- * Copyright (C) Evgeniy Dushistov, 2005
+ * Copyright (C) Evgeniy Dushistov, 2005-2006
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,6 @@
 #include <cstring>
 #include <cstdio>
 #include <glib/gi18n.h>
-#include <iostream>
-#include <fstream>
 #include <vector>
 
 #include "charset_conv.hpp"
@@ -37,82 +35,83 @@
 
 #include "parser.hpp"
 
-using std::string;
-using std::vector;
-using std::cerr;
-using std::cout;
-using std::endl;
 
 //#define DEBUG
 
 class dictionary {
 public:
-	explicit dictionary(const string& tmpfilename);
+	explicit dictionary(const std::string& tmpfilename);
 	~dictionary();
-	void add_article(const string& keyval, const string& data);
+	void add_article(const std::string& keyval, const std::string& data);
 	size_t narticles() const { return keylist.size(); }
-	void get_article(size_t i, string &key, string& data);
+	void get_article(size_t i, std::string &key, std::string& data);
 private:
-	string datafilename;
-	std::fstream datafile;
+	std::string datafilename;
+	File datafile;
 	struct key {
-		string val;
+		std::string val;
 		gulong off, size;
-		key(const string& v, gulong o, gulong s) : val(v), off(o), size(s) {}
+		key(const std::string& v, gulong o, gulong s) : val(v), off(o), size(s) {}
 	};
-	vector<key> keylist;
+	std::vector<key> keylist;
 };
 
-void dictionary::add_article(const string& keyval, const string& data)
+void dictionary::add_article(const std::string& keyval, const std::string& data)
 {
-	keylist.push_back(key(keyval, datafile.tellp(), data.length()));
+	keylist.push_back(key(keyval, datafile.tell(), data.length()));
 	if (!datafile.write(data.c_str(), data.length()))
-		cerr<<_("WARRNING: dictionary::add_article: write failed")<<endl;
+		StdErr << _("WARRNING: dictionary::add_article: write failed\n");
 }
 
-dictionary::dictionary(const string& tmpfilename)
+dictionary::dictionary(const std::string& tmpfilename)
 {
 	datafilename=tmpfilename;
-	datafile.open(tmpfilename.c_str(), std::ios::in|std::ios::out|std::ios::binary|std::ios::trunc);
+	datafile.reset(fopen(tmpfilename.c_str(), "w+b"));
 	if (!datafile)
-		cerr<<_("WARRNING: dictionary::dictionary: can not open: ")<<datafilename<<endl;
+		StdErr.printf(_("WARRNING: dictionary::dictionary: can not open: %s\n"),
+			      datafilename.c_str());
 }
 
-void dictionary::get_article(size_t i, string &key, string& data)
+void dictionary::get_article(size_t i, std::string &key, std::string& data)
 {
 	if (i>=keylist.size())
 		return;
-	if (!datafile.seekg(keylist[i].off, std::ios::beg)) {
-		cerr<<_("WARRNING: dictionary::get_article: seek failed")<<endl;
+	if (!datafile.seek(keylist[i].off)) {
+		StdErr << _("WARRNING: dictionary::get_article: seek failed\n");
 		return;
 	}
 	key=keylist[i].val;
 	data.resize(keylist[i].size);
 	if (!datafile.read(&data[0], data.length()))
-		cerr<<_("WARRNING: dictionary::get_article: read failed")<<endl;
+		StdErr << _("WARRNING: dictionary::get_article: read failed\n");
 }
 
 dictionary::~dictionary()
 {
 	remove(datafilename.c_str());
 }
+namespace dictd {
+	class Parser : public ParserBase {
+	public:
+		Parser();
+		~Parser() {} 
+		int parse(const std::string & filename);
+		bool is_my_format(const std::string& url) { 
+			return g_str_has_suffix(url.c_str(), ".index");
+		}
+	private:
+		std::vector<char> data_buffer;
+		static Str2StrTable replace_table;
+	};
 
-class dictd_parser : public ParserBase {
-public:
-  dictd_parser();
-  ~dictd_parser() {} 
-  int parse(const string & filename);
-	bool is_my_format(const std::string& url) { 
-		return g_str_has_suffix(url.c_str(), ".index");
-	}
-private:
-  vector<char> data_buffer;
-  static Str2StrTable replace_table;
-};
+	REGISTER_PARSER(Parser, dictd);
+}
 
-Str2StrTable dictd_parser::replace_table;
+using namespace dictd;
 
-dictd_parser::dictd_parser()
+Str2StrTable Parser::replace_table;
+
+Parser::Parser()
 {
 	set_parser_info("format", "dictd");
 	set_parser_info("version", "dictd_parser, version 0.1");
@@ -152,7 +151,7 @@ static inline const char *skip(const char *str, const char *skip)
 	return str;
 }
 
-int dictd_parser::parse(const string& filename)
+int Parser::parse(const std::string& filename)
 {  
 	int res=EXIT_FAILURE;
 
@@ -160,14 +159,14 @@ int dictd_parser::parse(const string& filename)
 	if (filename.substr(filename.length()-6, 6)!=".index")
 		return res;
 	if (!is_file_exist(filename)) {
-		cerr<<filename<<_(" does not exist\n");
+		StdErr.printf(_("%s does not exist\n"), filename.c_str());
 		return res;
 	}
-	string data_filename(filename);
+	std::string data_filename(filename);
 	data_filename.replace(filename.length()-6, 6, ".dict");
 
 	if (!is_file_exist(data_filename)) {
-		cerr<<_("File does not exist: ")<<data_filename<<endl;
+		StdErr.printf(_("File does not exist: %s\n"), data_filename.c_str());
 		return res;
 	}
 	bool encoding=false;
@@ -179,13 +178,13 @@ int dictd_parser::parse(const string& filename)
 	MapFile mapfile;
   
 	if (!mapfile.open(filename.c_str())) {
-		cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		StdErr << _("Corrupted dictionary or problem with hard disk\n");
 		return res;
 	}
 
-	std::ifstream data(data_filename.c_str(), std::ios::in | std::ios::binary);
+	File data(fopen(data_filename.c_str(), "rb"));
 	if (!data) {
-		cerr<<_("Can not open: ")<<data_filename<<endl;
+		StdErr.printf(_("Can not open: %s\n"), data_filename.c_str());
 		return res;
 	}
 
@@ -193,60 +192,60 @@ int dictd_parser::parse(const string& filename)
 	set_dict_info("lang_to", parser_options_["lang_to"]);
 
 	char *offset_p, *size_p;
-	string enc_str;
+	std::string enc_str;
 	char *p=mapfile.begin();
-	string description;
+	std::string description;
 	char *end=mapfile.end();
 	
 	while (p!=end) {
 		if ((offset_p=mapfile.find_str(p, "\t"))==end) {
-			cerr<<_("Invalid index file\n");
+			StdErr << _("Invalid index file\n");
 			return res;
 		}
-		string key(p, offset_p-p);
-		string tmp;
+		std::string key(p, offset_p-p);
+		std::string tmp;
 		replace(replace_table, key.c_str(), tmp);
-		string conv_str;
+		std::string conv_str;
 		if (encoding)
 			conv.convert(tmp, key);
 		else
 			key=tmp;
 
 		if (!g_utf8_validate(key.c_str(), -1, NULL)) {
-			cerr<<_("Not valid utf8 index string\n");
+			StdErr << _("Not valid utf8 index string\n");
 			return res;
 		}
 
 		offset_p++;
     
 		if ((size_p=mapfile.find_str(offset_p, "\t"))==end) {
-			cerr<<_("Invalid index file\n");
+			StdErr << _("Invalid index file\n");
 			return res;
 		}
-		string offset_str(offset_p, size_p-offset_p);
+		std::string offset_str(offset_p, size_p-offset_p);
 
 		size_p++;
 		if ((p=mapfile.find_str(size_p, "\n"))==end) {
-			cerr<<_("Invalid index file\n");
+			StdErr << _("Invalid index file\n");
 			return res;
 		}
-		string size_str(size_p, p-size_p);
+		std::string size_str(size_p, p-size_p);
 
 		p++;
 
 		long data_offset=b64_decode(offset_str.c_str());
 		long data_size=b64_decode(size_str.c_str());
-		if (!data.seekg(data_offset)) {
-			cerr<<_("Corrupted dictionary or problem with hard disk\n");
+		if (!data.seek(data_offset)) {
+			StdErr << _("Corrupted dictionary or problem with hard disk\n");
 			return res;
 		}
 		data_buffer.resize(data_size);
 		if (!data.read(&data_buffer[0], data_buffer.size())) {
-			cerr<<_("Corrupted dictionary or problem with hard disk\n");
+			StdErr << _("Corrupted dictionary or problem with hard disk\n");
 			return res;
 		}
 
-		vector<char>::reverse_iterator ri;
+		std::vector<char>::reverse_iterator ri;
 		//remove last not neeadable characters
 		for (ri=data_buffer.rbegin(); ri!=data_buffer.rend() && 
 			     (*ri=='\r' || *ri=='\n' || *ri==' ' || *ri=='\t'); ++ri)
@@ -264,7 +263,7 @@ int dictd_parser::parse(const string& filename)
 			conv_str=&data_buffer[0];
 
 		if (!g_utf8_validate(conv_str.c_str(), -1, NULL)) {
-			cerr<<_("Not valid utf8 string: ")<<&data_buffer[0]<<endl;
+			StdErr.printf(_("Not valid utf8 string: %s\n"), &data_buffer[0]);
 			return res;
 		}
 
@@ -278,7 +277,7 @@ int dictd_parser::parse(const string& filename)
 				const char *s=enc_str.c_str();
 				s=skip(s, "00databaseurl");
 				s=skip(s, "00-database-url");
-				description+=string("\nSource url: ")+s;
+				description += std::string("\nSource url: ")+s;
 			} else if (key=="00databasescript" || key=="00-database-script" ||
 				   key=="00-database-info" || key=="00databaseinfo") {
 				description+=enc_str;
@@ -294,7 +293,7 @@ int dictd_parser::parse(const string& filename)
 
 	set_dict_info("description", description);
 	begin();
-	string key, dictdata;
+	std::string key, dictdata;
 	for (size_t i=0; i<dict.narticles(); ++i) {
 		dict.get_article(i, key, dictdata);
 		if (!key.empty())
@@ -306,8 +305,9 @@ int dictd_parser::parse(const string& filename)
 	return res;
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
-	dictd_parser parser;
-	return parser.run(argc, argv);
+	 return Parser().run(argc, argv);
 }
+#endif

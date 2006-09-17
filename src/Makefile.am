@@ -1,10 +1,6 @@
-CODECS = \
-	stardict_generator dictd_generator \
-	dictd_parser
-
 bin_PROGRAMS = makedict
 
-noinst_PROGRAMS = $(CODECS)
+#noinst_PROGRAMS = $(CODECS)
 
 SCRIPT_CODECS = mueller7_parser.py mdparser.py apresyan.py
 noinst_PYTHON = $(SCRIPT_CODECS)
@@ -32,16 +28,10 @@ makedict_SOURCES = \
 	langs_2to3.cpp langs_2to3.hpp \
 	xdxf_generator.cpp \
 	xml.cpp xml.hpp \
-	xdxf_parser.cpp
-
-stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)
-dictd_generator_SOURCES = dictd_generator.cpp $(GENERATOR_LIB)
-
-dictd_parser_SOURCES = \
-	dictd_parser.cpp \
-	mapfile.hpp \
-	charset_conv.hpp charset_conv.cpp \
-	$(PARSER_LIB)
+	xdxf_parser.cpp \
+	stardict_generator.cpp \
+	dictd_generator.cpp \
+	dictd_parser.cpp
 
 LDADD = @MAKEDICT_LIBS@ 
 #makedict_LDADD = @MAKEDICT_LIBS@ 

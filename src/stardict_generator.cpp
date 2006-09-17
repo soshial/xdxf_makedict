@@ -30,8 +30,6 @@
 #include <glib.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <iostream>
-#include <fstream>
 #include <vector>
 #include <algorithm>
 
@@ -39,82 +37,87 @@
 
 #include "generator.hpp"
 
-class stardict_generator : public GeneratorBase {
-public:
-	stardict_generator(): GeneratorBase(true)
-	{
-		set_format("stardict");
-		set_version(_("stardict_generator, version 0.2"));
-		cur_off=0;
-		keys_list.reserve(20000);
-	}
-	~stardict_generator()
-	{
-		for (std::vector<Key>::iterator p=keys_list.begin();
-				 p!=keys_list.end(); ++p)
-			delete []p->value;
-	}
-protected:
-	int generate();
-	void on_have_data(const StringList&, const std::string&);
-	bool on_prepare_generator(const std::string&,
-				  const std::string&);
-private:
-	std::ofstream idx_file_;
-	guint32 cur_off;
-	std::string full_name;
-
-	class RemoveAfterExit {
+namespace stardict {
+	class Generator : public GeneratorBase {
 	public:
-		RemoveAfterExit() {}
-		RemoveAfterExit(const std::string& fn) : filename_(fn) {}
-		~RemoveAfterExit() {
-			if (!filename_.empty())
-				remove(filename_.c_str()); 
-		}
-		void operator() (const std::string& fn) { filename_ = fn; }
+		Generator(): GeneratorBase(true)
+			{
+				set_format("stardict");
+				set_version(_("stardict_generator, version 0.2"));
+				cur_off_ = 0;
+				keys_list.reserve(20000);
+			}
+		~Generator()
+			{
+				for (std::vector<Key>::iterator p=keys_list.begin();
+				     p!=keys_list.end(); ++p)
+					delete []p->value;
+			}
+	protected:
+		int generate();
+		void on_have_data(const StringList&, const std::string&);
+		bool on_prepare_generator(const std::string&,
+					  const std::string&);
 	private:
-		std::string filename_;
-	} remove_after_exit_;
-	std::fstream tmp_dict_file_;
-	std::ofstream dict_file_;
-	std::string realbasename_;
+		File idx_file_;
+		guint32 cur_off_;
+		std::string full_name;
 
-	struct Key {
-		char *value;
-		guint32 data_off;
-		guint32 data_size;
-		Key(char *val=NULL, guint32 off=0, guint32 size=0) :
-			value(val), data_off(off), data_size(size)
-		{
+		class RemoveAfterExit {
+		public:
+			RemoveAfterExit() {}
+			RemoveAfterExit(const std::string& fn) : filename_(fn) {}
+			~RemoveAfterExit() {
+				if (!filename_.empty())
+					remove(filename_.c_str()); 
+			}
+			void operator() (const std::string& fn) { filename_ = fn; }
+		private:
+			std::string filename_;
+		} remove_after_exit_;
+		File tmp_dict_file_;
+		File dict_file_;
+		std::string realbasename_;
+
+		struct Key {
+			char *value;
+			guint32 data_off;
+			guint32 data_size;
+			Key(char *val=NULL, guint32 off=0, guint32 size=0) :
+				value(val), data_off(off), data_size(size)
+				{
+				}
+			Key(const std::string& val, guint32 off=0, guint32 size=0) :
+				value(NULL), data_off(off), data_size(size)
+				{
+					value = new char [val.length()+1];
+					strcpy(value, val.c_str());
+				}
+		};
+		std::vector<Key> keys_list;
+		static gint stardict_strcmp(const gchar *s1, const gchar *s2) {
+			gint a = g_ascii_strcasecmp(s1, s2);
+			if (a == 0)
+				return strcmp(s1, s2);
+
+			return a;
 		}
-		Key(const std::string& val, guint32 off=0, guint32 size=0) :
-			value(NULL), data_off(off), data_size(size)
-		{
-			value = new char [val.length()+1];
-			strcpy(value, val.c_str());
-		}
+		class stardict_less {
+		public:
+			bool operator()(const Key & lh, const Key & rh) {
+				return stardict_strcmp(lh.value, rh.value)<0;
+			}
+		};
+		bool create_ifo_file(const std::string& basename, guint32 wordcount, guint32 idx_file_size);
+		std::string get_current_date(void);
 	};
-	std::vector<Key> keys_list;
-	static gint stardict_strcmp(const gchar *s1, const gchar *s2) {
-		gint a = g_ascii_strcasecmp(s1, s2);
-		if (a == 0)
-			return strcmp(s1, s2);
 
-		return a;
-	}
-	class stardict_less {
-	public:
-		bool operator()(const Key & lh, const Key & rh) {
-			return stardict_strcmp(lh.value, rh.value)<0;
-		}
-	};
-	bool create_ifo_file(const std::string& basename, guint32 wordcount, guint32 idx_file_size);
-	std::string get_current_date(void);
-};
+	REGISTER_GENERATOR(Generator, stardict);
+}
 
+using namespace stardict;
 
-bool stardict_generator::on_prepare_generator(const std::string& workdir,
+bool Generator::on_prepare_generator(const std::string& workdir,
 					      const std::string& bname)
 {
 	std::string basename = "stardict-" + bname + "-2.4.2";
@@ -126,42 +129,42 @@ bool stardict_generator::on_prepare_generator(const std::string& workdir,
 	realbasename_ = dirname + G_DIR_SEPARATOR + bname;
 
 	std::string file_name = realbasename_ + ".dict.tmp";
-	tmp_dict_file_.open(file_name.c_str(),
-			    std::ios::binary | std::ios::out |
-			    std::ios::trunc | std::ios::in);
+	tmp_dict_file_.reset(fopen(file_name.c_str(), "w+b"));
+
 	if (!tmp_dict_file_) {
-		std::cerr<<_("Can not open/create: ") << file_name << std::endl;
+		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
 		return false;
 	}
 	remove_after_exit_(file_name);
 
 
 	file_name = realbasename_ + ".idx";
-	idx_file_.open(file_name.c_str(),
-		       std::ios::binary | std::ios::out | std::ios::trunc);
+	idx_file_.reset(fopen(file_name.c_str(), "wb"));
 	if (!idx_file_) {
-		std::cerr<<_("Can not open/create: ")<<file_name<<std::endl;
+		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
+		return false;
+	}
+	StdOut.printf(_("Writing index to %s\n"), file_name.c_str());
+	file_name = realbasename_ + ".dict";
+	dict_file_.reset(fopen(file_name.c_str(), "wb"));
+
+	if (!dict_file_) {
+		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
 		return false;
 	}
 
-	file_name = realbasename_ + ".dict";
-	dict_file_.open(file_name.c_str(), std::ios::binary |
-		   std::ios::out | std::ios::trunc);
-	if (!dict_file_) {
-		std::cerr<<_("Can not open/create: ")<<file_name<<std::endl;
-		return false;
-	}
+	StdOut.printf(_("Writing data to %s\n"), file_name.c_str());
 
 	return true;
 }
 
-int stardict_generator::generate()
+int Generator::generate()
 {
 	int res = EXIT_FAILURE;
 
-	std::cout<<_("Sorting...");
-	sort(keys_list.begin(), keys_list.end(), stardict_less());
-	std::cout<<_("done\n");
+	StdOut << _("Sorting...");
+	std::sort(keys_list.begin(), keys_list.end(), stardict_less());
+	StdOut<<_("done\n");
 
 	guint32 wordcount=keys_list.size();
 	guint32 data_size, data_offset=0;
@@ -176,18 +179,19 @@ int stardict_generator::generate()
 		data_size=0;
 
 		for (;;) {
-			tmp_dict_file_.seekg(pitem->data_off);
+			tmp_dict_file_.seek(pitem->data_off);
 			buf.resize(pitem->data_size+1);
 			tmp_dict_file_.read(&buf[0], pitem->data_size);
 			buf[pitem->data_size]='\0';
 
 			if (!g_utf8_validate(&buf[0], gssize(-1), NULL)) {
-				std::cerr<<_("Not valid UTF-8 std::string: ")<<encoded_str<<std::endl;
+				StdErr.printf(_("Not valid UTF-8 std::string: %s\n"),
+					      encoded_str.c_str());
 				return res;
 			}
 
 			if (!dict_file_.write(&buf[0], pitem->data_size)) {
-				std::cerr<<_("Can not write in data file\n");
+				StdErr << _("Can not write in data file\n");
 				return res;
 			}
 
@@ -200,7 +204,7 @@ int stardict_generator::generate()
 #if 0
 				std::cerr<<_("Duplicate!: ")<<prev_item_value<<std::endl;
 #else
-				duplicates=true;
+				duplicates = true;
 #endif
 				wordcount--;
 				dict_file_.write("\n", 1);
@@ -217,43 +221,43 @@ int stardict_generator::generate()
 		data_offset+=data_size;
 	}
 	if (duplicates)
-		std::cerr<<_("There are several duplicated keys\n");
-	if (!create_ifo_file(realbasename_, wordcount, idx_file_.tellp())) {
-		std::cerr<<_("Creating ifo file error.\n");
+		StdErr << _("There are several duplicated keys\n");
+	if (!create_ifo_file(realbasename_, wordcount, idx_file_.tell())) {
+		StdErr << _("Creating ifo file error.\n");
 		return res;
 	}
-	std::cout<<_("Count of articles: ")<<wordcount<<std::endl;
+	StdOut.printf(_("Count of articles: %u\n"), wordcount);
 	res=EXIT_SUCCESS;
 
 	return res;
 }
 
-void stardict_generator::on_have_data(const StringList& keys,
+void Generator::on_have_data(const StringList& keys,
 				      const std::string& data)
 {
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
-		keys_list.push_back(Key(*p, cur_off, data.length()));
+		keys_list.push_back(Key(*p, cur_off_, data.length()));
 	tmp_dict_file_.write(&data[0], data.length());
-	cur_off += data.length();
+	cur_off_ += data.length();
 }
 
-bool
-stardict_generator::create_ifo_file(const std::string& basename,
-				    guint32 wordcount,
-				    guint32 idx_file_size)
+bool Generator::create_ifo_file(const std::string& basename,
+				guint32 wordcount,
+				guint32 idx_file_size)
 {
 	std::string filename=basename+".ifo";
-	std::ofstream f(filename.c_str(), std::ios::binary|std::ios::out);
+	File f(fopen(filename.c_str(), "wb"));
 
 	if (!f) {
-		std::cerr<<_("Can not create/open: ")<<filename.c_str()<<std::endl;
+		StdErr.printf(_("Can not create/open: %s\n"), filename.c_str());
 		return false;
 	}
 
-	f<<"StarDict's dict ifo file\n"
-	 <<"version=2.4.2\n"
-	 <<"wordcount="<<wordcount<<"\n"
-	 <<"idxfilesize="<<idx_file_size<<"\n";
+	f << "StarDict's dict ifo file\n"
+	  << "version=2.4.2\n"
+	  << "wordcount=" << wordcount << "\n"
+	  << "idxfilesize=" << idx_file_size << "\n";
+
 	if (!full_name.empty())
 		f << "bookname=" << full_name << "\n";
 	else
@@ -274,7 +278,7 @@ stardict_generator::create_ifo_file(const std::string& basename,
 	return true;
 }
 
-std::string stardict_generator::get_current_date(void)
+std::string Generator::get_current_date(void)
 {
   /* Get the current time. */
   time_t curtime = time(NULL);
@@ -287,7 +291,9 @@ std::string stardict_generator::get_current_date(void)
   return buf;
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
-	return stardict_generator().run(argc, argv);
+	return Generator().run(argc, argv);
 }
+#endif

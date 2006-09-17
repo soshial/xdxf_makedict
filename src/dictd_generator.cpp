@@ -23,60 +23,67 @@
 #endif
 
 #include <cstdlib>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include <cstring>
+#include <cerrno>
 #include <glib/gi18n.h>
+
+#include <string>
+#include <vector>
 #include <algorithm>
 
 #include "generator.hpp"
 
-class dictd_generator : public GeneratorBase {
-public:
-	dictd_generator(): GeneratorBase(true)
-	{
-		set_format("dictd");
-		set_version("dictd_generator, version 0.1");
-	}
-	~dictd_generator()
-	{
-		for (std::vector<dictd_key>::const_iterator p=keys_list.begin();
-				 p!=keys_list.end(); ++p)
-			delete [] p->val;
-		for (std::vector<char *>::const_iterator p=coord_list.begin();
-				 p!=coord_list.end(); ++p)
-			delete [] *p;
-	}
-protected:
-	struct dictd_key {
-		char *val;
-		char *coord;
-		dictd_key(char *v, char *c) : val(v), coord(c) {}
-	};
+namespace dictd {
+	class Generator : public GeneratorBase {
+	public:
+		Generator(): GeneratorBase(true)
+			{
+				set_format("dictd");
+				set_version("dictd_generator, version 0.1");
+			}
+		~Generator()
+			{
+				for (std::vector<dictd_key>::const_iterator p=keys_list.begin();
+				     p!=keys_list.end(); ++p)
+					delete [] p->val;
+				for (std::vector<char *>::const_iterator p=coord_list.begin();
+				     p!=coord_list.end(); ++p)
+					delete [] *p;
+			}
+	protected:
+		struct dictd_key {
+			char *val;
+			char *coord;
+			dictd_key(char *v, char *c) : val(v), coord(c) {}
+		};
 
-	struct dictd_less {
-		bool operator()(const dictd_key& lh, const dictd_key& rh) {
-			return strcmp(lh.val, rh.val)<0;
+		struct dictd_less {
+			bool operator()(const dictd_key& lh, const dictd_key& rh) {
+				return strcmp(lh.val, rh.val)<0;
+			}
+		};
+
+		std::vector<dictd_key> keys_list;
+		std::vector<char *> coord_list;
+		std::string dict_file_name;
+		File dict_file_;
+		File idx_file_;
+
+		int generate();
+		void on_have_data(const StringList&, const std::string&);
+		void add_headword(const std::string& name,
+				  const std::string& val) {
+			on_have_data(StringList(1, name), val);
 		}
+		bool on_prepare_generator(const std::string& workdir,
+					  const std::string& basename);
 	};
+	REGISTER_GENERATOR(Generator, dictd);
+}
 
-	std::vector<dictd_key> keys_list;
-	std::vector<char *> coord_list;
-	std::string dict_file_name;
-	std::ofstream dict_file_;
-	std::ofstream idx_file_;
+using namespace dictd;
 
-	int generate();
-	void on_have_data(const StringList&, const std::string&);
-	void add_headword(const std::string& name, const std::string& val) {
-		on_have_data(StringList(1, name), val);
-	}
-	bool on_prepare_generator(const std::string& workdir,
-				  const std::string& basename);
-};
-
-bool dictd_generator::on_prepare_generator(const std::string& workdir,
+bool Generator::on_prepare_generator(const std::string& workdir,
 					   const std::string& basename)
 {
 	std::string dirname=workdir+G_DIR_SEPARATOR+basename;
@@ -87,25 +94,25 @@ bool dictd_generator::on_prepare_generator(const std::string& workdir,
 	std::string realbasename = dirname+G_DIR_SEPARATOR+basename;
 
 	std::string file_name=realbasename+".index";
-	idx_file_.open(file_name.c_str(),
-		       std::ios::binary | std::ios::out | std::ios::trunc);
+	idx_file_.reset(fopen(file_name.c_str(), "wb"));
+
 	if (!idx_file_) {
-		std::cerr<<_("Can not open/create: ")<<file_name<<std::endl;
+		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
 		return false;
 	}
-
+	StdOut.printf(_("Write index to %s\n"), file_name.c_str());
 	dict_file_name=realbasename+".dict";
-	dict_file_.open(dict_file_name.c_str(),
-			std::ios::binary|std::ios::out|std::ios::trunc);
+	dict_file_.reset(fopen(dict_file_name.c_str(), "wb"));
+
 	if (!dict_file_) {
-		std::cerr<<_("Can not open/create: ")<<dict_file_name<<std::endl;
+		StdErr.printf(_("Can not open/create: %s\n"), dict_file_name.c_str());
 		return false;
 	}
-
+	StdOut.printf(_("Write data to %s\n"), dict_file_name.c_str());
 	return true;
 }
 
-int dictd_generator::generate()
+int Generator::generate()
 {
 	add_headword("00databaseutf8", "00-database-utf8\n\n");
 	add_headword("00databaseshort", get_dict_info("full_name"));
@@ -114,7 +121,7 @@ int dictd_generator::generate()
 	std::sort(keys_list.begin(), keys_list.end(), dictd_less());
 
 	for (std::vector<dictd_key>::const_iterator p=keys_list.begin(); p!=keys_list.end(); ++p)
-		idx_file_ << p->val << p->coord << '\n';
+		idx_file_ << p->val << p->coord << "\n";
 
 	return EXIT_SUCCESS;
 }
@@ -126,12 +133,17 @@ static inline char *new_string(const std::string& str)
 	return ptr;
 }
 
-void dictd_generator::on_have_data(const StringList& keys, const std::string& data)
+void Generator::on_have_data(const StringList& keys, const std::string& data)
 {
-	gulong off = dict_file_.tellp();
+	long off = dict_file_.tell();
+	if (off == -1) {
+		StdErr.printf(_("Can not get position in the file: %s\n"),
+			      strerror(errno));
+		exit(EXIT_FAILURE);
+	}
 	gulong size=data.size();
 	if (!dict_file_.write(&data[0], data.size())) {
-		std::cerr<<_("Can not write to: ")<<dict_file_name<<std::endl;
+		StdErr.printf(_("Can not write to: %s\n"), dict_file_name.c_str());
 		exit(EXIT_FAILURE);
 	}
 
@@ -142,7 +154,9 @@ void dictd_generator::on_have_data(const StringList& keys, const std::string& da
 
 }
 
+#if 0
 int main(int argc, char *argv[])
 {
-	return dictd_generator().run(argc, argv);
+	return Generator().run(argc, argv);
 }
+#endif
