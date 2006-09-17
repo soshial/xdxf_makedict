@@ -15,7 +15,9 @@ public:
 	bool abbrs_begin();
 	bool abbrs_end();
 	bool abbr(const StringList&, const std::string&);
+	bool abbr(const std::string&, const std::string&);
 	bool article(const StringList&, const std::string&, bool);
+	bool article(const std::string&, const std::string&, bool);
 	bool end();
 
 	bool get_meta_info();

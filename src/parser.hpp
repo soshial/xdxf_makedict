@@ -1,7 +1,7 @@
 /*
  * This file part of makedict - convertor from any dictionary format to any
- * http://sdcv.sourceforge.net
- * Copyright (C) 2005 Evgeniy <dushistov@mail.ru>
+ * http://xdxf.sourceforge.net
+ * Copyright (C) 2005-2006 Evgeniy <dushistov@mail.ru>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,8 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#ifndef _PARSER_HPP_
+#define _PARSER_HPP_
 
 #include <string>
 #include <map>
@@ -44,7 +44,9 @@ public:
 	virtual bool abbrs_begin() = 0;
 	virtual bool abbrs_end() = 0;
 	virtual bool abbr(const StringList&, const std::string&) = 0;
+	virtual bool abbr(const std::string&, const std::string&) = 0;
 	virtual bool article(const StringList&, const std::string&, bool) = 0;
+	virtual bool article(const std::string&, const std::string&, bool) = 0;
 	virtual bool end() __attribute_warn_unused_result__ = 0;
 };
 
@@ -61,6 +63,8 @@ public:
 	bool abbrs_end();
 	bool abbr(const StringList&, const std::string&);
 	bool article(const StringList&, const std::string&, bool);
+	bool abbr(const std::string&, const std::string&);
+	bool article(const std::string&, const std::string&, bool);
 	bool end();
 private:
 	StringMap dict_info_;
@@ -100,6 +104,11 @@ protected:
 	bool article(const StringList& keys, const std::string& val,
 		     bool keys_in_article)  __attribute_warn_unused_result__;
 
+	bool abbr(const std::string& key, const std::string& val)
+		__attribute_warn_unused_result__;
+	bool article(const std::string& key, const std::string& val,
+		     bool keys_in_article)  __attribute_warn_unused_result__;
+
 	//usefull routine for some parsers
 	std::set<gunichar> not_valid_chars;
 	void remove_not_valid(std::string &str);
@@ -128,4 +137,4 @@ public:
 		} \
 	} Class##name##_registrator
 
-#endif//!PARSER_HPP
+#endif//!_PARSER_HPP_

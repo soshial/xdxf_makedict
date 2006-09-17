@@ -298,7 +298,7 @@ int Parser::parse(const std::string& filename)
 	for (size_t i=0; i<dict.narticles(); ++i) {
 		dict.get_article(i, key, dictdata);
 		if (!key.empty())
-			if (!article(StringList(1, key), dictdata, false))
+			if (!article(key, dictdata, false))
 				return EXIT_FAILURE;
 	}
 

@@ -65,7 +65,7 @@ int Parser::parse(const std::string& url)
 		xml::encode(key, enc_key);
 		xml::encode(data, enc_data);
 
-		if (!article(StringList(1, enc_key), enc_data, false))
+		if (!article(enc_key, enc_data, false))
 			return EXIT_FAILURE;
 	}
 

@@ -119,6 +119,38 @@ bool PipeParserDictOps::article(const StringList& keys, const std::string& val,
 	return true;
 }
 
+bool PipeParserDictOps::abbr(const std::string& key,
+			     const std::string& val)
+{
+	out_ << "<abr_def>";
+
+	out_ << "<k>" << Strip(key) << "</k>";
+
+	out_ << "<v>" << val << "</v>"
+		  << "</abr_def>\n";
+	if (!out_) {
+		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
+}
+
+bool PipeParserDictOps::article(const std::string& key, const std::string& val,
+				bool keys_in_article)
+{
+	out_ << "<ar>";
+	if (!keys_in_article)
+		out_ << "<k>" << Strip(key) << "</k>\n";
+
+	out_ << val << "</ar>\n";
+
+	if (!out_) {
+		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
+}
+
 bool PipeParserDictOps::end()
 {
 	out_ << "</xdxf>\n";
@@ -286,6 +318,17 @@ bool ParserBase::article(const StringList& keys, const std::string& val,
 			 bool kia)
 {
 	return dict_ops_->article(keys, val, kia);
+}
+
+bool ParserBase::abbr(const std::string& key, const std::string& val)
+{
+	return dict_ops_->abbr(key, val);
+}
+
+bool ParserBase::article(const std::string& key, const std::string& val,
+			 bool kia)
+{
+	return dict_ops_->article(key, val, kia);
 }
 
 int ParserBase::parse(const std::string& url)

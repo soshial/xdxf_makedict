@@ -379,7 +379,7 @@ int Parser::parse(const std::string& filename)
 		}
 #endif
 
-		if (!article(StringList(1, encoded_index), encoded_data, false))
+		if (!article(encoded_index, encoded_data, false))
 			return EXIT_FAILURE;
 	}
 

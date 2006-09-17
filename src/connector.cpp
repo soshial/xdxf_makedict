@@ -86,17 +86,6 @@ bool Connector::abbrs_end()
 	return generator_.on_abbr_end();
 }
 
-bool Connector::abbr(const StringList& keylist, const std::string& data)
-{
-	StringList real_keylist;
-	for (StringList::const_iterator it = keylist.begin();
-	     it != keylist.end(); ++it) {		
-		fill_key(*it);
-		generate_keys(real_keylist);
-	}
-	return generator_.on_have_data(real_keylist, data);
-}
-
 void Connector::fill_key(const std::string& keystr)
 {
 	key_.clear();
@@ -145,6 +134,17 @@ void Connector::fill_key(const std::string& keystr)
 	key_.parts_.back().append(p);
 }
 
+bool Connector::abbr(const StringList& keylist, const std::string& data)
+{
+	StringList real_keylist;
+	for (StringList::const_iterator it = keylist.begin();
+	     it != keylist.end(); ++it) {		
+		fill_key(*it);
+		generate_keys(real_keylist);
+	}
+	return generator_.on_have_data(real_keylist, data);
+}
+
 bool Connector::article(const StringList& keylist, const std::string& data, bool kia)
 {
 	std::string keystr;
@@ -160,8 +160,31 @@ bool Connector::article(const StringList& keylist, const std::string& data, bool
 	return generator_.on_have_data(real_keylist, keystr + data);
 }
 
-
 bool Connector::end()
 {
 	return generator_.generate() == EXIT_SUCCESS;
+}
+
+bool Connector::abbr(const std::string& key, const std::string& data)
+{
+	StringList real_keylist;
+
+	fill_key(key);
+	generate_keys(real_keylist);
+	
+	return generator_.on_have_data(real_keylist, data);
+}
+
+bool Connector::article(const std::string& key, const std::string& data,
+			bool kia)
+{
+	std::string keystr;
+	StringList real_keylist;
+	
+	if (!kia)
+		keystr += std::string("<k>") + key + "</k>\n";
+	fill_key(key);
+	generate_keys(real_keylist);
+	
+	return generator_.on_have_data(real_keylist, keystr + data);
 }
