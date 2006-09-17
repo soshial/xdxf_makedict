@@ -187,7 +187,8 @@ bool ParserBase::parse_option(const std::string& optarg)
 	}
 	StringMap::iterator opt_ptr = parser_options_.find(l[0]);
 	if (opt_ptr == parser_options_.end()) {
-		StdErr << _("Invalid parser option, possible options:\n");
+		StdErr.printf(_("Invalid parser option: %s\nPossible options:\n"),
+			      optarg.c_str());
 		for (StringMap::iterator it = parser_options_.begin();
 		     it != parser_options_.end(); ++it)
 			StdErr << it->first << "\n";

@@ -374,7 +374,9 @@ int Parser::parse(const std::string& filename)
 		convert_article(encoded_data);
 #if 1
 		if (!g_utf8_validate(encoded_data.c_str(), gssize(-1), NULL)) {
-			StdErr << _("Article contains not valid utf-8 text data\n");
+			StdErr.printf(_("Not valid UTF-8\n"
+					"Original before conversation: %s\n"),
+				      &databuf_[0]);
 			return EXIT_FAILURE;
 		}
 #endif

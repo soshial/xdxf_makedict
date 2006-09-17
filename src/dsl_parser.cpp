@@ -1,6 +1,6 @@
 /*
  * This file is part of makedict - convertor from any
- * dictionary format to any http://sdcv.sourceforge.net
+ * dictionary format to any http://xdxf.sourceforge.net
  *
  * Copyright (C) Evgeniy Dushistov, 2005-2006
  *
@@ -467,13 +467,14 @@ int Parser::print_info()
 	set_dict_info("lang_to", lang);
 
 	//read annotation
-	std::string anot_name = basename+".ann";
+	std::string anot_name = basename + ".ann";
 	if (is_file_exist(anot_name)) {
 		StdErr.printf(_("Reading: %s\n"), anot_name.c_str());
 		glib::CharStr content;
 		glib::Error err;
+		gsize anot_len;
 		if (!g_file_get_contents(anot_name.c_str(), get_addr(content),
-					 NULL, get_addr(err))) {
+					 &anot_len, get_addr(err))) {
 			StdErr.printf(_("Can not read %s: %s\n"), anot_name.c_str(),
 				      err->message);
 			goto out;
@@ -490,7 +491,7 @@ int Parser::print_info()
 			CharsetConv conv(it->c_str(), "UTF-8");
 			convstr.clear();
 
-			if (!conv.convert(get_impl(content), convstr))
+			if (!conv.convert(get_impl(content), anot_len, convstr))
 				convstr = get_impl(content);
 
 			if (g_utf8_validate(convstr.c_str(), convstr.length(), NULL))

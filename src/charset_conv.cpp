@@ -31,20 +31,27 @@
 
 #include "charset_conv.hpp"
 
-void CharsetConv::workwith(const char *from, const char *to)  
-{ 
-	if (cd != iconv_t(-1))
-		iconv_close(cd);
-	if ((cd = iconv_open(to, from)) == iconv_t(-1))
-		StdErr << strerror(errno) << "\n";
+//#define DEBUG
+
+void CharsetConv::workwith(const char *from, const char *to)
+{
+	close();
+
+	if ((cd_ = iconv_open(to, from)) == iconv_t(-1))
+		StdErr.printf(_("Can not convert from %s to %s: %s\n"),
+			      from, to, strerror(errno));
+#ifdef DEBUG
+	StdErr.printf("CharsetConv::workwith: %s to %s\n", from ,to);
+#endif
 }
 
 bool CharsetConv::convert(const char *str, std::string::size_type len,
 			  std::string& res) const
 {
 	res = "";
-	if (cd == iconv_t(-1)) {
-		StdErr << _("Can not convert from one encoding to another\n");
+	if (cd_ == iconv_t(-1)) {
+		StdErr << _("Can not convert from one encoding to another:"
+			    " wrong iconv descriptor\n");
 		return false;
 	}
 
@@ -57,19 +64,19 @@ bool CharsetConv::convert(const char *str, std::string::size_type len,
 //TODO: res may be not contiguous
 	char *outp = &res[0];
 again:
-	err = iconv(cd,
-		    /*this need because win32 version of iconv and from glibc is different*/
-#ifdef WIN32	
-		    (const char **)&p, 
+	err = iconv(cd_,
+//this need because win32 version of iconv and from glibc is different
+#ifdef WIN32
+		    (const char **)&p,
 #else
-		    (char **)&p, 
+		    (char **)&p,
 #endif
 		    &inbytesleft, &outp, &outbytesleft);
 	if (err == size_t(-1))
 		if (errno == E2BIG) {
 			size_t used = outp - &(res[0]);
 			res.resize(res.length() * 2);
-			outp = &(res[0]) + used;
+			outp = &res[0] + used;
 			outbytesleft = res.length() - used;
 			goto again;
 		} else {
@@ -77,7 +84,7 @@ again:
 				      strerror(errno));
 			return false;
 		}
-	size_t used=outp-&(res[0]);
-	res.resize(used);
-	return true;  
+
+	res.resize(outp - &res[0]);
+	return true;
 }

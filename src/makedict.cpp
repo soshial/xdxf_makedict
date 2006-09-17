@@ -178,9 +178,20 @@ int MakeDict::run(int argc, char *argv[])
 		case 0:
 			workdir=optarg;
 			break;
-		case 1:
-			parser_options_.push_back(optarg);
+		case 1: {
+			std::string pars_opt(optarg);
+			size_t beg = 0, len = pars_opt.length();
+			if (pars_opt[0] == '"' || pars_opt[0] == '\'')
+				++beg;
+			if (len && (pars_opt[len - 1] == '"' ||
+				    pars_opt[len - 1] == '\''))
+				--len;
+#ifdef DEBUG
+			StdErr << "Parser option: " << pars_opt.substr(beg, len - beg) << "\n";
+#endif
+			parser_options_.push_back(pars_opt.substr(beg, len - beg));
 			break;
+		}
 		case '?':
 		default:
 			StdErr.printf(_("Unknwon option.\nTry '%s --help' for more information.\n"),

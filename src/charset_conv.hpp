@@ -7,22 +7,26 @@
 //wrapper for iconv usage
 class CharsetConv {
 public:
-	CharsetConv() { cd=iconv_t(-1); }
+	CharsetConv() { cd_ = iconv_t(-1); }
 	void workwith(const char *from, const char *to);
-	CharsetConv(const char *from, const char *to) { 
-		cd = iconv_t(-1); 
-		workwith(from, to); 
+	CharsetConv(const char *from, const char *to) {
+		cd_ = iconv_t(-1);
+		workwith(from, to);
 	}
-	~CharsetConv() { 
-		if (cd!=iconv_t(-1)) 
-			iconv_close(cd); 
-	}
+	~CharsetConv() { close(); }
 	bool convert(const char *, std::string::size_type, std::string&) const;
 	bool convert(const std::string& str, std::string& res) const {
 		return convert(str.c_str(), str.length(), res);
 	}
 private:
-	iconv_t cd;
+	iconv_t cd_;
+
+	void close() {
+		if (cd_ != iconv_t(-1)) {
+			iconv_close(cd_);
+			cd_ = iconv_t(-1);
+		}
+	}
 };
 
 #endif//!CHARSET_CONV_HPP
