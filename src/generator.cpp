@@ -38,47 +38,6 @@
 
 GeneratorDictPipeOps::TagTable GeneratorDictPipeOps::tag_table_;
 
-class XmlParser {
-public:
-	XmlParser(XML_StartElementHandler on_start,
-						 XML_EndElementHandler on_end,
-						 XML_CharacterDataHandler on_char,
-						 void *data);
-	~XmlParser() {	XML_ParserFree(xmlp); }
-	void xml_error(const std::string& line) const {
-		StdErr.printf(_("XML parser error: %s\nCan not parse such line: %s\n"),
-			      XML_ErrorString(XML_GetErrorCode(xmlp)), line.c_str());
-	}
-	bool parse_line(const std::string& line) {
-		if (XML_Parse(xmlp, line.c_str(), line.size(), 0) != XML_STATUS_OK) {
-			xml_error(line);
-			return false;
-		}
-
-		return true;
-	}
-	bool finish(const std::string& line) {
-		if (XML_Parse(xmlp, line.c_str(), line.size(), 1) != XML_STATUS_OK) {
-			xml_error(line);
-			return false;
-		}
-
-		return true;
-	}
-private:
-	XML_Parser xmlp;
-};
-
-XmlParser::XmlParser(XML_StartElementHandler on_start,
-		       XML_EndElementHandler on_end,
-		       XML_CharacterDataHandler on_char,
-		       void *data)
-{
-	xmlp = XML_ParserCreate("UTF-8");
-	XML_SetElementHandler(xmlp, on_start, on_end);
-	XML_SetCharacterDataHandler(xmlp, on_char);
-	XML_SetUserData(xmlp, data);
-}
 
 GeneratorDictPipeOps::GeneratorDictPipeOps(File &in, GeneratorBase& gen) :
 	IGeneratorDictOps(gen), in_(in)
@@ -105,7 +64,7 @@ bool GeneratorDictPipeOps::get_meta_info()
 {
 	std::string line;
 
-	XmlParser meta_parser(on_meta_start, on_meta_end, on_meta_data, this);
+	xml::Parser meta_parser(on_meta_start, on_meta_end, on_meta_data, this);
 
 	while (File::getline(in_, line) &&
 	       line.find("</meta_info>") == std::string::npos) {
@@ -124,7 +83,7 @@ bool GeneratorDictPipeOps::get_info()
 {
 	std::string line;
 
-	XmlParser xdxf_parser(xml_start, xml_end, xml_char_data, this);
+	xml::Parser xdxf_parser(xml_start, xml_end, xml_char_data, this);
 
 	while (File::getline(in_, line)) {
 #ifdef DEBUG
@@ -399,7 +358,7 @@ void XMLCALL GeneratorDictPipeOps::xml_char_data(void *userData,
 #endif
 
 	std::string data;
-	Xml::encode(std::string(s, len), data);
+	xml::encode(std::string(s, len), data);
 	gen->data_ += data;
 	switch (gen->state_stack_.top()) {
 	case K:
@@ -468,6 +427,6 @@ void IGeneratorDictOps::generate_keys(StringList& keys)
 	for (StringList::iterator it = keys.begin(); it != keys.end(); ++it) {
 		strip(*it);
 		if (enc_keys_)
-			Xml::decode(*it);
+			xml::decode(*it);
 	}
 }

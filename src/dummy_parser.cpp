@@ -63,10 +63,10 @@ int Parser::parse(const std::string& url)
 	std::string key, data, enc_data, enc_key;
 	while (File::getline(StdIn, key) && File::getline(StdIn, data)) {
 		enc_key = enc_data = "";
-		Xml::encode(key, enc_key);
-		Xml::encode(data, enc_data);
+		xml::encode(key, enc_key);
+		xml::encode(data, enc_data);
 
-		article(StringList(1, enc_key), enc_data);
+		article(StringList(1, enc_key), enc_data, false);
 	}
 
 	return EXIT_SUCCESS;

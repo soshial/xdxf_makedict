@@ -8,7 +8,8 @@ noinst_PROGRAMS = validate_stardict normalize t_xml dummy_parser \
 validate_stardict_SOURCES = validate_stardict.cpp
 t_xml_SOURCES = \
 	t_xml.cpp \
-	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp
+	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp \
+	$(top_builddir)/src/file.cpp $(top_builddir)/src/file.hpp
 
 normalize_SOURCES = normalize.cpp \
  $(top_builddir)/src/normalize_tags.cpp \
@@ -37,5 +38,5 @@ SH_TESTS = \
 	t_parser_error.sh t_parser_options.sh \
 	t_sdict_parser
 
-EXTRA_DIST=$(SH_TESTS) funcs.sh
+EXTRA_DIST=$(SH_TESTS) funcs.sh t_convert_all.sh
 TESTS = $(SH_TESTS) t_xml

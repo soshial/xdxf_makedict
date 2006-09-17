@@ -1,6 +1,6 @@
 CODECS = \
 	stardict_generator dictd_generator \
-	dictd_parser xdxf_parser
+	dictd_parser
 
 bin_PROGRAMS = makedict
 
@@ -31,11 +31,11 @@ makedict_SOURCES = \
 	sdict_parser.cpp \
 	langs_2to3.cpp langs_2to3.hpp \
 	xdxf_generator.cpp \
-	xml.cpp xml.hpp
+	xml.cpp xml.hpp \
+	xdxf_parser.cpp
 
 stardict_generator_SOURCES = stardict_generator.cpp $(GENERATOR_LIB)
 dictd_generator_SOURCES = dictd_generator.cpp $(GENERATOR_LIB)
-xdxf_parser_SOURCES = xdxf_parser.cpp $(PARSER_LIB)
 
 dictd_parser_SOURCES = \
 	dictd_parser.cpp \

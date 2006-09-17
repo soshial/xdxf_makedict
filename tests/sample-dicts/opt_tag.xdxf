@@ -9,4 +9,6 @@
 <dtrn><c>A</c></dtrn></ar>
 <ar><k>a<opt>b</opt>a<opt>c</opt></k>
 <dtrn><c>abac</c></dtrn></ar>
+<ar><k>SO<nu /><sub><nu />2<nu /></sub><nu /></k>
+SO<sub>2</sub></ar>
 </xdxf>

@@ -223,9 +223,9 @@ void Parser::convert_article(std::string& encoded_data)
 					break;
 				}
 			}
-			if (i==replace_table.end()) {
+			if (i == replace_table.end()) {
 				p=beg;
-				Xml::add_and_encode(encoded_data, *p);
+				xml::add_and_encode(encoded_data, *p);
 				++p;
 			}
 		}
@@ -337,7 +337,7 @@ int Parser::parse(const std::string& filename)
 		const char *q = &index_value[0];
 		std::string encoded_index;
 		while (*q) {
-			Xml::add_and_encode(encoded_index, *q);
+			xml::add_and_encode(encoded_index, *q);
 			++q;
 		}
 		remove_not_valid(encoded_index);
@@ -378,7 +378,7 @@ int Parser::parse(const std::string& filename)
 		}
 #endif
 
-		article(StringList(1, encoded_index), encoded_data);	
+		article(StringList(1, encoded_index), encoded_data, false);	
 	}
 
 

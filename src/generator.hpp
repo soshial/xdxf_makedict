@@ -21,7 +21,6 @@
 #ifndef GENERATOR_HPP
 #define GENERATOR_HPP
 
-#include <expat.h>
 #include <list>
 #include <stack>
 #include <string>
@@ -31,6 +30,7 @@
 #include "utils.hpp"
 #include "repository.hpp"
 #include "file.hpp"
+#include "xml.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
 typedef std::vector<std::string> StringList;

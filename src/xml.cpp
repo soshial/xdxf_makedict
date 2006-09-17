@@ -23,17 +23,18 @@
 #endif
 
 #include <cstring>
+#include <glib/gi18n.h>
+
+#include "file.hpp"
 
 #include "xml.hpp"
 
-const char Xml::raw_entrs[] = { '<',   '>',   '&',    '\'',    '\"',    0 };
-const char* Xml::xml_entrs[] = { "lt;", "gt;", "amp;", "apos;", "quot;", 0 };
+static const char raw_entrs[] = { '<',   '>',   '&',    '\'',    '\"',    0 };
+static const char* xml_entrs[] = { "lt;", "gt;", "amp;", "apos;", "quot;", 0 };
 static const int xml_ent_len[] = { 3,     3,     4,      5,       5 };
 
-void Xml::add_and_encode(std::string& str, char ch)
+void xml::add_and_encode(std::string& str, char ch)
 {
-
-
 	char *res = strchr(raw_entrs, ch);
 	if (!res)
 		str += ch;
@@ -43,7 +44,7 @@ void Xml::add_and_encode(std::string& str, char ch)
 	}
 }
 
-void Xml::encode(const std::string& str, std::string& res)
+void xml::encode(const std::string& str, std::string& res)
 {
 	std::string::size_type irep = str.find_first_of(raw_entrs);
 	if (irep == std::string::npos) {
@@ -68,7 +69,7 @@ void Xml::encode(const std::string& str, std::string& res)
 	}
 }
 
-void Xml::decode(std::string& str)
+void xml::decode(std::string& str)
 {
 	std::string::size_type iamp = str.find('&');
 	if (iamp == std::string::npos) {
@@ -98,4 +99,21 @@ void Xml::decode(std::string& str)
 	} 
    
 	str = decoded;
+}
+
+void xml::Parser::xml_error(const std::string& line) const 
+{
+	StdErr.printf(_("XML parser error: %s\nCan not parse such line: %s\n"),
+		      XML_ErrorString(XML_GetErrorCode(xmlp)), line.c_str());
+}
+
+xml::Parser::Parser(XML_StartElementHandler on_start,
+		    XML_EndElementHandler on_end,
+		    XML_CharacterDataHandler on_char,
+		    void *data)
+{
+	xmlp = XML_ParserCreate("UTF-8");
+	XML_SetElementHandler(xmlp, on_start, on_end);
+	XML_SetCharacterDataHandler(xmlp, on_char);
+	XML_SetUserData(xmlp, data);
 }

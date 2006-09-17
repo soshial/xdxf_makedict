@@ -510,7 +510,7 @@ int Parser::print_info()
 		std::string new_convstr;
 		replace(end_of_line, convstr.c_str(), new_convstr);
 
-		Xml::encode(new_convstr, convstr);
+		xml::encode(new_convstr, convstr);
 
 		set_dict_info("description", convstr);
 	}
@@ -758,7 +758,7 @@ bool Parser::read_keys(MapFile& in, const CharsetConv& conv,
 				p += sizeof("[/sub]") - 2;
 			} else {
 			add_char:
-				Xml::add_and_encode(key_enc, *p);
+				xml::add_and_encode(key_enc, *p);
 			}
 			++p;
 		}
@@ -835,7 +835,7 @@ void Parser::article2xdxf(StringList& key_list, std::string& datastr)
 			if (!(*++p))
 				break;
 			if (*p!='\n') {
-				Xml::add_and_encode(resstr, *p);
+				xml::add_and_encode(resstr, *p);
 				++p;
 			}
 		} else if (*p=='~') {
@@ -925,7 +925,7 @@ void Parser::article2xdxf(StringList& key_list, std::string& datastr)
 
 			if (i == replace_table.end()) {
 				p = beg;
-				Xml::add_and_encode(resstr, *p);
+				xml::add_and_encode(resstr, *p);
 				++p;
 			}
 		}
@@ -1037,7 +1037,7 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 		if (abr)
 			abbr(key_list, datastr);
 		else
-			article(key_list, datastr);
+			article(key_list, datastr, false);
 		key_list.clear();
 
 		while (line == "" && getline(in))

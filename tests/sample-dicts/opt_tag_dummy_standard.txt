@@ -16,3 +16,6 @@ key: aba
 key: abac
 data: <k>a<opt>b</opt>a<opt>c</opt></k>
 <dtrn><c>abac</c></dtrn>
+key: SO2
+data: <k>SO<nu /><sub><nu />2<nu /></sub><nu /></k>
+SO<sub>2</sub>

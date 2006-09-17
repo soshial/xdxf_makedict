@@ -297,10 +297,8 @@ int dictd_parser::parse(const string& filename)
 	string key, dictdata;
 	for (size_t i=0; i<dict.narticles(); ++i) {
 		dict.get_article(i, key, dictdata);
-		if (!key.empty()) {
-			vector<string> key_list(1, key);
-			article(key_list, dictdata);
-		}
+		if (!key.empty())
+			article(StringList(1, key), dictdata, false);		
 	}
 
 	res=EXIT_SUCCESS;

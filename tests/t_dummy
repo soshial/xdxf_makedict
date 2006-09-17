@@ -1,9 +1,8 @@
 #!/bin/sh
 
-mkdir /tmp/test_makedict_plugins
-export MAKEDICT_PLUGIN_DIR=/tmp/test_makedict_plugins
-cp dummy_parser dummy_generator "${MAKEDICT_PLUGIN_DIR}"/
+source funcs.sh
 
+create_signle_dummy_dir
 FILE=./sample-dicts/dummy_simple_input.txt
 STANDARD=./sample-dicts/dummy_simple_output.txt
 OUT=/tmp/output

@@ -87,7 +87,13 @@ void Connector::abbrs_end()
 
 void Connector::abbr(const StringList& keylist, const std::string& data)
 {
-	generator_.on_have_data(keylist, data);
+	StringList real_keylist;
+	for (StringList::const_iterator it = keylist.begin();
+	     it != keylist.end(); ++it) {		
+		fill_key(*it);
+		generate_keys(real_keylist);
+	}
+	generator_.on_have_data(real_keylist, data);
 }
 
 void Connector::fill_key(const std::string& keystr)
@@ -138,14 +144,14 @@ void Connector::fill_key(const std::string& keystr)
 	key_.parts_.back().append(p);
 }
 
-void Connector::article(const StringList& keylist, const std::string& data)
+void Connector::article(const StringList& keylist, const std::string& data, bool kia)
 {
-
-	StringList real_keylist;
 	std::string keystr;
+	StringList real_keylist;
 	for (StringList::const_iterator it = keylist.begin();
 	     it != keylist.end(); ++it) {
-		keystr += "<k>" + *it + "</k>\n";
+		if (!kia)
+			keystr += std::string("<k>") + *it + "</k>\n";
 		fill_key(*it);
 		generate_keys(real_keylist);
 	}

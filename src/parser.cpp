@@ -40,6 +40,8 @@ void PipeParserDictOps::send_meta_info()
 			  << "</" << p->first << ">\n";
 
 	out_ << "</meta_info>\n";
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
 void PipeParserDictOps::send_info()
@@ -53,33 +55,45 @@ void PipeParserDictOps::send_info()
 		"<full_name>" << dict_info_["full_name"] << "</full_name>\n"
 		"<description>" << dict_info_["description"]
 		  << "</description>\n";
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
 void PipeParserDictOps::abbrs_begin()
 {
 	out_ << "<abbreviations>\n";
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
 void PipeParserDictOps::abbrs_end()
 {
 	out_ << "</abbreviations>\n";
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
 void PipeParserDictOps::abbr(const StringList& keys,
 			     const std::string& val)
 {
 	out_ << "<abr_def>";
+
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
 		out_ << "<k>" << Strip(*p) << "</k>";
+
 	out_ << "<v>" << val << "</v>"
 		  << "</abr_def>\n";
+	if (!out_)
+		StdErr << _("Pipe write error\n");
 }
 
-void PipeParserDictOps::article(const StringList& keys, const std::string& val)
+void PipeParserDictOps::article(const StringList& keys, const std::string& val,
+				bool keys_in_article)
 {
 	out_ << "<ar>";
-	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
-		out_ << "<k>" << Strip(*p) << "</k>\n";
+	if (!keys_in_article)
+		for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
+			out_ << "<k>" << Strip(*p) << "</k>\n";
 
 	out_ << val << "</ar>\n";
 
@@ -249,9 +263,10 @@ void ParserBase::abbr(const StringList& keys, const std::string& val)
 	dict_ops_->abbr(keys, val);
 }
 
-void ParserBase::article(const StringList& keys, const std::string& val)
+void ParserBase::article(const StringList& keys, const std::string& val,
+			 bool kia)
 {
-	dict_ops_->article(keys, val);
+	dict_ops_->article(keys, val, kia);
 }
 
 int ParserBase::parse(const std::string& url)

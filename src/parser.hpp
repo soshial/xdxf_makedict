@@ -44,7 +44,7 @@ public:
 	virtual void abbrs_begin() = 0;
 	virtual void abbrs_end() = 0;
 	virtual void abbr(const StringList&, const std::string&) = 0;
-	virtual void article(const StringList&, const std::string&) = 0;
+	virtual void article(const StringList&, const std::string&, bool) = 0;
 	virtual void end() = 0;
 };
 
@@ -59,7 +59,7 @@ public:
 	void abbrs_begin();
 	void abbrs_end();
 	void abbr(const StringList&, const std::string&);
-	void article(const StringList&, const std::string&);
+	void article(const StringList&, const std::string&, bool);
 	void end();
 private:
 	StringMap dict_info_;
@@ -95,7 +95,8 @@ protected:
 	void abbrs_begin();
 	void abbrs_end();
 	void abbr(const StringList& keys, const std::string& val);
-	void article(const StringList& keys, const std::string& val);
+	void article(const StringList& keys, const std::string& val,
+		     bool keys_in_article);
 
 	//usefull routine for some parsers
 	std::set<gunichar> not_valid_chars;

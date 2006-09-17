@@ -22,9 +22,9 @@
 #  include "config.h"
 #endif
 
-#include <iostream>
-#include <fstream>
 #include <glib/gi18n.h>
+
+#include "file.hpp"
 
 #include "generator.hpp"
 
@@ -37,7 +37,7 @@ namespace xdxf {
 			set_version("xdxf_generator, version 0.2");
 		}
 	protected:
-		std::ofstream dict_;
+		File dict_;
 		bool abbr_;
 
 		int generate();
@@ -79,7 +79,7 @@ void Generator::on_have_data(const StringList& keys,
 		dict_ << "<v>" << data << "</v></abr_def>\n";
 	}
 	if (!dict_) {
-		std::cerr << _("I/O error, exiting\n");
+		StdErr << _("I/O error, exiting\n");
 		exit(EXIT_FAILURE);
 	}
 }
@@ -88,7 +88,7 @@ void Generator::on_new_dict_info(const std::string& name,
 				 const std::string& val)
 {
 	if (name == "lang_from")
-		dict_ << "<xdxf lang_from=\"" << val << '"';
+		dict_ << "<xdxf lang_from=\"" << val << "\"";
 	else if (name == "lang_to")
 		dict_ <<  " lang_to=\"" << val << "\" format=\"visual\">\n";
 	else
@@ -113,8 +113,8 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 	}
 
 	std::string dictname = dirname + G_DIR_SEPARATOR_S"dict.xdxf";
-	dict_.open(dictname.c_str(),
-		   std::ios::out | std::ios::binary | std::ios::trunc);
+	dict_.reset(fopen(dictname.c_str(), "wb"));
+
 	if (!dict_)
 		return false;
 
