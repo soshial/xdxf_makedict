@@ -110,10 +110,10 @@ public:
 	int run(int argc, char *argv[]);
 	int run(const std::string& appname, std::string& workdir);
 
-	virtual void on_abbr_begin() {}
-	virtual void on_abbr_end() {}
-	virtual void on_have_data(const StringList&, const std::string&) {}
-	virtual void on_new_dict_info(const std::string&, const std::string&) {}
+	virtual bool on_abbr_begin() { return true; }
+	virtual bool on_abbr_end() { return true; }
+	virtual bool on_have_data(const StringList&, const std::string&) { return true; }
+	virtual bool on_new_dict_info(const std::string&, const std::string&) { return true; }
 	virtual bool on_prepare_generator(const std::string&,
 					  const std::string&) = 0;
 	virtual int generate() = 0;

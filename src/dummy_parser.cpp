@@ -56,9 +56,8 @@ int Parser::parse(const std::string& url)
 #endif
 	set_dict_info("lang_from", parser_options_["lang_from"]);
 	set_dict_info("lang_to", parser_options_["lang_to"]);
-	begin();
-	abbrs_begin();
-	abbrs_end();
+	if (!begin() || !abbrs_begin() || !abbrs_end())
+		return EXIT_FAILURE;
 
 	std::string key, data, enc_data, enc_key;
 	while (File::getline(StdIn, key) && File::getline(StdIn, data)) {
@@ -66,7 +65,8 @@ int Parser::parse(const std::string& url)
 		xml::encode(key, enc_key);
 		xml::encode(data, enc_data);
 
-		article(StringList(1, enc_key), enc_data, false);
+		if (!article(StringList(1, enc_key), enc_data, false))
+			return EXIT_FAILURE;
 	}
 
 	return EXIT_SUCCESS;

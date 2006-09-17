@@ -1,6 +1,4 @@
-- generator results, if parser and generator are internal
 - split utils.h to resource.hpp and utils.hpp by it self
-- check all to do items in code
 - superfluous copy when string->StringList
 - xdxf_generator: whats happened if abbr list keys contains opt and nu
 - more good solution for lang table: put table also here, convert to not std::pair array
@@ -8,3 +6,6 @@
 - xml -> text when converting to stardict and dictd
 - log level: makedict --verbose=2
 - do not use `exit' to terminate program
+- check all to do items in code
+- do not use external program except standart in tests
+- xdxf_parser - how report about error?

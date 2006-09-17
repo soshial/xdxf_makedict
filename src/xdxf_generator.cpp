@@ -41,10 +41,10 @@ namespace xdxf {
 		bool abbr_;
 
 		int generate();
-		void on_have_data(const StringList&, const std::string&);
-		void on_new_dict_info(const std::string&, const std::string&);
-		void on_abbr_begin();
-		void on_abbr_end();
+		bool on_have_data(const StringList&, const std::string&);
+		bool on_new_dict_info(const std::string&, const std::string&);
+		bool on_abbr_begin();
+		bool on_abbr_end();
 		bool on_prepare_generator(const std::string& workdir,
 					  const std::string& bname);
 	};
@@ -53,19 +53,21 @@ namespace xdxf {
 
 using namespace xdxf;
 
-void Generator::on_abbr_begin()
+bool Generator::on_abbr_begin()
 {
 	dict_ << "<abbreviations>\n";
 	abbr_ = true;
+	return !dict_ ? false : true;
 }
 
-void Generator::on_abbr_end()
+bool Generator::on_abbr_end()
 {
 	dict_ << "</abbreviations>\n";
 	abbr_ = false;
+	return !dict_ ? false : true;
 }
 
-void Generator::on_have_data(const StringList& keys,
+bool Generator::on_have_data(const StringList& keys,
 			     const std::string& data)
 {
 	if (!abbr_)
@@ -79,12 +81,13 @@ void Generator::on_have_data(const StringList& keys,
 		dict_ << "<v>" << data << "</v></abr_def>\n";
 	}
 	if (!dict_) {
-		StdErr << _("I/O error, exiting\n");
-		exit(EXIT_FAILURE);
+		StdErr << _("I/O error\n");
+		return false;
 	}
+	return true;
 }
 
-void Generator::on_new_dict_info(const std::string& name,
+bool Generator::on_new_dict_info(const std::string& name,
 				 const std::string& val)
 {
 	if (name == "lang_from")
@@ -93,6 +96,12 @@ void Generator::on_new_dict_info(const std::string& name,
 		dict_ <<  " lang_to=\"" << val << "\" format=\"visual\">\n";
 	else
 		dict_ << "<" << name << ">" << val << "</" << name << ">\n";
+
+	if (!dict_) {
+		StdErr << _("I/O error\n");
+		return false;
+	}
+	return true;
 }
 
 bool Generator::on_prepare_generator(const std::string& workdir,

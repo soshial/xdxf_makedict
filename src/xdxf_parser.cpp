@@ -145,7 +145,8 @@ void XMLCALL Parser::xml_start(void *arg, const XML_Char *name,
 		case stABR_DEF:
 		case stAR:
 			if (!parser->send_info_) {
-				parser->begin();
+				if (!parser->begin())
+					exit(EXIT_FAILURE);
 				parser->send_info_ = true;
 			}
 			parser->data_.clear();
@@ -154,10 +155,12 @@ void XMLCALL Parser::xml_start(void *arg, const XML_Char *name,
 			break;
 		case stABBREVIATIONS:
 			if (!parser->send_info_) {
-				parser->begin();
+				if (!parser->begin())
+					exit(EXIT_FAILURE);
 				parser->send_info_ = true;
 			}
-			parser->abbrs_begin();
+			if (!parser->abbrs_begin())
+				exit(EXIT_FAILURE);
 			break;
 		case stXDXF:
 			for (int i = 0; atts[i]; i += 2)
@@ -209,22 +212,26 @@ void XMLCALL Parser::xml_end(void *arg, const XML_Char *name)
 			parser->keystr_.clear();
 			break;
 		case stAR:
-			parser->article(parser->keylist_, parser->data_, true);
+			if (!parser->article(parser->keylist_, parser->data_, true))
+				exit(EXIT_FAILURE);
 			parser->keystr_.clear();
 			parser->keylist_.clear();
 			parser->data_.clear();
 			break;
 		case stABR_DEF:
-			parser->abbr(parser->keylist_, parser->data_);
+			if (!parser->abbr(parser->keylist_, parser->data_))
+				exit(EXIT_FAILURE);
 			parser->keystr_.clear();
 			parser->keylist_.clear();
 			parser->data_.clear();
 			break;
 		case stABBREVIATIONS:
-			parser->abbrs_end();
+			if (!parser->abbrs_end())
+				exit(EXIT_FAILURE);
 			break;
 		case stXDXF:
-			parser->dict_ops_->end();
+			if (!parser->dict_ops_->end())
+				exit(EXIT_FAILURE);
 			break;
 		case stNU:
 		default:

@@ -30,7 +30,7 @@
 
 #include "parser.hpp"
 
-void PipeParserDictOps::send_meta_info()
+bool PipeParserDictOps::send_meta_info()
 {
 	out_ << "<meta_info>\n";
 	for (StringMap::const_iterator p = dict_info_.begin();
@@ -40,11 +40,14 @@ void PipeParserDictOps::send_meta_info()
 			  << "</" << p->first << ">\n";
 
 	out_ << "</meta_info>\n";
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::send_info()
+bool PipeParserDictOps::send_info()
 {
 	out_ <<
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
@@ -55,25 +58,34 @@ void PipeParserDictOps::send_info()
 		"<full_name>" << dict_info_["full_name"] << "</full_name>\n"
 		"<description>" << dict_info_["description"]
 		  << "</description>\n";
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::abbrs_begin()
+bool PipeParserDictOps::abbrs_begin()
 {
 	out_ << "<abbreviations>\n";
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::abbrs_end()
+bool PipeParserDictOps::abbrs_end()
 {
 	out_ << "</abbreviations>\n";
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::abbr(const StringList& keys,
+bool PipeParserDictOps::abbr(const StringList& keys,
 			     const std::string& val)
 {
 	out_ << "<abr_def>";
@@ -83,11 +95,14 @@ void PipeParserDictOps::abbr(const StringList& keys,
 
 	out_ << "<v>" << val << "</v>"
 		  << "</abr_def>\n";
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::article(const StringList& keys, const std::string& val,
+bool PipeParserDictOps::article(const StringList& keys, const std::string& val,
 				bool keys_in_article)
 {
 	out_ << "<ar>";
@@ -97,14 +112,18 @@ void PipeParserDictOps::article(const StringList& keys, const std::string& val,
 
 	out_ << val << "</ar>\n";
 
-	if (!out_)
+	if (!out_) {
 		StdErr << _("Pipe write error\n");
+		return false;
+	}
+	return true;
 }
 
-void PipeParserDictOps::end()
+bool PipeParserDictOps::end()
 {
 	out_ << "</xdxf>\n";
 	out_.flush();
+	return !out_ ? false : true;
 }
 
 const std::string& ParserBase::format() const
@@ -211,7 +230,8 @@ int ParserBase::do_run(const std::string& url)
 	basename(url);
 	int res = parse(url);
 	if (generate_xdxf_)
-		dict_ops_->end();
+		if (!dict_ops_->end())
+			return EXIT_FAILURE;
 	return res;
 }
 
@@ -232,41 +252,40 @@ void ParserBase::set_parser_info(const std::string& key, const std::string& val)
 	parser_info_[key] = val;
 }
 
-void ParserBase::meta_info()
+bool ParserBase::meta_info()
 {
-	dict_ops_->send_meta_info();
+	return dict_ops_->send_meta_info();
 }
 
-void ParserBase::begin()
+bool ParserBase::begin()
 {
-	meta_info();
-	dict_ops_->send_info();
+	return meta_info() && dict_ops_->send_info();
 }
 
-void ParserBase::set_dict_info(const std::string& key, const std::string& val)
+bool ParserBase::set_dict_info(const std::string& key, const std::string& val)
 {
-	dict_ops_->set_dict_info(key, val);
+	return dict_ops_->set_dict_info(key, val);
 }
 
-void ParserBase::abbrs_begin()
+bool ParserBase::abbrs_begin()
 {
-	dict_ops_->abbrs_begin();
+	return dict_ops_->abbrs_begin();
 }
 
-void ParserBase::abbrs_end()
+bool ParserBase::abbrs_end()
 {
-	dict_ops_->abbrs_end();
+	return dict_ops_->abbrs_end();
 }
 
-void ParserBase::abbr(const StringList& keys, const std::string& val)
+bool ParserBase::abbr(const StringList& keys, const std::string& val)
 {
-	dict_ops_->abbr(keys, val);
+	return dict_ops_->abbr(keys, val);
 }
 
-void ParserBase::article(const StringList& keys, const std::string& val,
+bool ParserBase::article(const StringList& keys, const std::string& val,
 			 bool kia)
 {
-	dict_ops_->article(keys, val, kia);
+	return dict_ops_->article(keys, val, kia);
 }
 
 int ParserBase::parse(const std::string& url)

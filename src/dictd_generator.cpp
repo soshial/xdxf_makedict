@@ -70,7 +70,7 @@ namespace dictd {
 		File idx_file_;
 
 		int generate();
-		void on_have_data(const StringList&, const std::string&);
+		bool on_have_data(const StringList&, const std::string&);
 		void add_headword(const std::string& name,
 				  const std::string& val) {
 			on_have_data(StringList(1, name), val);
@@ -133,18 +133,18 @@ static inline char *new_string(const std::string& str)
 	return ptr;
 }
 
-void Generator::on_have_data(const StringList& keys, const std::string& data)
+bool Generator::on_have_data(const StringList& keys, const std::string& data)
 {
 	long off = dict_file_.tell();
 	if (off == -1) {
 		StdErr.printf(_("Can not get position in the file: %s\n"),
 			      strerror(errno));
-		exit(EXIT_FAILURE);
+		return false;
 	}
-	gulong size=data.size();
+	size_t size = data.size();
 	if (!dict_file_.write(&data[0], data.size())) {
 		StdErr.printf(_("Can not write to: %s\n"), dict_file_name.c_str());
-		exit(EXIT_FAILURE);
+		return false;
 	}
 
 	char *coord=new_string(std::string("\t")+b64_encode(off)+"\t"+b64_encode(size));
@@ -152,6 +152,7 @@ void Generator::on_have_data(const StringList& keys, const std::string& data)
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
 		keys_list.push_back(dictd_key(new_string(*p), coord));
 
+	return true;
 }
 
 #if 0

@@ -310,7 +310,8 @@ int Parser::parse(const std::string& filename)
 	set_dict_info("full_name", title);
 	set_dict_info("description", std::string("Copyright: ")+copyright+"; Version: "+version);
 
-	begin();
+	if (!begin())
+		return EXIT_FAILURE;
 
 	std::string encoded_data;
 	FullIndexEntry index_entry;
@@ -378,7 +379,8 @@ int Parser::parse(const std::string& filename)
 		}
 #endif
 
-		article(StringList(1, encoded_index), encoded_data, false);	
+		if (!article(StringList(1, encoded_index), encoded_data, false))
+			return EXIT_FAILURE;
 	}
 
 

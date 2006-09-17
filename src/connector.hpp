@@ -8,15 +8,15 @@ class Connector : public IParserDictOps, public IGeneratorDictOps {
 public:
 	Connector(GeneratorBase& generator, const std::string& workdir):
 		IGeneratorDictOps(generator), workdir_(workdir) {}
-	void set_dict_info(const std::string&, const std::string&);
-	void send_meta_info();
-	void send_info();
+	bool set_dict_info(const std::string&, const std::string&);
+	bool send_meta_info();
+	bool send_info();
 
-	void abbrs_begin();
-	void abbrs_end();
-	void abbr(const StringList&, const std::string&);
-	void article(const StringList&, const std::string&, bool);
-	void end();
+	bool abbrs_begin();
+	bool abbrs_end();
+	bool abbr(const StringList&, const std::string&);
+	bool article(const StringList&, const std::string&, bool);
+	bool end();
 
 	bool get_meta_info();
 	bool get_info();

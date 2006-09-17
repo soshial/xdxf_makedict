@@ -37,30 +37,31 @@ typedef std::vector<std::string> StringList;
 class IParserDictOps {
 public:
 	virtual ~IParserDictOps() {}
-	virtual void set_dict_info(const std::string&, const std::string&) = 0;
-	virtual void send_meta_info() = 0;
-	virtual void send_info() = 0;
+	virtual bool set_dict_info(const std::string&, const std::string&) = 0;
+	virtual bool send_meta_info() = 0;
+	virtual bool send_info() = 0;
 
-	virtual void abbrs_begin() = 0;
-	virtual void abbrs_end() = 0;
-	virtual void abbr(const StringList&, const std::string&) = 0;
-	virtual void article(const StringList&, const std::string&, bool) = 0;
-	virtual void end() = 0;
+	virtual bool abbrs_begin() = 0;
+	virtual bool abbrs_end() = 0;
+	virtual bool abbr(const StringList&, const std::string&) = 0;
+	virtual bool article(const StringList&, const std::string&, bool) = 0;
+	virtual bool end() __attribute_warn_unused_result__ = 0;
 };
 
 class PipeParserDictOps : public IParserDictOps {
 public:
 	PipeParserDictOps(File& out): out_(out) {}
-	void send_meta_info();
-	void send_info();
-	void set_dict_info(const std::string& name, const std::string& val) {
+	bool send_meta_info();
+	bool send_info();
+	bool set_dict_info(const std::string& name, const std::string& val) {
 		dict_info_[name] = val;
+		return true;
 	}
-	void abbrs_begin();
-	void abbrs_end();
-	void abbr(const StringList&, const std::string&);
-	void article(const StringList&, const std::string&, bool);
-	void end();
+	bool abbrs_begin();
+	bool abbrs_end();
+	bool abbr(const StringList&, const std::string&);
+	bool article(const StringList&, const std::string&, bool);
+	bool end();
 private:
 	StringMap dict_info_;
 	File &out_;
@@ -88,15 +89,16 @@ protected:
 	virtual int parse(const std::string& url);
 
 	void set_parser_info(const std::string& key, const std::string& val);
-	void set_dict_info(const std::string& key, const std::string& val);
+	bool set_dict_info(const std::string& key, const std::string& val);
 
-	void meta_info();
-	void begin();
-	void abbrs_begin();
-	void abbrs_end();
-	void abbr(const StringList& keys, const std::string& val);
-	void article(const StringList& keys, const std::string& val,
-		     bool keys_in_article);
+	bool meta_info() __attribute_warn_unused_result__;
+	bool begin() __attribute_warn_unused_result__;
+	bool abbrs_begin() __attribute_warn_unused_result__;
+	bool abbrs_end() __attribute_warn_unused_result__;
+	bool abbr(const StringList& keys, const std::string& val)
+		__attribute_warn_unused_result__;
+	bool article(const StringList& keys, const std::string& val,
+		     bool keys_in_article)  __attribute_warn_unused_result__;
 
 	//usefull routine for some parsers
 	std::set<gunichar> not_valid_chars;

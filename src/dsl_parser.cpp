@@ -514,9 +514,8 @@ int Parser::print_info()
 
 		set_dict_info("description", convstr);
 	}
-out:
-	begin();
-	return EXIT_SUCCESS;
+out:	
+	return begin() ? EXIT_SUCCESS : EXIT_FAILURE;
 }
 
 inline void Parser::utf16_to_machine(guint16 &ch)
@@ -983,8 +982,8 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 		return print_info();
 
 	if (abr)
-		abbrs_begin();
-
+		if (!abbrs_begin())
+			return EXIT_FAILURE;
 	
 	do {
 		StringList key_list;
@@ -1034,10 +1033,12 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 			return res;
 		}
 
-		if (abr)
-			abbr(key_list, datastr);
-		else
-			article(key_list, datastr, false);
+		if (abr) {
+			if (!abbr(key_list, datastr))
+				return EXIT_FAILURE;
+		} else
+			if (!article(key_list, datastr, false))
+				return EXIT_FAILURE;
 		key_list.clear();
 
 		while (line == "" && getline(in))
@@ -1046,7 +1047,8 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 
 
 	if (abr)
-		abbrs_end();
+		if (!abbrs_end())
+			return EXIT_FAILURE;
 
 	return EXIT_SUCCESS;
 }

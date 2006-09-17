@@ -292,12 +292,14 @@ int Parser::parse(const std::string& filename)
 	}
 
 	set_dict_info("description", description);
-	begin();
+	if (!begin())
+		return EXIT_FAILURE;
 	std::string key, dictdata;
 	for (size_t i=0; i<dict.narticles(); ++i) {
 		dict.get_article(i, key, dictdata);
 		if (!key.empty())
-			article(StringList(1, key), dictdata, false);		
+			if (!article(StringList(1, key), dictdata, false))
+				return EXIT_FAILURE;
 	}
 
 	res=EXIT_SUCCESS;

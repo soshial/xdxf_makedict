@@ -43,7 +43,7 @@ namespace dummy {
 					  const std::string&) {
 			return true;
 		}
-		void on_have_data(const StringList& keys,
+		bool on_have_data(const StringList& keys,
 				  const std::string& data);
 
 	};
@@ -53,12 +53,18 @@ namespace dummy {
 
 using namespace dummy;
 
-void Generator::on_have_data(const StringList& keys,
+bool Generator::on_have_data(const StringList& keys,
 			     const std::string& data)
 {
-	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
+	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p) {
 		StdOut << "key: " << *p << "\n";
+		if (!StdOut)
+			return false;
+	}
 	StdOut << "data: " << data << "\n";
+	if (!StdOut)
+		return false;
+	return true;
 }
 
 #ifdef DUMMY_GENERATOR_ALONE

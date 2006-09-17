@@ -55,7 +55,7 @@ namespace stardict {
 			}
 	protected:
 		int generate();
-		void on_have_data(const StringList&, const std::string&);
+		bool on_have_data(const StringList&, const std::string&);
 		bool on_prepare_generator(const std::string&,
 					  const std::string&);
 	private:
@@ -232,13 +232,15 @@ int Generator::generate()
 	return res;
 }
 
-void Generator::on_have_data(const StringList& keys,
-				      const std::string& data)
+bool Generator::on_have_data(const StringList& keys,
+			     const std::string& data)
 {
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
 		keys_list.push_back(Key(*p, cur_off_, data.length()));
 	tmp_dict_file_.write(&data[0], data.length());
 	cur_off_ += data.length();
+
+	return !tmp_dict_file_ ? false : true;
 }
 
 bool Generator::create_ifo_file(const std::string& basename,
