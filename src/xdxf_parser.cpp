@@ -229,13 +229,17 @@ void XMLCALL Parser::xml_end(void *arg, const XML_Char *name)
 			if (!parser->abbrs_end())
 				exit(EXIT_FAILURE);
 			break;
+#if 1
 		case stXDXF:
+
+//TODO: really need? - yes, but why we need this?
 			if (!parser->dict_ops_->end())
 				exit(EXIT_FAILURE);
 			break;
+#endif
 		case stNU:
 		default:
-			/*nothing*/;
+			/*nothing*/break;
 		}
 		parser->state_stack_.pop();
 	}

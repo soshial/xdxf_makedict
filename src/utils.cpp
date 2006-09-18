@@ -23,6 +23,7 @@
 #endif
 
 #include <cstring>
+#include <cstdarg>
 #include <cerrno>
 #include <glib.h>
 #include <glib/gi18n.h>
@@ -69,7 +70,7 @@ void replace(const Str2StrTable& replace_table,
   }
 }
 
-std::vector<std::string> split(const std::string& str, char sep)
+StringList split(const std::string& str, char sep)
 {
 	std::vector<std::string> res;
 	std::string::size_type prev_pos=0, pos = 0;
@@ -173,4 +174,13 @@ bool copy_file(const std::string& from, const std::string& to)
 	}
 
 	return File::copy(in, out);
+}
+
+void g_info(const gchar *fmt, ...)
+{
+	va_list va;
+
+	va_start(va, fmt);
+	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, fmt, va);
+	va_end(va);
 }

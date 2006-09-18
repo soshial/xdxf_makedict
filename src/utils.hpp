@@ -29,12 +29,14 @@ static inline bool is_file_exist(const std::string& file)
 {
 	return g_file_test(file.c_str(), G_FILE_TEST_EXISTS);
 }
-
-extern std::vector<std::string> split(const std::string& str, char sep);
+typedef std::vector<std::string> StringList;
+extern StringList split(const std::string& str, char sep);
 extern void strip(std::string& str);
 extern const char *b64_encode(guint32 val);
 extern guint32 b64_decode(const char *val);
 extern bool copy_file(const std::string& from, const std::string& to)
 	__attribute_warn_unused_result__;
+
+extern void g_info(const gchar *fmt, ...);
 
 #endif//!_UTILS_HPP_

@@ -36,7 +36,8 @@ SH_TESTS = \
 	t_dummy t_stardict t_normalize \
 	t_generator t_dslparser t_xdxfgenerator \
 	t_parser_error.sh t_parser_options.sh \
-	t_sdict_parser t_generator_error.sh t_perfomance.sh
+	t_sdict_parser t_generator_error.sh \
+	t_stardict_parser.sh t_perfomance.sh
 
 EXTRA_DIST=$(SH_TESTS) funcs.sh t_convert_all.sh
 TESTS = $(SH_TESTS) t_xml
