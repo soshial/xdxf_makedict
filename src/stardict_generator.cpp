@@ -169,10 +169,10 @@ int Generator::generate()
 	guint32 wordcount=keys_list.size();
 	guint32 data_size, data_offset=0;
 	guint32 i=0;
-	bool duplicates=false;
+
 	std::string encoded_str;
 	Key *pitem = &keys_list[i];
-	while (i<keys_list.size()) {
+	while (i < keys_list.size()) {
 		char *prev_item_value=NULL;
 		std::vector<char> buf;
 		guint32 tmpguint32=0;
@@ -201,11 +201,7 @@ int Generator::generate()
 			pitem = &keys_list[i];
 			if (i<keys_list.size() &&
 			    strcmp(prev_item_value, keys_list[i].value)==0) {
-#if 0
-				std::cerr<<_("Duplicate!: ")<<prev_item_value<<std::endl;
-#else
-				duplicates = true;
-#endif
+				g_info(_("Duplicate!: %s\n"), prev_item_value);
 				wordcount--;
 				dict_file_.write("\n", 1);
 				++data_size;
@@ -220,8 +216,7 @@ int Generator::generate()
 		idx_file_.write((char *)&tmpguint32, sizeof(guint32));
 		data_offset+=data_size;
 	}
-	if (duplicates)
-		StdErr << _("There are several duplicated keys\n");
+
 	if (!create_ifo_file(realbasename_, wordcount, idx_file_.tell())) {
 		StdErr << _("Creating ifo file error.\n");
 		return EXIT_FAILURE;

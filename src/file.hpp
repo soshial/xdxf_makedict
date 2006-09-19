@@ -28,6 +28,10 @@ public:
 		fprintf(stream_, "%lf", d);
 		return *this;
 	}
+	File& operator<<(char ch) {
+		fputc(ch, stream_);
+		return *this;
+	}
 	File& operator<<(unsigned int i) {
 		fprintf(stream_, "%u", i);
 		return *this;
