@@ -1,3 +1,4 @@
+0.3beta1
 - dsl parser fixes and updates
 - stardict parser
 - sdict: --parser-option "remove-duplication=yes" to fix broken rus_bse
