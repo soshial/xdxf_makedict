@@ -45,6 +45,7 @@ public:
 
 	virtual bool get_meta_info() = 0;
 	virtual bool get_info() = 0;
+	virtual void set_basename(const std::string&) = 0;
 	virtual const std::string& get_dict_info(const std::string&) const = 0;
 	void encode_keys(bool enc_keys) { enc_keys_ = enc_keys; }
 protected:
@@ -77,6 +78,9 @@ public:
 		if (it == dict_info_.end())
 			return empty;
 		return it->second;
+	}
+	void set_basename(const std::string& val) {
+		dict_info_["basename"] = val;
 	}
 private:
 	enum {mmNONE, mmICON, mmBASENAME} meta_mode_;

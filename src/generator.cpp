@@ -22,14 +22,19 @@
 #  include "config.h"
 #endif
 
+#ifdef HAVE_LOCALE_H
+#  include <clocale>
+#endif
+
 #include <cstring>
 #include <glib/gi18n.h>
-#include <getopt.h>
 #include <glib.h>
+
 #include <numeric>
 
 #include "utils.hpp"
 #include "file.hpp"
+#include "resource.hpp"
 #include "xml.hpp"
 
 #include "generator.hpp"
@@ -109,53 +114,51 @@ GeneratorBase::GeneratorBase(bool enc_key)
 
 int GeneratorBase::run(int argc, char *argv[])
 {
-	static const char *shortopts = "hob:w:";
-	static const option lopts[]= {
-		{"version", no_argument, NULL, 0 },
-		{"help", no_argument, NULL, 'h' },
-		{"output-format", no_argument, NULL, 'o'},
-		{"basename", required_argument, NULL, 'b'},
-		{"work-dir", required_argument, NULL, 'w'},
-		{NULL, 0, NULL, 0},
+#ifdef HAVE_LOCALE_H
+	setlocale(LC_ALL, "");
+#endif
+	gint verbose = 2;
+	gboolean show_version = FALSE, show_fmt = FALSE;
+	glib::CharStr work_dir, basename;
+
+	static GOptionEntry entries[] = {
+		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
+		  _("print version information and exit"), NULL },		
+		{ "output-format", 'o', 0, G_OPTION_ARG_NONE, &show_fmt,
+		  _("display supported output format and exit"), NULL },
+		{ "work-dir", 'd', 0, G_OPTION_ARG_STRING, get_addr(work_dir),
+		  _("use parameter as current directory"), NULL },
+		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
+		  _("set level of verbosity"), NULL },
+		{ "basename", 0, 0, G_OPTION_ARG_STRING, get_addr(basename),
+		  _("base for name of newly create dictionary"), NULL },
+		{ NULL },
 	};
-	int option_index, optc;
-	std::string help =
-		_("Usage: program [-w dir]"
-			"-h, --help          display this help and exit\n"
-			"--version           output version information and exit\n"
-			"-o, --output-format display supported output format and exit\n"
-			"-w, --work-dir dir  use 'dir' as current directory");
 
-	std::string workdir;
-
-	while ((optc = getopt_long(argc, argv, shortopts, &lopts[0],
-				   &option_index))!=-1) {
-		switch (optc) {
-		case 'h':
-			StdOut << help << "\n";
-			return EXIT_SUCCESS;
-		case 0:
-			StdOut << version_ << "\n";
-			return EXIT_SUCCESS;
-		case 'o':
-			StdOut << format_ << "\n";
-			return EXIT_SUCCESS;
-		case 'w':
-			workdir = optarg;
-			break;
-		case '?':
-		default:
-			StdErr << help << "\n";
-			return EXIT_FAILURE;
-		}
-	}
-
-	if (optind != argc) {
-		StdErr << help << "\n";
+	glib::OptionContext opt_cnt(g_option_context_new(_("file1 file2...")));
+	g_option_context_add_main_entries(get_impl(opt_cnt), entries, NULL);
+	g_option_context_set_help_enabled(get_impl(opt_cnt), TRUE);
+	glib::Error err;
+	if (!g_option_context_parse(get_impl(opt_cnt), &argc, &argv, get_addr(err))) {
+		g_warning(_("Options parsing failed: %s\n"), err->message);
 		return EXIT_FAILURE;
 	}
 
-	return run(argv[0], workdir);
+	if (show_version) {
+		StdOut << version_ << "\n";
+		return EXIT_SUCCESS;
+	}
+	if (show_fmt) {
+		StdOut << format_ << "\n";
+		return EXIT_SUCCESS;
+	}
+
+	if (basename) 
+		dict_ops_->set_basename(get_impl(basename));
+	std::string str_workdir;
+	if (work_dir)
+		str_workdir = get_impl(work_dir);
+	return run(argv[0], str_workdir);
 }
 
 int GeneratorBase::run(const std::string& appname, std::string& workdir)

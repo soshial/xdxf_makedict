@@ -25,11 +25,12 @@
 #ifdef HAVE_LOCALE_H
 #  include <clocale>
 #endif
+
 #include <cerrno>
 #include <cstdlib>
-#include <getopt.h>
 #include <glib.h>
 #include <glib/gi18n.h>
+
 #include <map>
 #include <string>
 
@@ -51,10 +52,9 @@ private:
 	StringMap input_codecs;
 	StringMap output_codecs;
 	StringList parser_options_;
-	std::string workdir;
-	std::string input_format, output_format;
-	std::string appname_;
-	int verbose_;
+	std::string workdir_;
+	std::string input_format_, output_format_;
+	gint verbose_;
 
 	int convert(const char *arg);
 	const char *find_input_codec(const std::string& url);
@@ -148,8 +148,7 @@ void MakeDict::list_codecs()
 
 
 int MakeDict::run(int argc, char *argv[])
-{
-	appname_ = argv[0];
+{	
 #ifdef HAVE_LOCALE_H
 	setlocale(LC_ALL, "");
 #endif
@@ -159,120 +158,104 @@ int MakeDict::run(int argc, char *argv[])
 	    !fill_codecs_table(argv[0], ""))
 		return EXIT_FAILURE;
 
-#ifdef DEBUG
 	for (StringMap::const_iterator p = input_codecs.begin();
 	     p != input_codecs.end(); ++p)
-		StdOut << p->first << " " << p->second << "\n";
+		g_info(_("Input codec: %s\t%s\n"), p->first.c_str(),
+		       p->second.c_str());
 
 	for (StringMap::const_iterator p = output_codecs.begin();
 	     p != output_codecs.end(); ++p)
-		StdOut << p->first << " " << p->second << "\n";
-#endif
-	option longopts[] ={
-		{"version", no_argument, NULL, 'v' },
-		{"help", no_argument, NULL, 'h' },
-		{"input-format", required_argument, NULL, 'i'},
-		{"ouput-format", required_argument, NULL, 'o'},
-		{"work-dir", required_argument, NULL, 0},
-		{"list-supported-formats", no_argument, NULL, 'l'},
-		{"parser-option", required_argument, NULL, 1},
-		{"verbose", required_argument, NULL, 2},
-		{ NULL, 0, NULL, 0 }
+		g_info(_("Output codec: %s\t%s\n"), p->first.c_str(),
+		       p->second.c_str());
+
+	gboolean list_fmts = FALSE, show_version = FALSE;
+	glib::CharStr input_fmt, output_fmt, work_dir;
+	glib::CharStrArr parser_opts;
+
+	static GOptionEntry entries[] = {
+		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
+		  _("print version information and exit"), NULL },
+		{ "list-supported-formats", 'l', 0, G_OPTION_ARG_NONE, &list_fmts,
+		  _("list all supported formats"), NULL },
+		{ "input-format", 'i', 0, G_OPTION_ARG_STRING, get_addr(input_fmt),
+		  _("format of input file"), NULL },
+		{ "output-format", 'o', 0, G_OPTION_ARG_STRING, get_addr(output_fmt),
+		  _("format of output file"), NULL },
+		{ "work-dir", 'd', 0, G_OPTION_ARG_STRING, get_addr(work_dir),
+		  _("root directory for all created dictionaries"), NULL },
+		{ "parser-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
+		  get_addr(parser_opts), _("\"option_name=option_value\""),
+		  NULL },
+		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose_,
+		  _("set level of verbosity"), NULL },
+		{ NULL },
 	};
 
-	bool h=false, v=false, l=false;
-	int option_index, optc;
-	std::string is_your_format;
+	glib::OptionContext opt_cnt(g_option_context_new(_("file1 file2...")));
+	g_option_context_add_main_entries(get_impl(opt_cnt), entries, NULL);
+	g_option_context_set_help_enabled(get_impl(opt_cnt), TRUE);
+	glib::Error err;
+	if (!g_option_context_parse(get_impl(opt_cnt), &argc, &argv, get_addr(err))) {
+		g_warning(_("Options parsing failed: %s\n"), err->message);
+		return EXIT_FAILURE;
+	}
 
-	while ((optc = getopt_long(argc, argv, "hvi:o:lp:", longopts,
-				   &option_index))!=-1)
-		switch (optc) {
-		case 'i':
-		{
-			StringMap::const_iterator i = input_codecs.find(optarg);
-			if (i == input_codecs.end() &&
-			    !ParsersRepo::get_instance().supported_format(optarg)) {
-				unknown_input_format(optarg);
-				return EXIT_FAILURE;
-			}
-			input_format = optarg;
+	if (input_fmt) {
+		StringMap::const_iterator i = input_codecs.find(get_impl(input_fmt));
+		if (i == input_codecs.end() &&
+		    !ParsersRepo::get_instance().supported_format(get_impl(input_fmt))) {
+			unknown_input_format(get_impl(input_fmt));
+			return EXIT_FAILURE;
 		}
-		break;
-		case 'o':
-		{
-			StringMap::iterator i = output_codecs.find(optarg);
-			if (i == output_codecs.end() &&
-			    !GeneratorsRepo::get_instance().supported_format(optarg)) {
-				unknown_output_format(optarg);
-				return EXIT_FAILURE;
-			}
-			output_format = optarg;
+		input_format_ = get_impl(input_fmt);
+	}
+	if (output_fmt)	{
+		StringMap::iterator i = output_codecs.find(get_impl(output_fmt));
+		if (i == output_codecs.end() &&
+		    !GeneratorsRepo::get_instance().supported_format(get_impl(output_fmt))) {
+			unknown_output_format(get_impl(output_fmt));
+			return EXIT_FAILURE;
 		}
-		break;
-		case 'v':
-			v = true;
-			break;
-		case 'h':
-			h = true;
-			break;
-		case 'l':
-			l = true;
-			break;
-		case 0:
-			workdir=optarg;
-			break;
-		case 1: {
-			std::string pars_opt(optarg);
+		output_format_ = get_impl(output_fmt);
+	}
+	if (show_version) {
+		StdOut.printf(_("Utiltity for creating dictionaries, %s"), VERSION);
+		return EXIT_SUCCESS;
+	}
+	if (list_fmts) {
+		list_codecs();
+		return EXIT_SUCCESS;
+	}
+
+	if (work_dir)
+		workdir_ = get_impl(work_dir);
+
+	if (parser_opts) {
+		gchar **popts = get_impl(parser_opts);
+		while (*popts) {
+			std::string pars_opt = *popts;
 			size_t beg = 0, len = pars_opt.length();
 			if (pars_opt[0] == '"' || pars_opt[0] == '\'')
 				++beg;
 			if (len && (pars_opt[len - 1] == '"' ||
 				    pars_opt[len - 1] == '\''))
 				--len;
-#ifdef DEBUG
-			StdErr << "Parser option: " << pars_opt.substr(beg, len - beg) << "\n";
-#endif
+			g_info(_("Parser option: %s\n"),
+			       pars_opt.substr(beg, len - beg).c_str());
 			parser_options_.push_back(pars_opt.substr(beg, len - beg));
-			break;
+			++popts;
 		}
-		case 2:
-			if (sscanf(optarg, "%d", &verbose_) != 1) {
-				StdErr.printf(_("Expected usage: --verbose=number\n"));
-				return EXIT_FAILURE;
-			}
-			break;
-		case '?':
-		default:
-			StdErr.printf(_("Unknwon option.\nTry '%s --help' for more information.\n"),
-				      argv[0]);
-			return EXIT_FAILURE;
-		}
-
-	if (l) {
-		list_codecs();
-		return EXIT_SUCCESS;
 	}
 
-	if (v) {
-		StdOut.printf(_("Utiltity for creating dictionaries, %s"), VERSION);
-		return EXIT_SUCCESS;
-	}
 
-	if (h || optind >= argc) {
-		StdOut.printf(_("Usage: %s [OPTIONS] file1 file2...\n"
-				"-v, --version                print version information and exit\n"
-				"-h, --help                   display this help and exit\n"
-				"-i, --input-format           format of input file\n"
-				"-o, --output-format          format of output file\n"
-				"--work-dir                   root directory for all created dictionaries\n"
-				"-l, --list-supported-formats list all supported formats\n"
-				"--parser-option \"option_name=option_value\"\n"), argv[0]);
+	if (1 == argc) {
+		g_warning(_("You do not specify file names of dictionaries\n"));
 		return EXIT_SUCCESS;
 	}
 
 
 
-	for (int i = optind; i < argc; ++i)
+	for (int i = 1; i < argc; ++i)
 		if (convert(argv[i]) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 
@@ -385,8 +368,8 @@ void MakeDict::unknown_input_format(const std::string& format)
 
 const char *MakeDict::find_input_codec(const std::string &url)
 {
-	if (!input_format.empty()) {
-		StringMap::const_iterator it = input_codecs.find(input_format);
+	if (!input_format_.empty()) {
+		StringMap::const_iterator it = input_codecs.find(input_format_);
 		if (it != input_codecs.end())
 			return it->second.c_str();
 	} else {
@@ -419,16 +402,16 @@ ParserBase *MakeDict::create_parser(const std::string& url)
 {
 	ParserBase *parser = NULL;
 
-	if (!input_format.empty())
+	if (!input_format_.empty())
 		parser =
-			ParsersRepo::get_instance().create_codec(input_format);
+			ParsersRepo::get_instance().create_codec(input_format_);
 	else
 		parser =
 			ParsersRepo::get_instance().create_suitable_parser(url);
 
 
 	if (!parser) {
-		unknown_input_format(input_format);
+		unknown_input_format(input_format_);
 		exit(EXIT_FAILURE);
 	}
 
@@ -450,12 +433,12 @@ int MakeDict::convert(const char *arg)
 
 	std::string cur_workdir;
 
-	if (workdir.empty())
-		cur_workdir=dirname;
+	if (workdir_.empty())
+		cur_workdir = dirname;
 	else
-		cur_workdir=workdir;
+		cur_workdir = workdir_;
 	const char *icodec = find_input_codec(arg);
-	const char *ocodec = find_output_codec(output_format);
+	const char *ocodec = find_output_codec(output_format_);
 	if (icodec && ocodec) {
 		std::string input_cmd = std::string("'") + icodec + "' '" +
 			arg + "'" + parser_options();
@@ -464,7 +447,7 @@ int MakeDict::convert(const char *arg)
 			"' --work-dir '"+cur_workdir+"'";
 
 		Process input_codec, output_codec;
-		if (!input_codec.run_async(input_cmd, 
+		if (!input_codec.run_async(input_cmd,
 					   Process::OPEN_PIPE_FOR_READ |
 					   Process::INHERIT_STDIN) ||
 		    !output_codec.run_async(output_cmd, Process::OPEN_PIPE_FOR_WRITE))
@@ -523,12 +506,12 @@ int MakeDict::convert(const char *arg)
 					   Process::INHERIT_STDIN))
 			return EXIT_FAILURE;
 		std::auto_ptr<GeneratorBase> generator(
-			GeneratorsRepo::get_instance().create_codec(output_format));
+			GeneratorsRepo::get_instance().create_codec(output_format_));
 		g_assert(generator.get());
 		GeneratorDictPipeOps gen_dict_ops(input_codec.output(), *generator);
 		generator->reset_ops(&gen_dict_ops);
 
-		if (generator->run(appname_, cur_workdir) != EXIT_SUCCESS)
+		if (generator->run(g_get_prgname(), cur_workdir) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 		int res;
 
@@ -543,7 +526,7 @@ int MakeDict::convert(const char *arg)
 		std::auto_ptr<ParserBase> parser(create_parser(arg));
 		g_assert(parser.get());
 		std::auto_ptr<GeneratorBase> generator(
-			GeneratorsRepo::get_instance().create_codec(output_format));
+			GeneratorsRepo::get_instance().create_codec(output_format_));
 		g_assert(generator.get());
 		Connector connector(*generator, cur_workdir);
 		parser->reset_ops(&connector);
@@ -557,5 +540,5 @@ int MakeDict::convert(const char *arg)
 
 int main(int argc, char *argv[])
 {
-	return MakeDict().run(argc, argv);	
+	return MakeDict().run(argc, argv);
 }

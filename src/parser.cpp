@@ -22,13 +22,15 @@
 #  include "config.h"
 #endif
 
-#include <glib/gi18n.h>
-#include <getopt.h>
-#ifndef _WIN32
-#  include <unistd.h>
+#ifdef HAVE_LOCALE_H
+#  include <clocale>
 #endif
 
+#include <glib/gi18n.h>
+#include <glib.h>
+
 #include "utils.hpp"
+#include "resource.hpp"
 
 #include "parser.hpp"
 
@@ -202,53 +204,67 @@ bool ParserBase::parse_option(const std::string& optarg)
 
 int ParserBase::run(int argc, char *argv[])
 {
-	static const char *shortopts = "hi";
-	static const option lopts[] = {
-		{"version", no_argument, NULL, 0 },
-		{"help", no_argument, NULL, 'h' },
-		{"input-format", no_argument, NULL, 'i'},
-		{"is-your-format", required_argument, NULL, 1},
-		{"parser-option", required_argument, NULL, 2},
-		{ NULL, 0, NULL, 0 },
-	};
-	int option_index, optc;
-	std::string help =
-		_("Usage: program path/to/dictionary\n"
-			"-h, --help            display this help and exit\n"
-			"--version             output version information and exit\n"
-			"-i, --input-format    output supported input format and exit\n"
-			"--is-your-format file test if file in format which accept this codec\n"
-			"--parser-option \"option_name=option_value\"\n");
+#ifdef HAVE_LOCALE_H
+	setlocale(LC_ALL, "");
+#endif
+	gboolean show_version = FALSE, show_fmt = FALSE;
+	glib::CharStr url;
+	glib::CharStrArr parser_opts;
+	gint verbose = 2;
 
-	while ((optc = getopt_long(argc, argv, shortopts, &lopts[0],
-				   &option_index))!=-1) {
-		switch (optc) {
-		case 'h':
-			StdOut << help << "\n";
-			return EXIT_SUCCESS;
-		case 0:
-			StdOut << parser_info_["version"] << "\n";
-			return EXIT_SUCCESS;
-		case 1:
-			return is_my_format(optarg) ? EXIT_SUCCESS : EXIT_FAILURE;
-		case 'i':
-			StdOut << parser_info_["format"] << "\n";
-			return EXIT_SUCCESS;
-		case 2:
-			if (!parse_option(optarg))
-				return EXIT_FAILURE;
-			break;
-		case '?':
-		default:
-			StdErr << help << "\n";
-			return EXIT_FAILURE;
-		}
-	}
-	if (optind == argc) {
-		StdErr.printf(_("%s: no input files\n"), argv[0]);
+	static GOptionEntry entries[] = {
+		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
+		  _("print version information and exit"), NULL },	
+		{ "is-your-format", 0, G_OPTION_FLAG_FILENAME, G_OPTION_ARG_STRING, get_addr(url),
+		  _("test if file in format which accept this codec"), NULL },
+		{ "input-format", 'i', 0, G_OPTION_ARG_NONE, &show_fmt,
+		  _("output version information and exit"), NULL },
+		{ "parser-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
+		  get_addr(parser_opts), _("\"option_name=option_value\""),
+		  NULL },
+		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
+		  _("set level of verbosity"), NULL },
+		{ NULL },
+	};
+
+	glib::OptionContext opt_cnt(g_option_context_new(_("file1 file2...")));
+	g_option_context_add_main_entries(get_impl(opt_cnt), entries, NULL);
+	g_option_context_set_help_enabled(get_impl(opt_cnt), TRUE);
+	glib::Error err;
+	if (!g_option_context_parse(get_impl(opt_cnt), &argc, &argv, get_addr(err))) {
+		g_warning(_("Options parsing failed: %s\n"), err->message);
 		return EXIT_FAILURE;
 	}
-	return do_run(argv[optind]);
+
+
+
+	if (show_version) {
+		StdOut << parser_info_["version"] << "\n";
+		return EXIT_SUCCESS;
+	}
+	if (url)
+		return is_my_format(get_impl(url)) ? EXIT_SUCCESS : EXIT_FAILURE;
+
+	if (show_fmt) {
+		StdOut << parser_info_["format"] << "\n";
+		return EXIT_SUCCESS;
+	}
+
+	if (parser_opts) {
+		gchar **popts = get_impl(parser_opts);
+		while (*popts) {
+			if (!parse_option(*popts))
+				return EXIT_FAILURE;
+			++popts;
+		}
+	}
+
+	if (1 == argc) {
+		g_warning(_("%s: no input files\n"), argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	return do_run(argv[1]);
 }
 
 int ParserBase::run(const StringList& options, const std::string& url)

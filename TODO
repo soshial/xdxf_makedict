@@ -5,4 +5,4 @@
 - check all to do items in code
 - do not use external program except standart in tests
 - xdxf_parser - how report about error?
-- parser: we realy need unistd.h
+- add parser option for rus_bse

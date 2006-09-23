@@ -23,6 +23,9 @@ public:
 	bool get_meta_info();
 	bool get_info();
 	const std::string& get_dict_info(const std::string&) const;
+	void set_basename(const std::string& val) {
+		dict_info_["basename"] = val;
+	}
 private:
 	StringMap dict_info_;
 	std::string workdir_;
