@@ -51,6 +51,7 @@ src/Makefile
 tests/Makefile 
 tests/dtd/Makefile 
 tests/sample-dicts/Makefile
+mvsc/Makefile
 ])
 
 echo "
