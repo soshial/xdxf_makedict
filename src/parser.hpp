@@ -21,6 +21,10 @@
 #ifndef _PARSER_HPP_
 #define _PARSER_HPP_
 
+#ifdef HAVE_CONFIG_H
+#  include "config.h"
+#endif
+
 #include <string>
 #include <map>
 #include <vector>

@@ -22,11 +22,16 @@
 #  include "config.h"
 #endif
 
+#ifdef _WIN32
+#  include <windows.h>
+#else
 extern "C" {
 #  include <sys/types.h>
 #  include <sys/wait.h>
 }
+#endif
 #include <cerrno>
+#include <glib.h>
 #include <glib/gi18n.h>
 
 #include "utils.hpp"
@@ -88,6 +93,18 @@ bool Process::run_async(const std::string& cmd, int flags)
 
 bool Process::wait(int &res)
 {
+#ifdef _WIN32
+	input_.close();
+	DWORD status;
+	if (WaitForSingleObject((HANDLE)pid_, INFINITE) !=
+		WAIT_OBJECT_0 ||
+		!GetExitCodeProcess((HANDLE)pid_, &status)) {
+			g_warning(_("Can not get status of spawned process\n"));
+			return false;
+	}
+	res = status;	
+	g_spawn_close_pid(pid_);	
+#else
 	input_.close();
 	int status;
 	if (waitpid(pid_, &status, 0) == -1) {
@@ -97,4 +114,5 @@ bool Process::wait(int &res)
 	}
 	res = WEXITSTATUS(status);
 	return true;	
+#endif
 }

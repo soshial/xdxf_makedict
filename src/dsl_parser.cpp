@@ -53,7 +53,11 @@ public:
 	~Parser() {}
 protected:
 	bool is_my_format(const std::string& url) {
-		return g_str_has_suffix(url.c_str(), ".dsl");
+		//To fix compiler warning bool<-gboolean conversation
+		if (g_str_has_suffix(url.c_str(), ".dsl"))
+			return true;
+		else
+			return false;
 	}
 	int parse(const std::string& filename);
 private:
@@ -494,7 +498,7 @@ int Parser::print_info()
 			if (!conv.convert(get_impl(content), anot_len, convstr))
 				convstr = get_impl(content);
 
-			if (g_utf8_validate(convstr.c_str(), convstr.length(), NULL))
+			if (g_utf8_validate(convstr.c_str(), -1, NULL))
 				break;
 		}
 

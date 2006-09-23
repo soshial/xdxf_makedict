@@ -147,7 +147,8 @@ bool Generator::on_have_data(const StringList& keys, const std::string& data)
 		return false;
 	}
 
-	char *coord=new_string(std::string("\t")+b64_encode(off)+"\t"+b64_encode(size));
+	char *coord = new_string(std::string("\t") + 
+		b64_encode(off) + "\t" + b64_encode(guint32(size)));
 	coord_list.push_back(coord);
 	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
 		keys_list.push_back(dictd_key(new_string(*p), coord));

@@ -47,6 +47,9 @@
 
 namespace sdict {
 
+#if defined(_MSC_VER)
+#pragma pack(push, 1)
+#endif
 	struct Header {
 		guint8 signature_[4];
 		guint8 lang_from_[3];
@@ -79,7 +82,13 @@ namespace sdict {
 		}
 #endif
 	} __attribute__((packed));
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#endif
 
+#if defined(_MSC_VER)
+#pragma pack(push, 1)
+#endif
 	struct FullIndexEntry {
 		guint16 next_word_;
 		guint16 prev_word_;
@@ -91,6 +100,9 @@ namespace sdict {
 			article_pointer_ = GUINT32_FROM_LE(article_pointer_);
 		}
 	} __attribute__((packed));
+#if defined(_MSC_VER)
+#pragma pack(pop)
+#endif
 
 	class Parser : public ParserBase {
 	public:

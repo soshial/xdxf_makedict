@@ -97,7 +97,11 @@ namespace dictd {
 		~Parser() {} 
 		int parse(const std::string & filename);
 		bool is_my_format(const std::string& url) { 
-			return g_str_has_suffix(url.c_str(), ".index");
+			//to fix stupid compiler warning
+			if (g_str_has_suffix(url.c_str(), ".index"))
+				return true;
+			else
+				return false;
 		}
 	private:
 		std::vector<char> data_buffer;
@@ -234,7 +238,7 @@ int Parser::parse(const std::string& filename)
 		p++;
 
 		long data_offset=b64_decode(offset_str.c_str());
-		long data_size=b64_decode(size_str.c_str());
+		size_t data_size=b64_decode(size_str.c_str());
 		if (!data.seek(data_offset)) {
 			StdErr << _("Corrupted dictionary or problem with hard disk\n");
 			return res;

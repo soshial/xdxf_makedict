@@ -18,7 +18,7 @@ namespace xml {
 		~Parser() { XML_ParserFree(xmlp); }
 		void xml_error(const std::string& line) const;
 		bool parse_line(const std::string& line) {
-			if (XML_Parse(xmlp, line.c_str(), line.size(), 0) != XML_STATUS_OK) {
+			if (XML_Parse(xmlp, line.c_str(), int(line.size()), 0) != XML_STATUS_OK) {
 				xml_error(line);
 				return false;
 			}
@@ -26,7 +26,7 @@ namespace xml {
 			return true;
 		}
 		bool finish(const std::string& line) {
-			if (XML_Parse(xmlp, line.c_str(), line.size(), 1) != XML_STATUS_OK) {
+			if (XML_Parse(xmlp, line.c_str(), int(line.size()), 1) != XML_STATUS_OK) {
 				xml_error(line);
 				return false;
 			}

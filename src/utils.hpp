@@ -27,7 +27,10 @@ static inline void tolower(std::string& str)
 
 static inline bool is_file_exist(const std::string& file)
 {
-	return g_file_test(file.c_str(), G_FILE_TEST_EXISTS);
+	//To fix compiler warning
+	if (g_file_test(file.c_str(), G_FILE_TEST_EXISTS))
+		return true;
+	return false;
 }
 typedef std::vector<std::string> StringList;
 extern StringList split(const std::string& str, char sep);

@@ -35,7 +35,7 @@ static const int xml_ent_len[] = { 3,     3,     4,      5,       5 };
 
 void xml::add_and_encode(std::string& str, char ch)
 {
-	char *res = strchr(raw_entrs, ch);
+	const char *res = strchr(raw_entrs, ch);
 	if (!res)
 		str += ch;
 	else {

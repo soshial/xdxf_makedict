@@ -91,6 +91,7 @@ bool MapFile::open(const char *file_name, bool logerr, long file_size)
 		return false;
 
 #elif defined(WIN32)
+	//TODO: rewirte to handle CreateFileA and CreateFileW cases
 	hFile = CreateFile(file_name, GENERIC_READ, 0, NULL, OPEN_ALWAYS,
 			   FILE_ATTRIBUTE_NORMAL, 0);
 	if (-1==size)

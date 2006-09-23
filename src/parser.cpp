@@ -1,7 +1,7 @@
 /*
  * This file part of makedict - convertor from any dictionary format to any
- * http://sdcv.sourceforge.net
- * Copyright (C) 2005 Evgeniy <dushistov@mail.ru>
+ * http://xdxf.sourceforge.net
+ * Copyright (C) 2005-2006 Evgeniy <dushistov@mail.ru>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,9 @@
 
 #include <glib/gi18n.h>
 #include <getopt.h>
-#include <unistd.h>
+#ifndef _WIN32
+#  include <unistd.h>
+#endif
 
 #include "utils.hpp"
 
