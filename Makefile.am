@@ -1,3 +1,3 @@
-SUBDIRS = m4 src tests mvsc
+SUBDIRS = m4 src docs tests mvsc
 
 ACLOCAL_AMFLAGS = -I m4

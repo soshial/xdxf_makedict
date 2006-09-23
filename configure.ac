@@ -48,6 +48,7 @@ AC_OUTPUT([
 Makefile 
 m4/Makefile 
 src/Makefile 
+docs/Makefile
 tests/Makefile 
 tests/dtd/Makefile 
 tests/sample-dicts/Makefile

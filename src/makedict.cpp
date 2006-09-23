@@ -249,7 +249,9 @@ int MakeDict::run(int argc, char *argv[])
 
 
 	if (1 == argc) {
-		g_warning(_("You do not specify file names of dictionaries\n"));
+		g_warning(_("You do not specify file names of dictionaries\n"
+			    "Use %s --help to get more information\n"), 
+			  g_get_prgname());
 		return EXIT_SUCCESS;
 	}
 
