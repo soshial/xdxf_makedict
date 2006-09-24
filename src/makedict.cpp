@@ -228,9 +228,10 @@ int MakeDict::run(int argc, char *argv[])
 	return EXIT_SUCCESS;
 }
 
-static bool start_cmd(const std::string& cmd, gchar *&std_output)
+static bool start_cmd(const std::string& cmd, std::string& res)
 {
-	gchar *std_error;
+	gchar *std_error = NULL;
+	gchar *std_output = NULL;
 	gint exit_status;
 	if (g_spawn_command_line_sync(cmd.c_str(), &std_output, &std_error, &exit_status, NULL) &&
 	    WEXITSTATUS(exit_status) == EXIT_SUCCESS) {
@@ -238,6 +239,7 @@ static bool start_cmd(const std::string& cmd, gchar *&std_output)
 		while (len>0 && g_ascii_isspace(std_output[len-1]))
 			--len;
 		std_output[len]='\0';
+		res = std_output;
 		return true;
 	}
 	return false;
@@ -266,16 +268,16 @@ bool MakeDict::fill_codecs_table(const std::string& prgname, const std::string& 
 			continue;
 
 		if (g_file_test(realname.c_str(), G_FILE_TEST_IS_EXECUTABLE)) {
-			gchar *std_output;
+			std::string std_output;
 
 			if (start_cmd("'" + realname + "' --input-format",
-				      std_output)) {
+				      std_output) && !std_output.empty()) {
 				input_codecs[std_output] = realname;
 				continue;
 			}
 
 			if (start_cmd("'" + realname + "' --output-format",
-				      std_output)) {
+				      std_output) && !std_output.empty()) {
 				output_codecs[std_output] = realname;
 				continue;
 			}
