@@ -30,7 +30,8 @@ makedict_SOURCES = \
 	dictd_parser.cpp \
 	resource.hpp \
 	stardict_parser.cpp \
-	log.cpp log.hpp
+	log.cpp log.hpp \
+	dsl_ipa.cpp dsl_ipa.hpp
 
 LDADD = @MAKEDICT_LIBS@ 
 #makedict_LDADD = @MAKEDICT_LIBS@ 

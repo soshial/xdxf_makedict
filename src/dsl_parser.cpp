@@ -35,6 +35,7 @@
 #include <glib/gi18n.h>
 
 #include "charset_conv.hpp"
+#include "dsl_ipa.hpp"
 #include "mapfile.hpp"
 #include "normalize_tags.hpp"
 #include "utils.hpp"
@@ -83,7 +84,7 @@ private:
 	static Str2StrTable short_lang_table;
 	static Str2StrTable replace_table;
 
-	static std::map<gunichar, std::string> ipa_to_unicode;
+	std::map<gunichar, std::string> ipa_to_unicode_;
 	char *end_of_file;
 	bool not_close_comment;
 
@@ -116,9 +117,9 @@ Str2StrTable Parser::code_page_table;
 Str2StrTable Parser::replace_table;
 Str2StrTable Parser::short_lang_table;
 TagInfoList Parser::taginfo_list;
-std::map<gunichar, std::string> Parser::ipa_to_unicode;
 
-Parser::Parser()
+Parser::Parser() : 
+	ipa_to_unicode_(ipa_to_unicode_tbl().first, ipa_to_unicode_tbl().second)
 {
 	not_close_comment=false;
 
@@ -217,100 +218,6 @@ Parser::Parser()
 				       TagInfo::tColor));
 	taginfo_list.push_back(TagInfo("[ref", "[/ref]", "<kref>", "</kref>",
 				       TagInfo::tKref, true));
-
-	struct ipa_to_unicode_make_pair {
-		std::pair<gunichar, std::string> operator()(gunichar from,
-							    gunichar to) {
-			gchar buf[7];
-
-			std::pair<gunichar, std::string> res;
-			res.first = from;
-			buf[g_unichar_to_utf8(to, buf)] = '\0';
-			res.second =buf;
-
-			return res;
-		}
-		std::pair<gunichar, std::string> operator()(gunichar from,
-							    gunichar to1,
-							    gunichar to2) {
-			gchar buf[7];
-			
-			std::pair<gunichar, std::string> res;
-			res.first = from;
-			buf[g_unichar_to_utf8(to1, buf)] = '\0';
-			res.second = buf;
-			buf[g_unichar_to_utf8(to2, buf)] = '\0';
-			res.second += buf;
-
-			return res;
-		}
-	} ipa_to_unicode_make_pair;
-
-
-#if 1
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('\'', 0x02c8));
-        //ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0028), 0x026a) );
-        //ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0029), 0x0259) );
-        //ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x002c), 0x02cc) );
-        //ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x002d), 0x003a) );
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00a0, 0x02A7));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00a4, 0x0062));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00a6, 0x0077));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00a7, 0x0066));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00a9, 0x0073));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00ab, 0x0074));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00ac, 0x0064));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00ad, 0x006e));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00ae, 0x006c));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00b0, 0x006b));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00b1, 0x0261));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x00b5, 0x0061));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0402, 0x0069));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0403, 0x003a));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0404, 0x007a));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0406, 0x0068));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0407, 0x0072));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0408, 0x0070));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0409, 0x0292));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x040a, 0x014b));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x040b, 0x03b8));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x040c, 0x0075));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x040e, 0x026a));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x040f, 0x0283));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0428, 0x0061));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0452, 0x0076));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0453, 0x0075, ':'));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x0456, 0x006a));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x045e, 0x0065));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0490, 0x006d));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x0491, 0x025b));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x201a, 0x0254));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x201e, 0x0259));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x2020, 0x0259));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x2021, 0x00e6));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x2026, 0x028c));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x2030, 0x00f0));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(0x2039, 0x0064, 0x0292));
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair( 0x20ac, 0x0254));
-#else
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('Q', 230)); // "a" from "man"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('W', 695));// "w"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('A', 593));// "a" from "past"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair(249, ':'));// ":"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair(171, 601));// "e" from "her"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('E', 603));// "e" first from diphthong in "care"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair(141, 596));// "o" from "wash"
-        ipa_to_unicode.insert(ipa_to_unicode_make_pair(195, 652));// "a" from "son"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('I', 618));// "i" from "ink"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair(200, 712));// "'"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair(199, 716));// ","
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('H', 688));// "h"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('Z', 658));// "z"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('N', 331)); // "ng"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('S', 643)); // "sh"
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('D', 240)); // "th" with voice
-	ipa_to_unicode.insert(ipa_to_unicode_make_pair('T', 952)); // "th"
-#endif
 }
 
 void Parser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
@@ -322,9 +229,9 @@ void Parser::trans_ipa_to_utf(const char *p, const char *end, std::string& resst
 	while (*p && p < end) {
 		ch = g_utf8_get_char(p);
 
-		it = ipa_to_unicode.find(ch);
+		it = ipa_to_unicode_.find(ch);
 
-		if (it != ipa_to_unicode.end()) {
+		if (it != ipa_to_unicode_.end()) {
 			resstr += it->second;
 		} else {
 			buf[g_unichar_to_utf8(ch, buf)] = '\0';
