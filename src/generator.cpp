@@ -135,6 +135,7 @@ int GeneratorBase::run(int argc, char *argv[])
 		{ NULL },
 	};
 
+	logger_.reset(new Logger);
 	glib::OptionContext opt_cnt(g_option_context_new(_("file1 file2...")));
 	g_option_context_add_main_entries(get_impl(opt_cnt), entries, NULL);
 	g_option_context_set_help_enabled(get_impl(opt_cnt), TRUE);
@@ -143,6 +144,7 @@ int GeneratorBase::run(int argc, char *argv[])
 		g_warning(_("Options parsing failed: %s\n"), err->message);
 		return EXIT_FAILURE;
 	}
+	logger_->set_verbosity(verbose);
 
 	if (show_version) {
 		StdOut << version_ << "\n";

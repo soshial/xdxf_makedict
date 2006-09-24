@@ -6,4 +6,3 @@
 - do not use external program except standart in tests
 - xdxf_parser - how report about error?
 - add parser option for rus_bse
-- log support for stand alone parsers and generators on C++

@@ -33,6 +33,7 @@
 #include <glib.h>
 
 #include "file.hpp"
+#include "log.hpp"
 #include "repository.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
@@ -93,6 +94,7 @@ protected:
 	std::auto_ptr<IParserDictOps> std_dict_ops_;
 	IParserDictOps *dict_ops_;
 	StringMap parser_options_;
+	std::auto_ptr<Logger> logger_;
 
 	virtual int parse(const std::string& url);
 

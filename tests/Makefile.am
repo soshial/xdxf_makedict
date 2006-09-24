@@ -20,14 +20,16 @@ dummy_parser_SOURCES = \
 	$(top_builddir)/src/parser.cpp $(top_builddir)/src/parser.hpp \
 	$(top_builddir)/src/utils.cpp $(top_builddir)/src/utils.hpp \
 	$(top_builddir)/src/file.cpp $(top_builddir)/src/file.hpp \
-	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp
+	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp \
+	$(top_builddir)/src/log.cpp $(top_builddir)/src/log.hpp
 
 dummy_generator_SOURCES = \
 	$(top_builddir)/src/dummy_generator.cpp \
 	$(top_builddir)/src/generator.cpp $(top_builddir)/src/generator.hpp \
 	$(top_builddir)/src/utils.cpp $(top_builddir)/src/utils.hpp \
 	$(top_builddir)/src/file.cpp $(top_builddir)/src/file.hpp \
-	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp
+	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp \
+	$(top_builddir)/src/log.cpp $(top_builddir)/src/log.hpp
 
 LDADD = @MAKEDICT_LIBS@
 INCLUDES = @MAKEDICT_CFLAGS@  -I$(top_builddir) -I$(top_builddir)/src

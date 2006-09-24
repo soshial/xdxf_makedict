@@ -34,19 +34,20 @@
 #include <map>
 #include <string>
 
-#include "utils.hpp"
-#include "resource.hpp"
-#include "parser.hpp"
-#include "process.hpp"
-#include "generator.hpp"
 #include "connector.hpp"
+#include "generator.hpp"
+#include "log.hpp"
+#include "process.hpp"
+#include "parser.hpp"
+#include "resource.hpp"
+#include "utils.hpp"
 
 //#define DEBUG
 
 
 class MakeDict {
 public:
-	MakeDict();
+	MakeDict() {}
 	int run(int argc, char *argv[]);
 private:
 	StringMap input_codecs;
@@ -54,7 +55,7 @@ private:
 	StringList parser_options_;
 	std::string workdir_;
 	std::string input_format_, output_format_;
-	gint verbose_;
+	Logger logger_;
 
 	int convert(const char *arg);
 	const char *find_input_codec(const std::string& url);
@@ -65,49 +66,9 @@ private:
 	void unknown_input_format(const std::string& format = "");
 	void unknown_output_format(const std::string& format = "");
 	std::string parser_options();
-	static void log(const gchar *log_domain,
-			GLogLevelFlags log_level,
-			const gchar *message,
-			gpointer user_data);
 };
 
 static int width_of_first(const StringMap &, const StringList&);
-
-void MakeDict::log(const gchar *log_domain,
-		   GLogLevelFlags log_level,
-		   const gchar *message,
-		   gpointer user_data)
-{
-	MakeDict *md = static_cast<MakeDict *>(user_data);
-	switch (log_level) {
-	case G_LOG_FLAG_RECURSION:
-	case G_LOG_FLAG_FATAL:
-	case G_LOG_LEVEL_ERROR:
-	case G_LOG_LEVEL_CRITICAL:
-		StdErr << message;
-		break;
-	case G_LOG_LEVEL_WARNING:
-		if (md->verbose_ > 0)
-			StdErr << message;
-		break;
-	case G_LOG_LEVEL_MESSAGE:
-		if (md->verbose_ > 1)
-			StdErr << message;
-		break;
-	case G_LOG_LEVEL_INFO:
-		if (md->verbose_ > 2)
-			StdErr << message;
-		break;
-	default:
-		/*nothing*/break;
-	}
-}
-
-MakeDict::MakeDict()
-{
-	verbose_ = 2;
-	g_log_set_default_handler(log, this);
-}
 
 std::string MakeDict::parser_options()
 {
@@ -171,6 +132,7 @@ int MakeDict::run(int argc, char *argv[])
 	gboolean list_fmts = FALSE, show_version = FALSE;
 	glib::CharStr input_fmt, output_fmt, work_dir;
 	glib::CharStrArr parser_opts;
+	gint verbose;
 
 	static GOptionEntry entries[] = {
 		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
@@ -186,7 +148,7 @@ int MakeDict::run(int argc, char *argv[])
 		{ "parser-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
 		  get_addr(parser_opts), _("\"option_name=option_value\""),
 		  NULL },
-		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose_,
+		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
 		  _("set level of verbosity"), NULL },
 		{ NULL },
 	};
@@ -199,6 +161,8 @@ int MakeDict::run(int argc, char *argv[])
 		g_warning(_("Options parsing failed: %s\n"), err->message);
 		return EXIT_FAILURE;
 	}
+
+	logger_.set_verbosity(verbose);
 
 	if (input_fmt) {
 		StringMap::const_iterator i = input_codecs.find(get_impl(input_fmt));

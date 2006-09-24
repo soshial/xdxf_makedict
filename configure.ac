@@ -33,9 +33,6 @@ AC_FUNC_MMAP
 
 AC_CHECK_LIB(z,zlibVersion,LIBS="$LIBS -lz",[AC_MSG_ERROR([zlib not found])])
 
-# Check for readline support
-# SDCV_CHECK_READLINE
-
 PKG_CHECK_MODULES(MAKEDICT, glib-2.0 >= 2.6.0)
 AM_WITH_EXPAT
 MAKEDICT_CFLAGS="-Wall $EXPAT_CFLAGS $MAKEDICT_CFLAGS"

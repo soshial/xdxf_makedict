@@ -27,9 +27,10 @@
 #include <map>
 #include <memory>
 
-#include "utils.hpp"
-#include "repository.hpp"
 #include "file.hpp"
+#include "log.hpp"
+#include "repository.hpp"
+#include "utils.hpp"
 #include "xml.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
@@ -142,6 +143,7 @@ private:
 	bool enc_key_;
 	std::auto_ptr<IGeneratorDictOps> std_dict_ops_;
 	IGeneratorDictOps *dict_ops_;
+	std::auto_ptr<Logger> logger_;
 };
 
 class GeneratorsRepo : public CodecsRepo<GeneratorBase, GeneratorsRepo> {};
