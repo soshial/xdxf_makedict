@@ -51,6 +51,8 @@ namespace stardict {
 	private:
 		File data_;
 		std::string sametypesequence_;
+		typedef std::vector<char> CharArr;
+		static CharArr not_supported_data_types_;
 
 		static void convert_to_xdxf(char data_type, const char *& beg,
 					    const char *end, std::string& res,
@@ -80,6 +82,7 @@ namespace stardict {
 using namespace stardict;
 
 const char *Parser::magic_ = "StarDict's dict ifo file";
+DictData::CharArr DictData::not_supported_data_types_;
 
 void DictData::convert_to_xdxf(char data_type, const char *&beg,
 			       const char *end, std::string& res,
@@ -92,9 +95,8 @@ void DictData::convert_to_xdxf(char data_type, const char *&beg,
 			sec_size = g_ntohl(*reinterpret_cast<const guint32 *>(beg));
 			sec_size += sizeof(guint32);
 
-		} else {
-			sec_size = strlen(beg);
-		}
+		} else
+			sec_size = strlen(beg);		
 	} else
 		sec_size = end - beg;
 
@@ -118,7 +120,12 @@ void DictData::convert_to_xdxf(char data_type, const char *&beg,
 		res.append(beg, sec_size);
 		break;
 	default:
-		//nothing
+		if (std::find(not_supported_data_types_.begin(),
+			      not_supported_data_types_.end(), data_type) == 
+		    not_supported_data_types_.end()) {
+			not_supported_data_types_.push_back(data_type);
+			g_warning(_("Not supported data type: %c\n"), data_type);
+		}
 		break;
 	}
 

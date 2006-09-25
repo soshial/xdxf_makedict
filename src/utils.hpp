@@ -40,6 +40,4 @@ extern guint32 b64_decode(const char *val);
 extern bool copy_file(const std::string& from, const std::string& to)
 	__attribute_warn_unused_result__;
 
-extern void g_info(const gchar *fmt, ...);
-
 #endif//!_UTILS_HPP_

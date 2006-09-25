@@ -175,12 +175,3 @@ bool copy_file(const std::string& from, const std::string& to)
 
 	return File::copy(in, out);
 }
-
-void g_info(const gchar *fmt, ...)
-{
-	va_list va;
-
-	va_start(va, fmt);
-	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_INFO, fmt, va);
-	va_end(va);
-}

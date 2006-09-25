@@ -41,6 +41,7 @@
 #include <glib/gi18n.h>
 
 #include "utils.hpp"
+#include "log.hpp"
 
 #include "mapfile.hpp"
 

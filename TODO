@@ -5,6 +5,4 @@
 - check all to do items in code
 - do not use external program except standart in tests
 - xdxf_parser - how report about error?
-- add parser option for rus_bse
 - dsl: for what used dict.utr files?
-- stardict parser: report about not supported data types
