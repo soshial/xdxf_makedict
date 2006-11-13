@@ -20,6 +20,7 @@
  */
 
 /*
+ * "$Id$"
  * module for work with dsl format(http://lingvo.ru)
  */
 
@@ -193,6 +194,8 @@ Parser::Parser() :
 	replace_table["[m7]"]="       ";
 	replace_table["[m8]"]="        ";
 	replace_table["[m9]"]="         ";
+	replace_table["[']"] = "<nu />'<nu />";
+	replace_table["[/']"] = "";
 	
 	taginfo_list.push_back(TagInfo("[b]", "[/b]", "<b>", "</b>",
 				       TagInfo::tB));

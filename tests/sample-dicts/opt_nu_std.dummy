@@ -11,3 +11,6 @@ key: hello
 key: helloo
 data: <k>hell<nu />[&apos;]<nu />o<nu />[/&apos;]<nu /><opt>o</opt></k>
 hello
+key: не больше
+data: <k>не больше</k>
+<abr>не б<nu />'<nu />олее</abr>
