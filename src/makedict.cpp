@@ -120,9 +120,7 @@ int MakeDict::run(int argc, char *argv[])
 #endif
 
 	const gchar *dir = g_getenv("MAKEDICT_PLUGIN_DIR");
-	if (!fill_codecs_table(argv[0], dir ? dir : CODECSDIR) &&
-	    !fill_codecs_table(argv[0]))
-		return EXIT_FAILURE;
+	fill_codecs_table(argv[0], dir ? dir : CODECSDIR);
 
 	for (StringMap::const_iterator p = input_codecs.begin();
 	     p != input_codecs.end(); ++p)

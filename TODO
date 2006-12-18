@@ -3,6 +3,6 @@
 - xml -> text when converting to stardict and dictd
 - do not use `exit' to terminate program
 - check all to do items in code
-- do not use external program except standart in tests
+- do not use external program except standard one in tests
 - xdxf_parser - how report about error?
 - dsl: for what used dict.utr files?
