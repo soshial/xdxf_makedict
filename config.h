@@ -47,16 +47,16 @@
 #define PACKAGE_NAME "makedict"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "makedict 0.3beta1"
+#define PACKAGE_STRING "makedict 0.3_beta1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "makedict"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.3beta1"
+#define PACKAGE_VERSION "0.3_beta1"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "0.3beta1"
+#define VERSION "0.3_beta1"
