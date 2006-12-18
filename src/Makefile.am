@@ -46,7 +46,7 @@ INCLUDES = @MAKEDICT_CFLAGS@  -I$(top_builddir)
 #DEFS=-DLOCALEDIR=\"$(localedir)\" @DEFS@
 DEFS = -DDUMMY_FORMAT_NAME=\"dummy\" -DCODECSDIR=\""$(bindir)/makedict-codecs"\" @DEFS@ 
 
-install-exec-local:
+install-plugins:
 	$(INSTALL_PROGRAM) -d $(bindir)/makedict-codecs/
 	for util in $(CODECS); do \
 		$(INSTALL_PROGRAM) $$util $(bindir)/makedict-codecs/ ; \
