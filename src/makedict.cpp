@@ -18,6 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -63,7 +65,8 @@ private:
 	const char *find_input_codec(const std::string& url);
 	const char *find_output_codec(const std::string& format);
 	ParserBase *create_parser(const std::string& url);
-	bool fill_codecs_table(const std::string& prgname, const std::string& dirname="");
+	bool fill_codecs_table(const std::string& prgname,
+			       const std::string& dirname="");
 	void list_codecs();
 	void unknown_input_format(const std::string& format = "");
 	void unknown_output_format(const std::string& format = "");
@@ -118,7 +121,7 @@ int MakeDict::run(int argc, char *argv[])
 
 	const gchar *dir = g_getenv("MAKEDICT_PLUGIN_DIR");
 	if (!fill_codecs_table(argv[0], dir ? dir : CODECSDIR) &&
-	    !fill_codecs_table(argv[0], ""))
+	    !fill_codecs_table(argv[0]))
 		return EXIT_FAILURE;
 
 	for (StringMap::const_iterator p = input_codecs.begin();
@@ -247,10 +250,11 @@ static bool start_cmd(const std::string& cmd, std::string& res)
 	return false;
 }
 
-bool MakeDict::fill_codecs_table(const std::string& prgname, const std::string& dirname_)
+bool MakeDict::fill_codecs_table(const std::string& prgname,
+				 const std::string& dirname)
 {
-	glib::CharStr tmp_dirname(g_path_get_dirname(prgname.c_str()));
-	std::string dirname(dirname_.empty() ? get_impl(tmp_dirname) : dirname_);
+	if (dirname.empty())
+		return false;
 
 	glib::Error err;
 	typedef ResourceWrapper<GDir, GDir, g_dir_close> MyGDir;
