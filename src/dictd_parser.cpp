@@ -37,7 +37,10 @@
 
 
 //#define DEBUG
-
+namespace dictd {
+/**
+ * Temporary repository for dictionary.
+ */
 class dictionary {
 public:
 	explicit dictionary(const std::string& tmpfilename);
@@ -55,15 +58,16 @@ private:
 	};
 	std::vector<key> keylist;
 };
-
-void dictionary::add_article(const std::string& keyval, const std::string& data)
+}
+void dictd::dictionary::add_article(const std::string& keyval,
+				    const std::string& data)
 {
 	keylist.push_back(key(keyval, datafile.tell(), data.length()));
 	if (!datafile.write(data.c_str(), data.length()))
 		StdErr << _("WARRNING: dictionary::add_article: write failed\n");
 }
 
-dictionary::dictionary(const std::string& tmpfilename)
+dictd::dictionary::dictionary(const std::string& tmpfilename)
 {
 	datafilename=tmpfilename;
 	datafile.reset(fopen(tmpfilename.c_str(), "w+b"));
@@ -72,7 +76,8 @@ dictionary::dictionary(const std::string& tmpfilename)
 			      datafilename.c_str());
 }
 
-void dictionary::get_article(size_t i, std::string &key, std::string& data)
+void dictd::dictionary::get_article(size_t i, std::string &key,
+				    std::string& data)
 {
 	if (i>=keylist.size())
 		return;
@@ -86,7 +91,7 @@ void dictionary::get_article(size_t i, std::string &key, std::string& data)
 		StdErr << _("WARRNING: dictionary::get_article: read failed\n");
 }
 
-dictionary::~dictionary()
+dictd::dictionary::~dictionary()
 {
 	remove(datafilename.c_str());
 }

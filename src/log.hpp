@@ -3,6 +3,9 @@
 
 #include <glib.h>
 
+/**
+ * Encapsulate logging mechanizm.
+ */
 class Logger {
 public:
 	Logger(gint level = 2);

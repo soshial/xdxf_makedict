@@ -14,6 +14,9 @@ public:
 	virtual T *create() const = 0;
 };
 
+/**
+ * Template to writing factories to create parsers and generators.
+ */
 template <class T, typename ResType>
 class CodecsRepo {
 public:

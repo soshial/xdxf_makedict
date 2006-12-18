@@ -41,10 +41,15 @@
 #include "parser.hpp"
 
 namespace stardict {
+	/**
+	 * Encapsulate data and methods to work with data
+	 * of stardict dictionary.
+	 */
 	class DictData {
 	public:
 		bool open(const std::string& filename);
-		bool get(guint32 off, guint32 size, std::string& data, bool& keys_in_article);
+		bool get(guint32 off, guint32 size, std::string& data,
+			 bool& keys_in_article);
 		void set_sametypesequence(const std::string& val) {
 			sametypesequence_ = val;
 		}

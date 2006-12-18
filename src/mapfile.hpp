@@ -12,6 +12,9 @@
 # include "resource.hpp"
 #endif
 
+/**
+ * Wrapper around mmap and its analogs.
+ */
 class MapFile {
 public:
 	char *cur;

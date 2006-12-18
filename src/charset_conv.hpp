@@ -4,7 +4,9 @@
 #include <iconv.h>
 #include <string>
 
-//wrapper for iconv usage
+/**
+ * Wrapper for iconv usage.
+ */
 class CharsetConv {
 public:
 	CharsetConv() { cd_ = iconv_t(-1); }

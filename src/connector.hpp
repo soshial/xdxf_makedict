@@ -4,6 +4,10 @@
 #include "parser.hpp"
 #include "generator.hpp"
 
+/**
+ * Implementation of IParserDictOps and IGeneratorDictOps
+ * to fast pass information from parser to generator.
+ */
 class Connector : public IParserDictOps, public IGeneratorDictOps {
 public:
 	Connector(GeneratorBase& generator, const std::string& workdir):

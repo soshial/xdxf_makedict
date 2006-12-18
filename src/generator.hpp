@@ -38,6 +38,10 @@ typedef std::vector<std::string> StringList;
 
 class GeneratorBase;
 
+/**
+ * Interface for exchange information between dictionary parsers
+ * and generators.
+ */
 class IGeneratorDictOps {
 public:
 	IGeneratorDictOps(GeneratorBase& generator) : 
@@ -65,7 +69,10 @@ private:
 	void sample(StringList& keys, std::vector<std::string>::size_type n);
 };
 
-
+/**
+ * Implementation of IGeneratorDictOps to pass internal
+ * represantation of dictionary through pipe.
+ */
 class GeneratorDictPipeOps : public IGeneratorDictOps {
 public:
 	GeneratorDictPipeOps(File& in, GeneratorBase& generator);
@@ -108,6 +115,9 @@ private:
 	static void XMLCALL xml_char_data(void *, const XML_Char *, int);
 };
 
+/**
+ * Base class for write dictionary generators.
+ */
 class GeneratorBase {
 public:
 	GeneratorBase(bool enc_key);

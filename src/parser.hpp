@@ -39,6 +39,9 @@
 typedef std::map<std::string, std::string> StringMap;
 typedef std::vector<std::string> StringList;
 
+/**
+ * Interface to pass information from parser to generator.
+ */
 class IParserDictOps {
 public:
 	virtual ~IParserDictOps() {}
@@ -55,6 +58,9 @@ public:
 	virtual bool end() __attribute_warn_unused_result__ = 0;
 };
 
+/**
+ * Implementation of IParserDictOps to work through pipe.
+ */
 class PipeParserDictOps : public IParserDictOps {
 public:
 	PipeParserDictOps(File& out): out_(out) {}
@@ -76,6 +82,9 @@ private:
 	File &out_;
 };
 
+/**
+ * Base class for parser, inherit it, if you want to write parser.
+ */
 class ParserBase {
 public:
 	ParserBase(bool generate_xdxf = true);

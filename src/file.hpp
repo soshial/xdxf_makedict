@@ -4,6 +4,11 @@
 #include <cstdio>
 #include <string>
 
+/**
+ * Wrapper around FILE, because of std::fstream can not
+ * exactly explain what error happened, but there is guarantee
+ * that errno contains error for FILE functions.
+ */
 class File {
 public:
 	File(FILE *stream = NULL, bool close_on_exit = true) : 

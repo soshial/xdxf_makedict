@@ -20,6 +20,8 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 AM_PATH_PYTHON
 
+AC_ARG_ENABLE(doxygen-docs, AS_HELP_STRING([--enable-doxygen-docs],[build DOXYGEN documentation (requires Doxygen)]),enable_doxygen_docs=$enableval,enable_doxygen_docs=auto)
+
 dnl ================================================================
 dnl Gettext stuff.
 dnl ================================================================
@@ -29,6 +31,35 @@ dnl ================================================================
 #AC_SUBST(GETTEXT_PACKAGE)
 #AC_DEFINE_UNQUOTED(GETTEXT_PACKAGE,"$GETTEXT_PACKAGE", [Gettext package])
 #AM_ICONV
+
+### Doxygen Documentation
+
+AC_PATH_PROG(DOXYGEN, doxygen, no)
+
+AC_MSG_CHECKING([whether to build Doxygen documentation])
+
+if test x$DOXYGEN = xno ; then
+    have_doxygen=no
+else
+    have_doxygen=yes
+fi
+
+if test x$enable_doxygen_docs = xauto ; then
+    if test x$have_doxygen = xno ; then
+        enable_doxygen_docs=no
+    else
+        enable_doxygen_docs=yes
+    fi
+fi
+if test x$enable_doxygen_docs = xyes; then
+    if test x$have_doxygen = xno; then
+        AC_MSG_ERROR([Building Doxygen docs explicitly required, but Doxygen not found])
+    fi
+fi
+
+AM_CONDITIONAL(MAKEDICT_DOXYGEN_DOCS_ENABLED, test x$enable_doxygen_docs = xyes)
+AC_MSG_RESULT(yes)
+
 
 AC_FUNC_MMAP
 
@@ -43,6 +74,7 @@ AC_SUBST(MAKEDICT_LIBS)
 AC_SUBST(MAKEDICT_CFLAGS)
 
 AC_OUTPUT([
+Doxyfile
 Makefile 
 m4/Makefile 
 src/Makefile 

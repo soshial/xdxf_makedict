@@ -44,7 +44,9 @@
 
 //#define DEBUG
 
-
+/**
+ * Main class.
+ */
 class MakeDict {
 public:
 	MakeDict() {}

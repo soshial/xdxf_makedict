@@ -103,6 +103,11 @@ struct Section {
 
 extern void tag_value(const char *&p, std::string& val);
 
+/**
+ * Encapsulate mechanizm to solve such task:
+ * convert &lt;tag1&gt; aaa &lt;tag2&gt; bbb &lt;/tag1&gt; ccc &lt;/tag2&gt;
+ * to normal XML.
+ */
 class NormalizeTags {
 public:
 	NormalizeTags(TagInfoList& taginfo_list_) : 
