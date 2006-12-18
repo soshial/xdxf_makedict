@@ -6,3 +6,4 @@
 - do not use external program except standard one in tests
 - xdxf_parser - how report about error?
 - dsl: for what used dict.utr files?
+- port to win32?
