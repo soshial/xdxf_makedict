@@ -493,7 +493,7 @@ reread_line:
 
 	if (not_close_comment) {
 		std::string::size_type com_end=line.find("}}");
-		if (com_end==std::string::npos) {
+		if (com_end == std::string::npos) {
 			if (!(in.cur<end_of_file)) {
 				line.clear();
 				return false;
@@ -519,7 +519,8 @@ reread_line:
 				line.clear();
 				return false;
 			}
-			goto reread_line;
+			if (pos == 0)
+				goto reread_line;
 		}
 		line.erase(pos, com_end-pos+2);
 	}
