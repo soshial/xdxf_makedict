@@ -18,6 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -49,6 +51,10 @@ void Logger::log(const gchar *log_domain,
 		break;
 	case G_LOG_LEVEL_INFO:
 		if (md->verbose_ > 2)
+			StdErr << message;
+		break;
+	case G_LOG_LEVEL_DEBUG:
+		if (md->verbose_ > 3)
 			StdErr << message;
 		break;
 	default:

@@ -135,7 +135,7 @@ int MakeDict::run(int argc, char *argv[])
 	gboolean list_fmts = FALSE, show_version = FALSE;
 	glib::CharStr input_fmt, output_fmt, work_dir;
 	glib::CharStrArr parser_opts;
-	gint verbose;
+	gint verbose = 2;
 
 	static GOptionEntry entries[] = {
 		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
@@ -259,7 +259,7 @@ bool MakeDict::fill_codecs_table(const std::string& prgname,
 
 	MyGDir dir(g_dir_open(dirname.c_str(), 0, get_addr(err)));
 	if (!dir) {
-		StdErr.printf(_("Can not read %s: %s\n"), dirname.c_str(), err->message);
+		g_info(_("Can not read %s: %s\n"), dirname.c_str(), err->message);
 		return false;
 	}
 

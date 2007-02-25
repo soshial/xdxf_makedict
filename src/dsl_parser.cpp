@@ -19,10 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-/*
- * "$Id$"
- * module for work with dsl format(http://lingvo.ru)
- */
+// $Id$
+// module for work with dsl format(http://lingvo.ru)
 
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
@@ -164,6 +162,7 @@ Parser::Parser() :
 	short_lang_table["swahili"]="SWA";
 	short_lang_table["swedish"]="SWE";
 	short_lang_table["ukrainian"]="UKR";
+	short_lang_table["chinese"] = "CHI";
 
 
 	replace_table["[/m]"]="";
@@ -505,10 +504,10 @@ reread_line:
 	}
 
 	std::string::size_type pos;
-	while ((pos=line.find("{{"))!=std::string::npos) {
+	while ((pos = line.find("{{")) != std::string::npos) {
 		std::string::size_type com_end=line.find("}}", pos+2);
-		if (com_end==std::string::npos) {
-			not_close_comment=true;
+		if (com_end == std::string::npos) {
+			not_close_comment = true;
 			break;
 		}
 		line.erase(pos, com_end-pos+2);
@@ -879,6 +878,7 @@ int Parser::parse(MapFile& in, bool only_info, bool abr)
 	if (ch1==0xFF && ch2==0xFE) {
 		utf16=true;
 		little_endian=true;
+		g_debug("int Parser::parse(MapFile& in, bool only_info, bool abr): UTF-16 encoding\n");
 	} else if (ch1==0xFE && ch2==0xFF) {
 		utf16=true;
 		little_endian=false;

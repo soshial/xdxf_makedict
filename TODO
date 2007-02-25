@@ -7,3 +7,4 @@
 - xdxf_parser - how report about error?
 - dsl: for what used dict.utr files?
 - port to win32?
+- more good message about wrong dsl "{{ comment }" - not closed comment

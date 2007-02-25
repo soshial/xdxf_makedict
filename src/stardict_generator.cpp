@@ -18,6 +18,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+//stardict dictionaries generator
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -125,7 +128,7 @@ bool Generator::on_prepare_generator(const std::string& workdir,
 
 	if (!make_directory(dirname))
 		return false;
-
+	g_message(_("Saving result to this directory: %s\n"), dirname.c_str());
 	realbasename_ = dirname + G_DIR_SEPARATOR + bname;
 
 	std::string file_name = realbasename_ + ".dict.tmp";
