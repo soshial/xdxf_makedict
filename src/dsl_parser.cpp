@@ -305,9 +305,10 @@ int Parser::parse(const std::string& filename)
 
 	//search icon
 	std::string icon_name=basename+".bmp";
-	if (is_file_exist(icon_name))
+	if (is_file_exist(icon_name)) {
 		set_dict_info("icon", icon_name);
-
+		g_message(_("Icon is found: %s\n"), icon_name.c_str());
+	}
 
 	std::string dirname(filename);
 	pos=dirname.rfind(G_DIR_SEPARATOR);
