@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -70,6 +72,8 @@ void MapFile::close(void)
 
 bool MapFile::open(const char *file_name, bool logerr, long file_size)
 {
+	filename_ = file_name;
+
 	close();
 	size = file_size;
 #ifdef HAVE_MMAP

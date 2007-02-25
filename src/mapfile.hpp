@@ -1,6 +1,8 @@
 #ifndef MAPFILE_H
 #define MAPFILE_H
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -11,6 +13,7 @@
 #else
 # include "resource.hpp"
 #endif
+#include <string>
 
 /**
  * Wrapper around mmap and its analogs.
@@ -28,7 +31,10 @@ public:
 	char *find_str(char *beg, const char *str, char *end=NULL); 
 	operator bool () { return cur < end_of_file; }
 	bool eof() { return ! *this; }
+	const std::string& filename() const { return filename_; }
 private:
+	std::string filename_;
+
 	char *data;
 	char *end_of_file;
 	long size;

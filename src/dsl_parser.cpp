@@ -452,16 +452,16 @@ reread_line:
 	if (!utf16) {
 		char ch;
 
-		while (in.cur<end_of_file) {
-			ch=*in.cur;
+		while (in.cur < end_of_file) {
+			ch = *in.cur;
 			++in.cur;
-			if (ch=='\r' || ch=='\n')
+			if (ch == '\r' || ch == '\n')
 				break;
 			line+=ch;
 		}
-		if (in.cur<end_of_file) {
+		if (in.cur < end_of_file) {
 			ch=*in.cur;
-			if (ch=='\r' || ch=='\n')
+			if (ch == '\r' || ch=='\n')
 				++in.cur;
 		}
 	} else {
@@ -505,10 +505,20 @@ reread_line:
 
 	std::string::size_type pos;
 	while ((pos = line.find("{{")) != std::string::npos) {
-		std::string::size_type com_end=line.find("}}", pos+2);
+		std::string::size_type com_end = line.find("}}", pos+2);
 		if (com_end == std::string::npos) {
+			if (line.find("}", pos+2) != std::string::npos)
+				g_warning(_("%s, line %d: comment is opened '{{', "
+					    "and there is '}' on the same line, "
+					    "may be you mean '}}'?:\n%s\n"),
+					  in.filename().c_str(), linenum, line.c_str());
+			
 			not_close_comment = true;
-			break;
+			if (!(in.cur<end_of_file)) {
+				line.clear();
+				return false;
+			}
+			goto reread_line;
 		}
 		line.erase(pos, com_end-pos+2);
 	}
