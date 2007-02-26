@@ -21,8 +21,6 @@ IF (NOT GLIB2_FOUND)
 		"make sure that you install it")
 ENDIF(NOT GLIB2_FOUND)
 
-
-
 SET(ZLIB_FIND_REQUIRED True)
 INCLUDE(FindZLIB)
 
@@ -36,6 +34,7 @@ INCLUDE_DIRECTORIES(
 	${GLIB2_INCLUDE_DIR}
 	${GLIBCONFIG_INCLUDE_DIR}
 	${EXPAT_INCLUDE_DIRS}
+	${ZLIB_INCLUDE_DIR}
 )
 
 
@@ -49,6 +48,21 @@ SET(makedict_SRCS
 	src/log.cpp
 	src/utils.cpp
 	src/xml.cpp
+	src/charset_conv.cpp
+	src/dictd_generator.cpp
+	src/dictd_parser.cpp
+	src/dsl_ipa.cpp
+	src/dsl_parser.cpp
+	src/dummy_generator.cpp
+	src/dummy_parser.cpp
+	src/langs_2to3.cpp
+	src/mapfile.cpp
+	src/normalize_tags.cpp
+	src/sdict_parser.cpp
+	src/stardict_generator.cpp
+	src/stardict_parser.cpp
+	src/xdxf_generator.cpp
+	src/xdxf_parser.cpp
 )
 
 SET(makedict_HDRS
@@ -60,15 +74,26 @@ SET(makedict_HDRS
 	src/log.hpp
 	src/utils.hpp
 	src/xml.hpp
+	src/charset_conv.hpp
+	src/dsl_ipa.hpp
+	src/langs_2to3.hpp
+	src/mapfile.hpp
+	src/normalize_tags.hpp
+	src/repository.hpp
+	src/resource.hpp
 )
 
 ADD_EXECUTABLE(makedict 
 	${makedict_SRCS}
 	${makedict_HDRS}
 )
-TARGET_LINK_LIBRARIES(makedict ${GLIB2_LIBRARIES} ${EXPAT_LIBRARIES})
+TARGET_LINK_LIBRARIES(makedict
+	${GLIB2_LIBRARIES} ${EXPAT_LIBRARIES}
+	${ZLIB_LIBRARIES})
 
 SET_TARGET_PROPERTIES(makedict PROPERTIES VERSION 0.3)
 GET_TARGET_PROPERTY(makedict_VERSION makedict VERSION)
 SET(CODECSDIR "\\\"/usr/local/bin/makedict-codecs\\\"")
-ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\"" -DCODECSDIR="${CODECSDIR}")
+ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
+	-DCODECSDIR="${CODECSDIR}"
+	-DDUMMY_FORMAT_NAME="\\\"dummy\\\"")
