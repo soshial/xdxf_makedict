@@ -111,3 +111,10 @@ ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
 	-DCODECSDIR="${CODECSDIR}"
 	-DDUMMY_FORMAT_NAME="\\\"dummy\\\""
 	-DHAVE_CONFIG_H)
+
+
+IF (BUILD_TESTS)
+        MESSAGE(STATUS "Build tests")
+        ENABLE_TESTING()# Force "make test" to works
+        ADD_SUBDIRECTORY(tests)
+ENDIF (BUILD_TESTS)
