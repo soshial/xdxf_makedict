@@ -18,6 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -29,10 +31,10 @@
 
 #include "parser.hpp"
 
-namespace dummy {
-	class Parser : public ParserBase {
+namespace {
+	class DummyParser : public ParserBase {
 	public:
-		Parser() {
+		DummyParser() {
 			set_parser_info("format", DUMMY_FORMAT_NAME);
 			set_parser_info("version", "dummy_parser, version 1.0");
 			parser_options_["lang_from"] = "";
@@ -42,39 +44,38 @@ namespace dummy {
 		int parse(const std::string& url);
 	};
 
-	REGISTER_PARSER(Parser, dummy);
-}
-using namespace dummy;
+	REGISTER_PARSER(DummyParser, dummy);
 
-int Parser::parse(const std::string& url)
-{
+	int DummyParser::parse(const std::string& url)
+	{
 #if 0
-	if (url!="-") {
-		std::cout<<"File in not supported format: "<<url<<std::endl;
-		return EXIT_FAILURE;
-	}
-#endif
-	set_dict_info("lang_from", parser_options_["lang_from"]);
-	set_dict_info("lang_to", parser_options_["lang_to"]);
-	if (!begin() || !abbrs_begin() || !abbrs_end())
-		return EXIT_FAILURE;
-
-	std::string key, data, enc_data, enc_key;
-	while (File::getline(StdIn, key) && File::getline(StdIn, data)) {
-		enc_key = enc_data = "";
-		xml::encode(key, enc_key);
-		xml::encode(data, enc_data);
-
-		if (!article(enc_key, enc_data, false))
+		if (url!="-") {
+			std::cout<<"File in not supported format: "<<url<<std::endl;
 			return EXIT_FAILURE;
-	}
+		}
+#endif
+		set_dict_info("lang_from", parser_options_["lang_from"]);
+		set_dict_info("lang_to", parser_options_["lang_to"]);
+		if (!begin() || !abbrs_begin() || !abbrs_end())
+			return EXIT_FAILURE;
 
-	return EXIT_SUCCESS;
-}
+		std::string key, data, enc_data, enc_key;
+		while (File::getline(StdIn, key) && File::getline(StdIn, data)) {
+			enc_key = enc_data = "";
+			xml::encode(key, enc_key);
+			xml::encode(data, enc_data);
+
+			if (!article(enc_key, enc_data, false))
+				return EXIT_FAILURE;
+		}
+
+		return EXIT_SUCCESS;
+	}
+}//end of anonymous namespace
 
 #ifdef DUMMY_PARSER_ALONE
 int main(int argc, char *argv[])
 {
-	 return Parser().run(argc, argv);
+	 return DummyParser().run(argc, argv);
 }
 #endif

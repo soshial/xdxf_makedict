@@ -18,6 +18,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+//$Id$
+
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -29,11 +31,11 @@
 
 #include "generator.hpp"
 
-namespace dummy {
+namespace {
 
-	class Generator : public GeneratorBase {
+	class DummyGenerator : public GeneratorBase {
 	public:
-		Generator(): GeneratorBase(true) {	       
+		DummyGenerator(): GeneratorBase(true) {	       
 			set_format(DUMMY_FORMAT_NAME);
 			set_version("dummy_generator, version 1.0");
 		}
@@ -48,28 +50,27 @@ namespace dummy {
 
 	};
 
-	REGISTER_GENERATOR(Generator,dummy);
-}
+	REGISTER_GENERATOR(DummyGenerator,dummy);
 
-using namespace dummy;
 
-bool Generator::on_have_data(const StringList& keys,
-			     const std::string& data)
-{
-	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p) {
-		StdOut << "key: " << *p << "\n";
+	bool DummyGenerator::on_have_data(const StringList& keys,
+					  const std::string& data)
+	{
+		for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p) {
+			StdOut << "key: " << *p << "\n";
+			if (!StdOut)
+				return false;
+		}
+		StdOut << "data: " << data << "\n";
 		if (!StdOut)
 			return false;
+		return true;
 	}
-	StdOut << "data: " << data << "\n";
-	if (!StdOut)
-		return false;
-	return true;
 }
 
 #ifdef DUMMY_GENERATOR_ALONE
 int main(int argc, char *argv[])
 {
-	return Generator().run(argc, argv);
+	return DummyGenerator().run(argc, argv);
 }
 #endif

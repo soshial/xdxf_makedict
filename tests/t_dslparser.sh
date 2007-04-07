@@ -16,7 +16,7 @@ set_md_plugin_dir
 RES=/tmp/dsl-test.dummy
 
 check() {
-		${PATH_TO_MAKEDICT}/makedict -i dsl -o dummy "$1" > "$2"
+		"${PATH_TO_MAKEDICT}/makedict" -i dsl -o dummy "$1" > "$2"
 
 		if ! diff -u "$2" "$3"; then
 				echo "$0 failed with data: $1, see $RES" >&2

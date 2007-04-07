@@ -1,14 +1,27 @@
 #!/bin/sh
 
-source funcs.sh
+CMAKE_CURRENT_SOURCE_DIR="."
+CMAKE_CURRENT_BINARY_DIR="."
+if [ ! -z "$1" ]; then
+		CMAKE_CURRENT_SOURCE_DIR="$1"
+fi
+
+
+PATH_TO_MAKEDICT="../src"
+if [ ! -z "$2" ]; then
+		CMAKE_CURRENT_BINARY_DIR="$2"
+		PATH_TO_MAKEDICT="$2/.."
+fi
+
+source "${CMAKE_CURRENT_SOURCE_DIR}/funcs.sh"
 
 create_signle_dummy_dir
-FILE=./sample-dicts/dummy_simple_input.txt
-STANDARD=./sample-dicts/dummy_simple_output.txt
+FILE="${CMAKE_CURRENT_SOURCE_DIR}/sample-dicts/dummy_simple_input.txt"
+STANDARD="${CMAKE_CURRENT_SOURCE_DIR}/sample-dicts/dummy_simple_output.txt"
 OUT=/tmp/output
 
 convert() {
-	cat $FILE | ../src/makedict -i $1 -o $2 - > $OUT
+	cat $FILE | ${PATH_TO_MAKEDICT}/makedict -i $1 -o $2 - > $OUT
 
 	if ! diff -u $STANDARD $OUT; then
 		echo "conversation from $1 to $2 failed" >&2
