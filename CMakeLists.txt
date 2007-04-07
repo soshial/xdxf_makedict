@@ -3,7 +3,7 @@ PROJECT(makedict)
 # Older versions have a different signature for CMAKE_MINIMUM_REQUIRED,
 # check it manually just to make sure
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4)
-  MESSAGE(FATAL_ERROR "makedict requires at least CMake v2.4."
+  MESSAGE(FATAL_ERROR "${PROJECT_NAME} requires at least CMake v2.4."
 		" You are running v${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}."
 		" Please upgrade." )
 ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4)
@@ -30,11 +30,15 @@ INCLUDE(FindEXPAT)
 INCLUDE(CheckFunctionExists)
 Check_Function_Exists(mmap HAVE_MMAP)
 
+CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
+	${CMAKE_CURRENT_BINARY_DIR}/config.h)
+
 INCLUDE_DIRECTORIES(
 	${GLIB2_INCLUDE_DIR}
 	${GLIBCONFIG_INCLUDE_DIR}
 	${EXPAT_INCLUDE_DIRS}
 	${ZLIB_INCLUDE_DIR}
+	${CMAKE_CURRENT_BINARY_DIR}
 )
 
 
@@ -96,4 +100,5 @@ GET_TARGET_PROPERTY(makedict_VERSION makedict VERSION)
 SET(CODECSDIR "\\\"/usr/local/bin/makedict-codecs\\\"")
 ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
 	-DCODECSDIR="${CODECSDIR}"
-	-DDUMMY_FORMAT_NAME="\\\"dummy\\\"")
+	-DDUMMY_FORMAT_NAME="\\\"dummy\\\""
+	-DHAVE_CONFIG_H)
