@@ -40,17 +40,17 @@
 
 #include "generator.hpp"
 
-namespace stardict {
-	class Generator : public GeneratorBase {
+namespace {
+	class StarDictGenerator : public GeneratorBase {
 	public:
-		Generator(): GeneratorBase(true)
+		StarDictGenerator(): GeneratorBase(true)
 			{
 				set_format("stardict");
 				set_version(_("stardict_generator, version 0.2"));
 				cur_off_ = 0;
 				keys_list.reserve(20000);
 			}
-		~Generator()
+		~StarDictGenerator()
 			{
 				for (std::vector<Key>::iterator p=keys_list.begin();
 				     p!=keys_list.end(); ++p)
@@ -115,186 +115,186 @@ namespace stardict {
 		std::string get_current_date(void);
 	};
 
-	REGISTER_GENERATOR(Generator, stardict);
-}
-
-using namespace stardict;
-
-bool Generator::on_prepare_generator(const std::string& workdir,
-					      const std::string& bname)
-{
-	std::string basename = "stardict-" + bname + "-2.4.2";
-	std::string dirname = workdir + G_DIR_SEPARATOR + basename;
-
-	if (!make_directory(dirname))
-		return false;
-	g_message(_("Saving result to this directory: %s\n"), dirname.c_str());
-	realbasename_ = dirname + G_DIR_SEPARATOR + bname;
-
-	std::string file_name = realbasename_ + ".dict.tmp";
-	tmp_dict_file_.reset(fopen(file_name.c_str(), "w+b"));
-
-	if (!tmp_dict_file_) {
-		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
-		return false;
-	}
-	remove_after_exit_(file_name);
+	REGISTER_GENERATOR(StarDictGenerator, stardict);
 
 
-	file_name = realbasename_ + ".idx";
-	idx_file_.reset(fopen(file_name.c_str(), "wb"));
-	if (!idx_file_) {
-		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
-		return false;
-	}
-	g_message(_("Writing index to %s\n"), file_name.c_str());
-	file_name = realbasename_ + ".dict";
-	dict_file_.reset(fopen(file_name.c_str(), "wb"));
+	bool StarDictGenerator::on_prepare_generator(const std::string& workdir,
+						     const std::string& bname)
+	{
+		std::string basename = "stardict-" + bname + "-2.4.2";
+		std::string dirname = workdir + G_DIR_SEPARATOR + basename;
 
-	if (!dict_file_) {
-		StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
-		return false;
-	}
+		if (!make_directory(dirname))
+			return false;
+		g_message(_("Saving result to this directory: %s\n"), dirname.c_str());
+		realbasename_ = dirname + G_DIR_SEPARATOR + bname;
 
-	g_message(_("Writing data to %s\n"), file_name.c_str());
+		std::string file_name = realbasename_ + ".dict.tmp";
+		tmp_dict_file_.reset(fopen(file_name.c_str(), "w+b"));
 
-	return true;
-}
+		if (!tmp_dict_file_) {
+			StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
+			return false;
+		}
+		remove_after_exit_(file_name);
 
-int Generator::generate()
-{
-	int res = EXIT_FAILURE;
 
-	g_message(_("Sorting..."));
-	std::sort(keys_list.begin(), keys_list.end(), stardict_less());
-	g_message(_("done\n"));
+		file_name = realbasename_ + ".idx";
+		idx_file_.reset(fopen(file_name.c_str(), "wb"));
+		if (!idx_file_) {
+			StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
+			return false;
+		}
+		g_message(_("Writing index to %s\n"), file_name.c_str());
+		file_name = realbasename_ + ".dict";
+		dict_file_.reset(fopen(file_name.c_str(), "wb"));
 
-	guint32 wordcount=keys_list.size();
-	guint32 data_size, data_offset=0;
-	guint32 i=0;
-
-	std::string encoded_str;
-	Key *pitem = &keys_list[i];
-	while (i < keys_list.size()) {
-		char *prev_item_value=NULL;
-		std::vector<char> buf;
-		guint32 tmpguint32=0;
-		data_size=0;
-
-		for (;;) {
-			tmp_dict_file_.seek(pitem->data_off);
-			buf.resize(pitem->data_size+1);
-			tmp_dict_file_.read(&buf[0], pitem->data_size);
-			buf[pitem->data_size]='\0';
-
-			if (!g_utf8_validate(&buf[0], gssize(-1), NULL)) {
-				StdErr.printf(_("Not valid UTF-8 std::string: %s\n"),
-					      encoded_str.c_str());
-				return res;
-			}
-
-			if (!dict_file_.write(&buf[0], pitem->data_size)) {
-				StdErr << _("Can not write in data file\n");
-				return res;
-			}
-
-			data_size+=pitem->data_size;
-			prev_item_value=pitem->value;
-			++i;
-			pitem = &keys_list[i];
-			if (i<keys_list.size() &&
-			    strcmp(prev_item_value, keys_list[i].value)==0) {
-				g_info(_("Duplicate!: %s\n"), prev_item_value);
-				wordcount--;
-				dict_file_.write("\n", 1);
-				++data_size;
-			} else
-				break;
+		if (!dict_file_) {
+			StdErr.printf(_("Can not open/create: %s\n"), file_name.c_str());
+			return false;
 		}
 
-		idx_file_.write(prev_item_value, strlen(prev_item_value)+1);
-		tmpguint32 = g_htonl(data_offset);
-		idx_file_.write((char *)&tmpguint32, sizeof(guint32));
-		tmpguint32 = g_htonl(data_size);
-		idx_file_.write((char *)&tmpguint32, sizeof(guint32));
-		data_offset+=data_size;
+		g_message(_("Writing data to %s\n"), file_name.c_str());
+
+		return true;
 	}
 
-	if (!create_ifo_file(realbasename_, wordcount, idx_file_.tell())) {
-		StdErr << _("Creating ifo file error.\n");
-		return EXIT_FAILURE;
+	int StarDictGenerator::generate()
+	{
+		int res = EXIT_FAILURE;
+
+		g_message(_("Sorting..."));
+		std::sort(keys_list.begin(), keys_list.end(), stardict_less());
+		g_message(_("done\n"));
+
+		guint32 wordcount=keys_list.size();
+		guint32 data_size, data_offset=0;
+		guint32 i=0;
+
+		std::string encoded_str;
+		Key *pitem = &keys_list[i];
+		while (i < keys_list.size()) {
+			char *prev_item_value=NULL;
+			std::vector<char> buf;
+			guint32 tmpguint32=0;
+			data_size=0;
+
+			for (;;) {
+				tmp_dict_file_.seek(pitem->data_off);
+				buf.resize(pitem->data_size+1);
+				tmp_dict_file_.read(&buf[0], pitem->data_size);
+				buf[pitem->data_size]='\0';
+
+				if (!g_utf8_validate(&buf[0], gssize(-1), NULL)) {
+					StdErr.printf(_("Not valid UTF-8 std::string: %s\n"),
+						      encoded_str.c_str());
+					return res;
+				}
+
+				if (!dict_file_.write(&buf[0], pitem->data_size)) {
+					StdErr << _("Can not write in data file\n");
+					return res;
+				}
+
+				data_size+=pitem->data_size;
+				prev_item_value=pitem->value;
+				++i;
+				pitem = &keys_list[i];
+				if (i<keys_list.size() &&
+				    strcmp(prev_item_value, keys_list[i].value)==0) {
+					g_info(_("Duplicate!: %s\n"), prev_item_value);
+					wordcount--;
+					dict_file_.write("\n", 1);
+					++data_size;
+				} else
+					break;
+			}
+
+			idx_file_.write(prev_item_value, strlen(prev_item_value)+1);
+			tmpguint32 = g_htonl(data_offset);
+			idx_file_.write((char *)&tmpguint32, sizeof(guint32));
+			tmpguint32 = g_htonl(data_size);
+			idx_file_.write((char *)&tmpguint32, sizeof(guint32));
+			data_offset+=data_size;
+		}
+
+		if (!create_ifo_file(realbasename_, wordcount, idx_file_.tell())) {
+			StdErr << _("Creating ifo file error.\n");
+			return EXIT_FAILURE;
+		}
+		g_message(_("Count of articles: %u\n"), wordcount);
+
+		return EXIT_SUCCESS;
 	}
-	g_message(_("Count of articles: %u\n"), wordcount);
 
-	return EXIT_SUCCESS;
-}
+	bool StarDictGenerator::on_have_data(const StringList& keys,
+					     const std::string& data)
+	{
+		for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
+			keys_list.push_back(Key(*p, cur_off_, data.length()));
+		tmp_dict_file_.write(&data[0], data.length());
+		cur_off_ += data.length();
 
-bool Generator::on_have_data(const StringList& keys,
-			     const std::string& data)
-{
-	for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
-		keys_list.push_back(Key(*p, cur_off_, data.length()));
-	tmp_dict_file_.write(&data[0], data.length());
-	cur_off_ += data.length();
-
-	return !tmp_dict_file_ ? false : true;
-}
-
-bool Generator::create_ifo_file(const std::string& basename,
-				guint32 wordcount,
-				guint32 idx_file_size)
-{
-	std::string filename=basename+".ifo";
-	File f(fopen(filename.c_str(), "wb"));
-
-	if (!f) {
-		StdErr.printf(_("Can not create/open: %s\n"), filename.c_str());
-		return false;
+		return !tmp_dict_file_ ? false : true;
 	}
 
-	g_message(_("Writing meta-info to %s\n"), filename.c_str());
+	bool StarDictGenerator::create_ifo_file(const std::string& basename,
+						guint32 wordcount,
+						guint32 idx_file_size)
+	{
+		std::string filename=basename+".ifo";
+		File f(fopen(filename.c_str(), "wb"));
 
-	f << "StarDict's dict ifo file\n"
-	  << "version=2.4.2\n"
-	  << "wordcount=" << wordcount << "\n"
-	  << "idxfilesize=" << idx_file_size << "\n";
+		if (!f) {
+			StdErr.printf(_("Can not create/open: %s\n"), filename.c_str());
+			return false;
+		}
 
-	if (!full_name.empty())
-		f << "bookname=" << full_name << "\n";
-	else
-		f << "bookname=" << get_dict_info("full_name") << "\n";
+		g_message(_("Writing meta-info to %s\n"), filename.c_str());
 
-	f<<"date="<<get_current_date()<<"\n"
-	 <<"sametypesequence=x\n";
+		f << "StarDict's dict ifo file\n"
+		  << "version=2.4.2\n"
+		  << "wordcount=" << wordcount << "\n"
+		  << "idxfilesize=" << idx_file_size << "\n";
+
+		if (!full_name.empty())
+			f << "bookname=" << full_name << "\n";
+		else
+			f << "bookname=" << get_dict_info("full_name") << "\n";
+
+		f<<"date="<<get_current_date()<<"\n"
+		 <<"sametypesequence=x\n";
 
 
-	Str2StrTable newline_tbl;
-	newline_tbl["\n"]=" ";
-	newline_tbl["\r"]=" ";
-	std::string descr;
-	replace(newline_tbl, get_dict_info("description").c_str(), descr);
-	if (!descr.empty())
-		f<<"description="<<descr<<"\n";
+		Str2StrTable newline_tbl;
+		newline_tbl["\n"]=" ";
+		newline_tbl["\r"]=" ";
+		std::string descr;
+		replace(newline_tbl, get_dict_info("description").c_str(), descr);
+		if (!descr.empty())
+			f<<"description="<<descr<<"\n";
 
-	return true;
-}
+		return true;
+	}
 
-std::string Generator::get_current_date(void)
-{
-  /* Get the current time. */
-  time_t curtime = time(NULL);
+	std::string StarDictGenerator::get_current_date(void)
+	{
+		/* Get the current time. */
+		time_t curtime = time(NULL);
 
-  /* Convert it to local time representation. */
-  struct tm *loctime = localtime (&curtime);
-  gchar buf[256];
-  strftime(buf, sizeof(buf), "%Y.%m.%d", loctime);
+		/* Convert it to local time representation. */
+		struct tm *loctime = localtime (&curtime);
+		gchar buf[256];
+		strftime(buf, sizeof(buf), "%Y.%m.%d", loctime);
 
-  return buf;
-}
+		return buf;
+	}
+
+}//end of anonymous namespace
 
 #if 0
 int main(int argc, char *argv[])
 {
-	return Generator().run(argc, argv);
+	return StarDictGenerator().run(argc, argv);
 }
 #endif
