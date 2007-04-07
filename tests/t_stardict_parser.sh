@@ -1,6 +1,17 @@
 #!/bin/sh
 
-source funcs.sh
+CMAKE_CURRENT_SOURCE_DIR="."
+if [ ! -z "$1" ]; then
+		CMAKE_CURRENT_SOURCE_DIR="$1"
+fi
+
+PATH_TO_MAKEDICT="../src"
+if [ ! -z "$2" ]; then
+		PATH_TO_MAKEDICT="$2/.."
+fi
+
+source "${CMAKE_CURRENT_SOURCE_DIR}/funcs.sh"
+
 set_md_plugin_dir
 
 FILE=/tmp/dummy_parser_input
@@ -16,12 +27,12 @@ done >> "${FILE}.index"
 sort "${FILE}.index" > "${FILE}"
 rm -f "${FILE}.index"
 
-cat $FILE | ../src/makedict -i dummy -o stardict --work-dir /tmp $FILE
-cat $FILE | ../src/makedict -i dummy -o dummy --work-dir /tmp $FILE > "${TMP_STD}"
+cat $FILE | "${PATH_TO_MAKEDICT}/makedict" -i dummy -o stardict --work-dir /tmp $FILE
+cat $FILE | "${PATH_TO_MAKEDICT}/makedict" -i dummy -o dummy --work-dir /tmp $FILE > "${TMP_STD}"
 
 RES=/tmp/stardict-dummy_parser_input-2.4.2
 
-if ! ../src/makedict -i stardict -o dummy "${RES}"/dummy_parser_input.ifo \
+if ! "${PATH_TO_MAKEDICT}/makedict" -i stardict -o dummy "${RES}"/dummy_parser_input.ifo \
  > "${TMP_RES}"
 then
 	echo "makedict return error" >&2
