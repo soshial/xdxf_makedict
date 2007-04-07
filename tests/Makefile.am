@@ -11,7 +11,7 @@ t_xml_SOURCES = \
 	$(top_builddir)/src/xml.cpp $(top_builddir)/src/xml.hpp \
 	$(top_builddir)/src/file.cpp $(top_builddir)/src/file.hpp
 
-normalize_SOURCES = normalize.cpp \
+normalize_SOURCES = t_normalize.cpp \
  $(top_builddir)/src/normalize_tags.cpp \
  $(top_builddir)/src/normalize_tags.hpp
 
