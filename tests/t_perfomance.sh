@@ -1,5 +1,19 @@
 #!/bin/sh
 
+CMAKE_CURRENT_SOURCE_DIR="."
+CMAKE_CURRENT_BINARY_DIR="."
+if [ ! -z "$1" ]; then
+		CMAKE_CURRENT_SOURCE_DIR="$1"
+fi
+
+
+PATH_TO_MAKEDICT="../src"
+if [ ! -z "$2" ]; then
+		CMAKE_CURRENT_BINARY_DIR="$2"
+		PATH_TO_MAKEDICT="$2/.."
+fi
+
+
 RES=/tmp/makedict_performance.dsl
 OUTPUT=/tmp/makedict_performance.dummy
 STD=/tmp/makedict_performance_std.dummy
@@ -15,7 +29,7 @@ for ((i = 0; i < 60000; ++i)); do
 	echo "$i" >> "${STD}"
 done
 
-time ../src/makedict -i dsl -o dummy --parser-option "full_name=a" \
+time "${PATH_TO_MAKEDICT}/makedict" -i dsl -o dummy --parser-option "full_name=a" \
 	--parser-option "lang_from=eng" --parser-option "lang_to=eng" "${RES}" > "${OUTPUT}"
 
 if (($? != 0)); then

@@ -21,7 +21,7 @@ STANDARD="${CMAKE_CURRENT_SOURCE_DIR}/sample-dicts/dummy_simple_output.txt"
 OUT=/tmp/output
 
 convert() {
-	cat $FILE | ${PATH_TO_MAKEDICT}/makedict -i $1 -o $2 - > $OUT
+	cat $FILE | "${PATH_TO_MAKEDICT}/makedict" -i $1 -o $2 - > $OUT
 
 	if ! diff -u $STANDARD $OUT; then
 		echo "conversation from $1 to $2 failed" >&2

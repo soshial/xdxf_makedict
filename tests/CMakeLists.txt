@@ -76,3 +76,18 @@ ADD_TEST(t_dummy "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_dummy.sh"
 ADD_TEST(t_generator "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
+ADD_TEST(t_parser_error "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_error.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+
+ADD_TEST(t_parser_options "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_options.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+
+ADD_TEST(t_sdict_parser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_sdict_parser.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+
+ADD_TEST(t_generator_error "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator_error.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+
+ADD_TEST(t_perfomance "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_perfomance.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+
