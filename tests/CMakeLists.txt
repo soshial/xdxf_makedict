@@ -13,3 +13,4 @@ TARGET_LINK_LIBRARIES(t_normalize
 	${GLIB2_LIBRARIES})
 
 ADD_TEST(t_normalize ${EXECUTABLE_OUPUT_PATH}/t_normalize)
+#ADD_TEST(t_dslpasrser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_dslparser.sh")

@@ -36,7 +36,7 @@ INCLUDES = @MAKEDICT_CFLAGS@  -I$(top_builddir) -I$(top_builddir)/src
 
 SH_TESTS = \
 	t_dummy t_stardict \
-	t_generator t_dslparser t_xdxfgenerator \
+	t_generator t_dslparser.sh t_xdxfgenerator \
 	t_parser_error.sh t_parser_options.sh \
 	t_sdict_parser t_generator_error.sh \
 	t_stardict_parser.sh t_perfomance.sh
