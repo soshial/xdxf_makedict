@@ -8,7 +8,7 @@ EXTRA_DIST = dsl_ipa_tbl.txt ipa_tbl_to_cpp.sh
 BUILT_SOURCES  = dsl_ipa.cpp
 
 dsl_ipa.cpp: dsl_ipa_tbl.txt
-	sh ipa_tbl_to_cpp.sh $@
+	sh ipa_tbl_to_cpp.sh $@ $<
 
 makedict_SOURCES = \
 	makedict.cpp \

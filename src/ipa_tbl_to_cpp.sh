@@ -1,11 +1,15 @@
 #!/bin/sh
 
-if [ -z $1 ]; then
-	echo "Usage: $0 filename" >&2
+#echo "$0 was started" 
+
+if [ -z "$1" -o -z "$2" ]; then
+	echo "Usage: $0 to from" >&2
 	exit 1
 fi
 
-TBL="dsl_ipa_tbl.txt"
+#TBL="dsl_ipa_tbl.txt"
+
+TBL="${2}"
 
 ipa_to_cpp() {
 IFS="

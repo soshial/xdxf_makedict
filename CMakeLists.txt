@@ -41,6 +41,15 @@ INCLUDE_DIRECTORIES(
 	${CMAKE_CURRENT_BINARY_DIR}
 )
 
+#TODO: may be special flag here?
+IF (NOT WIN32)
+ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa.cpp
+	COMMAND "/bin/sh" ARGS "${CMAKE_CURRENT_SOURCE_DIR}/src/ipa_tbl_to_cpp.sh"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa_tbl.txt"
+	MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa_tbl.txt
+)
+ENDIF (NOT WIN32)
 
 SET(makedict_SRCS
 	src/makedict.cpp
