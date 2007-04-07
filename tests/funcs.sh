@@ -11,7 +11,11 @@ generate_file() {
 
 set_md_plugin_dir() {
 	local cur_dir=`pwd`
-	cd ../src
+	if [ !  -z "${CMAKE_CURRENT_SOURCE_DIR}" ]; then
+			cd "${CMAKE_CURRENT_SOURCE_DIR}/../src"
+	else
+			cd ../src
+	fi
 	export MAKEDICT_PLUGIN_DIR=`pwd`
 	cd "${cur_dir}"
 }
