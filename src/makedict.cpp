@@ -119,19 +119,6 @@ int MakeDict::run(int argc, char *argv[])
 	setlocale(LC_ALL, "");
 #endif
 
-	const gchar *dir = g_getenv("MAKEDICT_PLUGIN_DIR");
-	fill_codecs_table(argv[0], dir ? dir : CODECSDIR);
-
-	for (StringMap::const_iterator p = input_codecs.begin();
-	     p != input_codecs.end(); ++p)
-		g_info(_("Input codec: %s\t%s\n"), p->first.c_str(),
-		       p->second.c_str());
-
-	for (StringMap::const_iterator p = output_codecs.begin();
-	     p != output_codecs.end(); ++p)
-		g_info(_("Output codec: %s\t%s\n"), p->first.c_str(),
-		       p->second.c_str());
-
 	gboolean list_fmts = FALSE, show_version = FALSE;
 	glib::CharStr input_fmt, output_fmt, work_dir;
 	glib::CharStrArr parser_opts;
@@ -166,6 +153,19 @@ int MakeDict::run(int argc, char *argv[])
 	}
 
 	logger_.set_verbosity(verbose);
+
+	const gchar *dir = g_getenv("MAKEDICT_PLUGIN_DIR");
+	fill_codecs_table(argv[0], dir ? dir : CODECSDIR);
+
+	for (StringMap::const_iterator p = input_codecs.begin();
+	     p != input_codecs.end(); ++p)
+		g_info(_("Input codec: %s\t%s\n"), p->first.c_str(),
+		       p->second.c_str());
+
+	for (StringMap::const_iterator p = output_codecs.begin();
+	     p != output_codecs.end(); ++p)
+		g_info(_("Output codec: %s\t%s\n"), p->first.c_str(),
+		       p->second.c_str());
 
 	if (input_fmt) {
 		StringMap::const_iterator i = input_codecs.find(get_impl(input_fmt));
@@ -251,6 +251,8 @@ static bool start_cmd(const std::string& cmd, std::string& res)
 bool MakeDict::fill_codecs_table(const std::string& prgname,
 				 const std::string& dirname)
 {
+	g_debug(_("fill_codecs_table: Plugin directory: %s\n"), dirname.c_str());
+
 	if (dirname.empty())
 		return false;
 
