@@ -19,7 +19,11 @@
  */
 
 //$Id$
-//stardict dictionaries generator
+
+/**
+ * @file stardict_generator.cpp
+ * StarDict dictionaries generator
+ */
 
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
@@ -43,19 +47,17 @@
 namespace {
 	class StarDictGenerator : public GeneratorBase {
 	public:
-		StarDictGenerator(): GeneratorBase(true)
-			{
-				set_format("stardict");
-				set_version(_("stardict_generator, version 0.2"));
-				cur_off_ = 0;
-				keys_list.reserve(20000);
-			}
-		~StarDictGenerator()
-			{
-				for (std::vector<Key>::iterator p=keys_list.begin();
-				     p!=keys_list.end(); ++p)
-					delete []p->value;
-			}
+		StarDictGenerator(): GeneratorBase(true) {
+			set_format("stardict");
+			set_version(_("stardict_generator, version 0.2"));
+			cur_off_ = 0;
+			keys_list.reserve(20000);
+		}
+		~StarDictGenerator() {
+			for (std::vector<Key>::iterator p=keys_list.begin();
+			     p!=keys_list.end(); ++p)
+				delete []p->value;
+		}
 	protected:
 		int generate();
 		bool on_have_data(const StringList&, const std::string&);
@@ -271,8 +273,9 @@ namespace {
 		newline_tbl["\r"]=" ";
 		std::string descr;
 		replace(newline_tbl, get_dict_info("description").c_str(), descr);
+		xml::decode(descr);
 		if (!descr.empty())
-			f<<"description="<<descr<<"\n";
+			f << "description=" << descr << "\n";
 
 		return true;
 	}

@@ -70,6 +70,7 @@ class MakeDictParser:
 
 				if len(args) != 1:
 						parser.error("incorrect number of arguments")
+                                self.input_file_name = args[0];
 				self.f = open(args[0], 'r')
 
 #md=MakeDictParser()

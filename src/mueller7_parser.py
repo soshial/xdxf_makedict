@@ -68,10 +68,18 @@ description=decode_from_koi(parser.f.readline())+\
 		decode_from_koi(parser.f.readline())+\
 		decode_from_koi(parser.f.readline()).rstrip()
 
+if parser.input_file_name.endswith('Mueller7accentGPL.koi'):
+    parser.set_dict_info("basename", "Mueller7accentGPL")
+else:
+    parser.set_dict_info("basename", "Mueller7GPL")
 
-parser.set_dict_info("basename", "Mueller7GPL")
 parser.begin()
-parser.set_dict_info('full_name', 'Англо-русский словарь Мюллера, 7-я ред.')
+
+if parser.input_file_name.endswith('Mueller7accentGPL.koi'):
+    parser.set_dict_info('full_name', 'Англо-русский словарь Мюллера, 7-я ред., с ударениями')
+else:
+    parser.set_dict_info('full_name', 'Англо-русский словарь Мюллера, 7-я ред.')
+
 parser.set_dict_info('lang_from', 'ENG')
 parser.set_dict_info('lang_to', 'RUS')
 parser.set_dict_info('description', xml.sax.saxutils.escape(description))
