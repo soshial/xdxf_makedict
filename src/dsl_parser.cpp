@@ -228,12 +228,20 @@ void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& re
 
 	while (*p && p < end) {
 		ch = g_utf8_get_char(p);
-
+#ifdef DEBUG_IPA
+		g_debug("%s: before %llX\n", __FUNCTION__, (unsigned long long)ch);
+#endif
 		it = ipa_to_unicode_.find(ch);
 
 		if (it != ipa_to_unicode_.end()) {
 			resstr += it->second;
+#ifdef DEBUG_IPA
+			g_debug("%s: converted: %s\n", __FUNCTION__, it->second.c_str());
+#endif
 		} else {
+#ifdef DEBUG_IPA
+			g_debug("%s: not changed %llX\n", __FUNCTION__);
+#endif
 			buf[g_unichar_to_utf8(ch, buf)] = '\0';
 			resstr += buf;
 		}

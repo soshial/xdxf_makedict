@@ -136,7 +136,7 @@ ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
 
 
 INCLUDE(CPack)
-
+OPTION(BUILD_TESTS "Enable automatic testing" False)
 IF (BUILD_TESTS)
 	#todo: check that all tools necessary for sh scripts exists
         MESSAGE(STATUS "Build tests")
