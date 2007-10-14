@@ -1,2 +1,5 @@
-To compile code from cvs run "autoreconf -i" to generate valid 
-configure script and some other staff
+To compile code from cvs run such commands:
+$mdkir build
+$cd build
+$cmake path/to/root/of/makedict/sources
+$make
