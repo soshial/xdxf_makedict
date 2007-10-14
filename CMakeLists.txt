@@ -51,6 +51,8 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa.cpp
 )
 ENDIF (NOT WIN32)
 
+SET(CODECS src/mueller7_parser.py src/mdparser.py src/apresyan.py)
+
 SET(makedict_SRCS
 	src/makedict.cpp
 	src/file.cpp
@@ -104,9 +106,16 @@ TARGET_LINK_LIBRARIES(makedict
 	${GLIB2_LIBRARIES} ${EXPAT_LIBRARIES}
 	${ZLIB_LIBRARIES})
 
+INSTALL(TARGETS makedict RUNTIME DESTINATION bin)
+INSTALL(FILES docs/makedict.1 DESTINATION share/man/man1)
+INSTALL(FILES ${CODECS} DESTINATION bin/makedicts-codecs 
+	PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_EXECUTE GROUP_READ
+	WORLD_EXECUTE WORLD_READ)
+
 SET_TARGET_PROPERTIES(makedict PROPERTIES VERSION 0.3)
 GET_TARGET_PROPERTY(makedict_VERSION makedict VERSION)
 SET(CODECSDIR "\\\"/usr/local/bin/makedict-codecs\\\"")
+
 ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
 	-DCODECSDIR="${CODECSDIR}"
 	-DDUMMY_FORMAT_NAME="\\\"dummy\\\""
@@ -114,6 +123,7 @@ ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
 
 
 IF (BUILD_TESTS)
+	#todo: check that all tools necessary for sh scripts exists
         MESSAGE(STATUS "Build tests")
         ENABLE_TESTING()# Force "make test" to works
         ADD_SUBDIRECTORY(tests)
