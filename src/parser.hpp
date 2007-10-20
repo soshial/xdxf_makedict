@@ -93,7 +93,7 @@ public:
 	int run(int argc, char *argv[]);
 	int run(const StringList& options, const std::string& url);
 	const std::string& format() const;
-	virtual bool is_my_format(const std::string& url) { return false; }
+	virtual bool is_my_format(const std::string&) { return false; }
 	void reset_ops(IParserDictOps *dict_ops) { 
 		if (dict_ops) 
 			dict_ops_ = dict_ops; 

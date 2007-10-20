@@ -77,7 +77,7 @@ private:
 
 class Strip {
 public:
-	Strip(const std::string& str) : str_(str) {}
+	explicit Strip(const std::string& str) : str_(str) {}
 	friend File& operator<<(File& out, const Strip& st);
 private:
 	const std::string& str_;
