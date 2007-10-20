@@ -35,6 +35,7 @@
 #include "file.hpp"
 #include "log.hpp"
 #include "repository.hpp"
+#include "compiler.hpp"
 
 typedef std::map<std::string, std::string> StringMap;
 typedef std::vector<std::string> StringList;
@@ -55,7 +56,7 @@ public:
 	virtual bool abbr(const std::string&, const std::string&) = 0;
 	virtual bool article(const StringList&, const std::string&, bool) = 0;
 	virtual bool article(const std::string&, const std::string&, bool) = 0;
-	virtual bool end() __attribute_warn_unused_result__ = 0;
+	virtual bool end() ATTRIBUTE_WARN_UNUSED_RESULT = 0;
 };
 
 /**
@@ -110,19 +111,19 @@ protected:
 	void set_parser_info(const std::string& key, const std::string& val);
 	bool set_dict_info(const std::string& key, const std::string& val);
 
-	bool meta_info() __attribute_warn_unused_result__;
-	bool begin() __attribute_warn_unused_result__;
-	bool abbrs_begin() __attribute_warn_unused_result__;
-	bool abbrs_end() __attribute_warn_unused_result__;
+	bool meta_info() ATTRIBUTE_WARN_UNUSED_RESULT;
+	bool begin() ATTRIBUTE_WARN_UNUSED_RESULT;
+	bool abbrs_begin() ATTRIBUTE_WARN_UNUSED_RESULT;
+	bool abbrs_end() ATTRIBUTE_WARN_UNUSED_RESULT;
 	bool abbr(const StringList& keys, const std::string& val)
-		__attribute_warn_unused_result__;
+		ATTRIBUTE_WARN_UNUSED_RESULT;
 	bool article(const StringList& keys, const std::string& val,
-		     bool keys_in_article)  __attribute_warn_unused_result__;
+		     bool keys_in_article)  ATTRIBUTE_WARN_UNUSED_RESULT;
 
 	bool abbr(const std::string& key, const std::string& val)
-		__attribute_warn_unused_result__;
+		ATTRIBUTE_WARN_UNUSED_RESULT;
 	bool article(const std::string& key, const std::string& val,
-		     bool keys_in_article)  __attribute_warn_unused_result__;
+		     bool keys_in_article)  ATTRIBUTE_WARN_UNUSED_RESULT;
 
 	//usefull routine for some parsers
 	std::set<gunichar> not_valid_chars;

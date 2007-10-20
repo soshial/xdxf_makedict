@@ -12,6 +12,13 @@ ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4)
 # CMake versions to try to be backwards-compatible with the desired version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.4 FATAL_ERROR)
 
+# Disable deprecation warnings for standard C and STL functions in VS2005
+# and later
+IF(CMAKE_COMPILER_2005)
+  ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
+  ADD_DEFINITIONS(-D_SCL_SECURE_NO_DEPRECATE)
+ENDIF(CMAKE_COMPILER_2005) 
+
 SET(GLIB2_REQ "'glib-2.0 >= 2.6.0'")
 
 INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindGLIB2.cmake")
@@ -25,6 +32,7 @@ SET(ZLIB_FIND_REQUIRED True)
 INCLUDE(FindZLIB)
 
 SET(EXPAT_FIND_REQUIRED True)
+SET(EXPAT_FIND_QUIETLY True)
 INCLUDE(FindEXPAT)
 
 INCLUDE(CheckFunctionExists)
@@ -54,6 +62,7 @@ ENDIF (NOT WIN32)
 SET(CODECS src/mueller7_parser.py src/mdparser.py src/apresyan.py)
 
 SET(makedict_SRCS
+	src/compiler.hpp
 	src/makedict.cpp
 	src/file.cpp
 	src/parser.cpp

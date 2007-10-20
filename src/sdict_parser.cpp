@@ -49,6 +49,7 @@ namespace sdict {
 
 #if defined(_MSC_VER)
 #pragma pack(push, 1)
+#define __attribute__(arg) /**/
 #endif
 	struct Header {
 		guint8 signature_[4];
