@@ -16,3 +16,4 @@
 #endif
 
 #endif//!_MAKEDICT_COMPILER_HPP_
+

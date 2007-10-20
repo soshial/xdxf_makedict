@@ -17,6 +17,8 @@ public:
 	bool wait(int &res);
 	File& input() { return input_; }
 	File& output() { return output_; }
+	static bool run_cmd_line_sync(const std::string& cmd,
+				      std::string& output);
 private:
 	File input_, output_;
 	GPid pid_;

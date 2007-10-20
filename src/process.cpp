@@ -75,7 +75,7 @@ bool Process::run_async(const std::string& cmd, int flags)
 		if (!input_) {
 			StdErr.printf(_("Can not open pipe to %s\n"),
 				      cmd.c_str());
-			return false;	
+			return false;
 		}
 	}
 
@@ -84,7 +84,7 @@ bool Process::run_async(const std::string& cmd, int flags)
 		if (!output_) {
 			StdErr.printf(_("Can not open pipe to %s\n"),
 				      cmd.c_str());
-			return false;	
+			return false;
 		}
 	}
 
@@ -102,8 +102,8 @@ bool Process::wait(int &res)
 			g_warning(_("Can not get status of spawned process\n"));
 			return false;
 	}
-	res = status;	
-	g_spawn_close_pid(pid_);	
+	res = status;
+	g_spawn_close_pid(pid_);
 #else
 	input_.close();
 	int status;
@@ -113,6 +113,32 @@ bool Process::wait(int &res)
 		return false;
 	}
 	res = WEXITSTATUS(status);
-	return true;	
+	return true;
 #endif
+}
+
+bool Process::run_cmd_line_sync(const std::string& cmd,
+				std::string& output)
+{
+	output.clear();
+	gchar *std_error = NULL;
+	gchar *std_output = NULL;
+	gint exit_status;
+	if (!g_spawn_command_line_sync(cmd.c_str(), &std_output, &std_error,
+				       &exit_status, NULL))
+		return false;
+#ifdef _WIN32
+	if (exit_status == EXIT_SUCCESS) {
+#else
+	if (WEXITSTATUS(exit_status) == EXIT_SUCCESS) {
+#endif
+		size_t len = strlen(std_output);
+		while (len > 0 && g_ascii_isspace(std_output[len-1]))
+			--len;
+		std_output[len]='\0';
+		output = std_output;
+		return true;
+	}
+
+	return false;
 }

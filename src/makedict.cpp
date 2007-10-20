@@ -233,19 +233,7 @@ int MakeDict::run(int argc, char *argv[])
 
 static bool start_cmd(const std::string& cmd, std::string& res)
 {
-	gchar *std_error = NULL;
-	gchar *std_output = NULL;
-	gint exit_status;
-	if (g_spawn_command_line_sync(cmd.c_str(), &std_output, &std_error, &exit_status, NULL) &&
-	    WEXITSTATUS(exit_status) == EXIT_SUCCESS) {
-		size_t len=strlen(std_output);
-		while (len>0 && g_ascii_isspace(std_output[len-1]))
-			--len;
-		std_output[len]='\0';
-		res = std_output;
-		return true;
-	}
-	return false;
+	return Process::run_cmd_line_sync(cmd, res);
 }
 
 bool MakeDict::fill_codecs_table(const std::string& prgname,
