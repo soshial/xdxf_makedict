@@ -112,9 +112,9 @@ bool Process::wait(int &res)
 			      strerror(errno));
 		return false;
 	}
-	res = WEXITSTATUS(status);
-	return true;
+	res = WEXITSTATUS(status);	
 #endif
+	return true;
 }
 
 bool Process::run_cmd_line_sync(const std::string& cmd,

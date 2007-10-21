@@ -10,46 +10,35 @@ if(GLIB2_INCLUDE_DIR AND GLIB2_LIBRARIES)
     set(GLIB2_FIND_QUIETLY TRUE)
 endif(GLIB2_INCLUDE_DIR AND GLIB2_LIBRARIES)
 
-INCLUDE(UsePkgConfig)
-PKGCONFIG(${GLIB2_REQ} _LibGLIB2IncDir _LibGLIB2LinkDir _LibGLIB2LinkFlags _LibGLIB2Cflags)
+if (NOT WIN32)
+   include(UsePkgConfig)
+   pkgconfig(glib-2.0 _LibGLIB2IncDir _LibGLIB2LinkDir _LibGLIB2LinkFlags _LibGLIB2Cflags)
+endif(NOT WIN32)
 
-FIND_PATH(GLIBCONFIG_INCLUDE_DIR
-	    NAMES
-	    glibconfig.h
-	    PATHS
-	    ${_LibGLIB2IncDir}
-	    /opt/gnome/lib64/glib-2.0/include
-	    /opt/gnome/lib/glib-2.0/include
-	    /opt/lib/glib-2.0/include
-	    /usr/lib64/glib-2.0/include
-	    /usr/lib/glib-2.0/include
-	    /sw/lib/glib-2.0/include
-)
+find_path(GLIB2_MAIN_INCLUDE_DIR glib.h
+          PATH_SUFFIXES glib-2.0
+          PATHS ${_LibGLIB2IncDir} )
 
-FIND_PATH(GLIB2_INCLUDE_DIR glib.h
-   ${_LibGLIB2IncDir}
-   ${_LibGLIB2IncDir}/glib-2.0
-   /usr/include/glib-2.0
-   /usr/include
-   /usr/local/include/glib-2.0
-   /usr/local/include
-)
+# search the glibconfig.h include dir under the same root where the library is found
+find_library(GLIB2_LIBRARIES 
+             NAMES glib-2.0 
+             PATHS ${_LibGLIB2LinkDir} )
 
-FIND_LIBRARY(GLIB2_LIBRARIES NAMES glib-2.0
-    PATHS
-    ${_LibGLIB2LinkDir}
-    /usr/lib
-    /usr/local/lib
-)
+get_filename_component(glib2LibDir "${GLIB2_LIBRARIES}" PATH)
 
-if(GLIB2_INCLUDE_DIR AND GLIB2_LIBRARIES AND GLIBCONFIG_INCLUDE_DIR)
-   set(GLIB2_FOUND TRUE)
-endif(GLIB2_INCLUDE_DIR AND GLIB2_LIBRARIES AND GLIBCONFIG_INCLUDE_DIR)
+find_path(GLIB2_INTERNAL_INCLUDE_DIR glibconfig.h
+          PATH_SUFFIXES glib-2.0/include
+          PATHS ${_LibGLIB2IncDir} "${glib2LibDir}" ${CMAKE_SYSTEM_LIBRARY_PATH})
 
-if(GLIB2_FOUND)
-   if(NOT GLIB2_FIND_QUIETLY)
-      message(STATUS "Found glib2: ${GLIB2_LIBRARIES} ${GLIB2_LIBRARIES}")
-   endif(NOT GLIB2_FIND_QUIETLY)
-endif(GLIB2_FOUND)
+set(GLIB2_INCLUDE_DIR "${GLIB2_MAIN_INCLUDE_DIR}")
 
-MARK_AS_ADVANCED(GLIB2_INCLUDE_DIR GLIB2_LIBRARIES)
+# not sure if this include dir is optional or required
+# for now it is optional
+if(GLIB2_INTERNAL_INCLUDE_DIR)
+  set(GLIB2_INCLUDE_DIR ${GLIB2_INCLUDE_DIR} "${GLIB2_INTERNAL_INCLUDE_DIR}")
+endif(GLIB2_INTERNAL_INCLUDE_DIR)
+
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(GLIB2  DEFAULT_MSG  GLIB2_LIBRARIES GLIB2_MAIN_INCLUDE_DIR)
+
+mark_as_advanced(GLIB2_INCLUDE_DIR GLIB2_LIBRARIES)

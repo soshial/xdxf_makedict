@@ -329,22 +329,20 @@ void MakeDict::unknown_input_format(const std::string& format)
 }
 
 const char *MakeDict::find_input_codec(const std::string &url)
-{
+{	
 	if (!input_format_.empty()) {
 		StringMap::const_iterator it = input_codecs.find(input_format_);
 		if (it != input_codecs.end())
 			return it->second.c_str();
 	} else {
 		for (StringMap::iterator it = input_codecs.begin();
-		     it != input_codecs.end(); ++it) {
-			int status =
-				system((it->second + " --is-your-format '" + url + "'").c_str());
-			if (status == -1) {
-				StdErr.printf(_("`system' function failed: %s\n"),
-					      strerror(errno));
-				exit(EXIT_FAILURE);
-			}
-			if (WEXITSTATUS(status) == EXIT_SUCCESS)
+		     it != input_codecs.end(); ++it) {			
+			std::string cmd = it->second + " --is-your-format '" + url + "'";
+			std::string output;
+			if (!Process::run_cmd_line_sync(cmd, output))
+				g_message(_("Cat not execute command `%s': %s\n"),
+					      cmd.c_str(), strerror(errno));				
+			else
 				return it->second.c_str();
 		}
 	}

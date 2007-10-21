@@ -20,7 +20,9 @@ IF(CMAKE_COMPILER_2005)
 ENDIF(CMAKE_COMPILER_2005) 
 
 SET(GLIB2_REQ "'glib-2.0 >= 2.6.0'")
-
+#INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindPackageHandleStandardArgs.cmake")
+# where to look first for cmake modules, before ${CMAKE_ROOT}/Modules/ is checked
+SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindGLIB2.cmake")
 
 IF (NOT GLIB2_FOUND)
