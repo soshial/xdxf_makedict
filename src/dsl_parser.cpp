@@ -228,6 +228,7 @@ void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& re
 
 	while (*p && p < end) {
 		ch = g_utf8_get_char(p);
+//#define DEBUG_IPA
 #ifdef DEBUG_IPA
 		g_debug("%s: before %llX\n", __FUNCTION__, (unsigned long long)ch);
 #endif

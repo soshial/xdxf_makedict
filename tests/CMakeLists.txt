@@ -51,7 +51,7 @@ TARGET_LINK_LIBRARIES(t_normalize
 ADD_TEST(t_normalize ${EXECUTABLE_OUPUT_PATH}/t_normalize)
 
 ADD_TEST(t_dslparser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_dslparser.sh"
-	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
+	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/..")
 
 ADD_EXECUTABLE(t_xml
         t_xml.cpp 

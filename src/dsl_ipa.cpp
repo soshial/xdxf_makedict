@@ -49,7 +49,7 @@ std::pair<UniToStrPair *, UniToStrPair *> ipa_to_unicode_tbl()
 		ipa_to_unicode_make_pair(0x00b0,  0x006b),
 		ipa_to_unicode_make_pair(0x00b1,  0x0261),
 		ipa_to_unicode_make_pair(0x00b5,  0x0061),
-		ipa_to_unicode_make_pair(0x0402,  0x0069),
+		ipa_to_unicode_make_pair(0x0402,  0x0069, ':'),
 		ipa_to_unicode_make_pair(0x0403,  0x0251, ':' ),
 		ipa_to_unicode_make_pair(0x0404,  0x007a),
 		ipa_to_unicode_make_pair(0x0406,  0x0068),

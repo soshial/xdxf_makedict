@@ -7,7 +7,7 @@ fi
 
 PATH_TO_MAKEDICT="../src"
 if [ ! -z "$2" ]; then
-		PATH_TO_MAKEDICT="$2/.."
+		PATH_TO_MAKEDICT="$2"
 fi
 
 source "${CMAKE_CURRENT_SOURCE_DIR}/funcs.sh"
