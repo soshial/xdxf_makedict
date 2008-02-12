@@ -143,7 +143,7 @@ int MakeDict::run(int argc, char *argv[])
 		{ NULL },
 	};
 
-	glib::OptionContext opt_cnt(g_option_context_new(_("file1 file2...")));
+	glib::OptionContext opt_cnt(g_option_context_new(_("-o output/format file1 file2...")));
 	g_option_context_add_main_entries(get_impl(opt_cnt), entries, NULL);
 	g_option_context_set_help_enabled(get_impl(opt_cnt), TRUE);
 	glib::Error err;
@@ -184,7 +184,11 @@ int MakeDict::run(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 		output_format_ = get_impl(output_fmt);
+	} else {
+		StdErr.printf(_("You should specify output format using --output-format option\n"));
+		return EXIT_FAILURE;
 	}
+
 	if (show_version) {
 		StdOut.printf(_("Utiltity for creating dictionaries, %s"), VERSION);
 		return EXIT_SUCCESS;
