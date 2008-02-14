@@ -184,13 +184,10 @@ int MakeDict::run(int argc, char *argv[])
 			return EXIT_FAILURE;
 		}
 		output_format_ = get_impl(output_fmt);
-	} else {
-		StdErr.printf(_("You should specify output format using --output-format option\n"));
-		return EXIT_FAILURE;
 	}
 
 	if (show_version) {
-		StdOut.printf(_("Utiltity for creating dictionaries, %s"), VERSION);
+		StdOut.printf(_("Utiltity for creating dictionaries, %s\n"), VERSION);
 		return EXIT_SUCCESS;
 	}
 	if (list_fmts) {
@@ -200,6 +197,11 @@ int MakeDict::run(int argc, char *argv[])
 
 	if (work_dir)
 		workdir_ = get_impl(work_dir);
+
+	if (!output_fmt) {
+		StdErr.printf(_("You should specify output format using --output-format option\n"));
+		return EXIT_FAILURE;
+	}
 
 	if (parser_opts) {
 		gchar **popts = get_impl(parser_opts);
