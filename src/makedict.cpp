@@ -270,6 +270,8 @@ bool MakeDict::fill_codecs_table(const std::string& prgname,
 		if (g_file_test(realname.c_str(), G_FILE_TEST_IS_EXECUTABLE)) {
 			std::string std_output;
 
+			g_debug(_("%s is executable, check if it is makedict codec\n"),
+				realname.c_str());
 			if (start_cmd("'" + realname + "' --input-format",
 				      std_output) && !std_output.empty()) {
 				input_codecs[std_output] = realname;
