@@ -162,6 +162,7 @@ DslParser::DslParser() :
 	short_lang_table["ukrainian"]="UKR";
 	short_lang_table["chinese"] = "CHI";
 	short_lang_table["latin"] = "LAT";
+	short_lang_table["turkish"] = "TUR";
 
 	replace_table["[/m]"]="";
 #if 0
