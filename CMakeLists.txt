@@ -61,7 +61,8 @@ ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/src/dsl_ipa.cpp
 )
 ENDIF (NOT WIN32)
 
-SET(CODECS src/mueller7_parser.py src/mdparser.py src/apresyan.py)
+SET(CODECS src/mueller7_parser.py src/apresyan.py)
+SET(CODECS_LIB src/mdparser.py)
 
 SET(makedict_SRCS
 	src/compiler.hpp
@@ -122,6 +123,10 @@ INSTALL(FILES docs/makedict.1 DESTINATION share/man/man1)
 INSTALL(FILES ${CODECS} DESTINATION bin/makedict-codecs 
 	PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_EXECUTE GROUP_READ
 	WORLD_EXECUTE WORLD_READ)
+
+INSTALL(FILES ${CODECS_LIB} DESTINATION bin/makedict-codecs 
+	PERMISSIONS OWNER_READ GROUP_READ
+	WORLD_READ)
 
 #
 # Packing stuff
