@@ -213,6 +213,7 @@ int Parser::parse(const std::string& filename)
 	guint32 off, size;
 	std::string data;
 	bool keys_in_article;
+	std::string enc_xml_key;
 
 	while ((q = (const char *)memchr(p, '\0', end - p)) != NULL) {
 		++q;
@@ -221,7 +222,8 @@ int Parser::parse(const std::string& filename)
 		size = g_ntohl(*reinterpret_cast<const guint32 *>(q));
 		if (!dict_data_.get(off, size, data, keys_in_article))
 			return EXIT_FAILURE;
-		if (!article(p, data, keys_in_article))
+		xml::encode(p, enc_xml_key);
+		if (!article(enc_xml_key, data, keys_in_article))
 			return EXIT_FAILURE;
 		p = q + sizeof(guint32);
 	}

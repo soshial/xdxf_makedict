@@ -1,7 +1,1 @@
-0.3beta1
-- dsl parser fixes and updates
-- stardict parser
-- sdict: --parser-option "remove-duplication=yes" to fix broken rus_bse
-dictionary
-- introduce new scheme of parser<->generator cooperation to speedup makedict
-0.3alpha4
+see log at  https://xdxf.svn.sourceforge.net/svnroot/xdxf
