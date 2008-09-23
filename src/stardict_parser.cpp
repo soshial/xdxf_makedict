@@ -67,7 +67,11 @@ namespace stardict {
 
 	class Parser : public ParserBase {
 	public:
-		Parser() {}
+		Parser() {
+			set_parser_info("format", "stardict");
+			parser_options_["lang_from"]="";
+			parser_options_["lang_to"]="";
+		}
 	protected:
 		int parse(const std::string& filename);
 		bool is_my_format(const std::string& url) {
@@ -194,6 +198,9 @@ int Parser::parse(const std::string& filename)
 
 	if (!parse_ifo_file(filename))
 		return EXIT_FAILURE;
+
+	set_dict_info("lang_from", parser_options_["lang_from"]);
+	set_dict_info("lang_to", parser_options_["lang_to"]);
 
 	if (!begin())
 		return EXIT_FAILURE;
