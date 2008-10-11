@@ -83,6 +83,9 @@ namespace stardict {
 		DictData dict_data_;
 
 		bool parse_ifo_file(const std::string&);
+		void convert_meta_info(const char *ifo_name,
+				       const char *xdxf_name,
+				       const StringMap &ifo_data);
 	};
 
 	REGISTER_PARSER(Parser, stardict);
@@ -119,9 +122,9 @@ void DictData::convert_to_xdxf(char data_type, const char *&beg,
 	case 't': {
 		std::string tmp;
 		xml::encode(std::string(beg, sec_size), tmp);
-		res += "<t>";
+		res += "<tr>";
 		res += tmp;
-		res += "</t>";
+		res += "</tr>";
 	}
 		break;
 	case 'x':
@@ -238,6 +241,19 @@ int Parser::parse(const std::string& filename)
 	return EXIT_SUCCESS;
 }
 
+void Parser::convert_meta_info(const char *ifo_name,
+			       const char *xdxf_name,
+			       const StringMap &ifo_data)
+{
+	StringMap::const_iterator it;
+	if ((it = ifo_data.find(ifo_name)) != ifo_data.end() &&
+	    !it->second.empty()) {
+		std::string xml_str;
+		xml::encode(it->second, xml_str);
+		set_dict_info(xdxf_name, xml_str);
+	}
+}
+
 bool Parser::parse_ifo_file(const std::string& filename)
 {
 	File ifo(fopen(filename.c_str(), "rb"));
@@ -283,15 +299,11 @@ bool Parser::parse_ifo_file(const std::string& filename)
 	EXIT_IF_NOT_EXISTS(idxfilesize);
 	EXIT_IF_NOT_EXISTS(version);
 
+
+	convert_meta_info("bookname", "full_name", ifo_data);
+	convert_meta_info("description", "description", ifo_data);
+
 	StringMap::const_iterator it;
-
-	if ((it = ifo_data.find("bookname")) != ifo_data.end() &&
-	    !it->second.empty())
-		set_dict_info("full_name", it->second);
-	if ((it = ifo_data.find("description")) != ifo_data.end() &&
-	    !it->second.empty())
-		set_dict_info("description", it->second);
-
 	if ((it = ifo_data.find("sametypesequence")) != ifo_data.end() &&
 	    !it->second.empty())
 		dict_data_.set_sametypesequence(it->second);
