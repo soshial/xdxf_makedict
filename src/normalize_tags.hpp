@@ -1,8 +1,9 @@
 #ifndef _NORMALIZE_TAGS_HPP_
 #define _NORMALIZE_TAGS_HPP_
 
-#include <functional>
 #include <glib.h>
+#include <cstring>
+#include <functional>
 #include <string>
 #include <vector>
 
