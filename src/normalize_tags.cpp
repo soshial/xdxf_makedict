@@ -109,18 +109,18 @@ void NormalizeTags::operator()(std::string& resstr, std::string& datastr)
 	     ri != open_tags.rend(); ++ri)
 		add_section(Section(ri, resstr.length()));
 	/*
-	 * algorithm of dsl correction simple:
-	 * we have container with "good" sections,
+	 * algorithm of dsl correction is simple:
+	 * we have a container with "good" sections,
 	 * I mean sections with such property:
-	 * if two of them have common part then
-	 * one of this sections is part of another
+	 * if two of them have a common part then
+	 * one of these sections is a part of another
 	 */
 	std::vector<Section> good_sections;
 	std::vector<Section>::size_type p_pos, q_pos;
 	for (std::vector<Section>::iterator p = sections.begin(),
 		     end = sections.end(); p != end; ++p) {
 		p_pos=p-sections.begin();
-		//and we have container that hold all sections
+		//and we have container that holds all sections
 		//sorted using "<" of struct Section
 
 		std::sort(p, end);

@@ -53,7 +53,7 @@ public:
 	~DslParser() {}
 protected:
 	bool is_my_format(const std::string& url) {
-		//To fix compiler warning bool<-gboolean conversation
+		//To fix compiler warning bool<-gboolean conversion
 		if (g_str_has_suffix(url.c_str(), ".dsl"))
 			return true;
 		else
@@ -69,12 +69,13 @@ private:
 
 
 	static TagInfoList taginfo_list;
+	// full or relative file name without extension.
 	std::string basename;
 
 	bool utf16;//mean that source file in utf16
 	bool little_endian;//mean that order of bytes in little_endian
 
-	guint32 linenum;//number of current line
+	guint32 linenum;//number of the current line
 	std::string line;
 	std::string name, index_language, contents_language;
 	std::string from_codeset;
@@ -91,6 +92,7 @@ private:
 	enHeaderTags is_line_has_tag(void);
 	bool get_tag_value(const char* tag_name, std::string& value);
 	static bool long_to_short(std::string& longlang, std::string& shortlang);
+	bool determine_file_encoding(MapFile& in);
 
 	//this is a real function which parse file,
 	//because of in additition to dsl by itself,
@@ -164,7 +166,6 @@ DslParser::DslParser() :
 	short_lang_table["latin"] = "LAT";
 	short_lang_table["turkish"] = "TUR";
 
-	replace_table["[/m]"]="";
 #if 0
 	replace_table["[ref]"]="<kref>";
 	replace_table["[/ref]"]="</kref>";
@@ -183,15 +184,6 @@ DslParser::DslParser() :
 	replace_table["[s]"]="<rref>";
 	replace_table["[/s]"]="</rref>";
 	replace_table["[m]"]="";//handle errors in dsl
-	replace_table["[m1]"]=" ";
-	replace_table["[m2]"]="  ";
-	replace_table["[m3]"]="   ";
-	replace_table["[m4]"]="    ";
-	replace_table["[m5]"]="     ";
-	replace_table["[m6]"]="      ";
-	replace_table["[m7]"]="       ";
-	replace_table["[m8]"]="        ";
-	replace_table["[m9]"]="         ";
 	replace_table["[']"] = "<nu />'<nu />";
 	replace_table["[/']"] = "";
 	
@@ -219,6 +211,44 @@ DslParser::DslParser() :
 				       TagInfo::tColor));
 	taginfo_list.push_back(TagInfo("[ref", "[/ref]", "<kref>", "</kref>",
 				       TagInfo::tKref, true));
+	taginfo_list.push_back(TagInfo("[m0]", "[/m]", "", "",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m1]", "[/m]",
+		"<blockquote>",
+		"</blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m2]", "[/m]",
+		"<blockquote><blockquote>",
+		"</blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m3]", "[/m]",
+		"<blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m4]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m5]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m6]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m7]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m8]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
+	taginfo_list.push_back(TagInfo("[m9]", "[/m]",
+		"<blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote><blockquote>",
+		"</blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote></blockquote>",
+		TagInfo::tBlockquote));
 }
 
 void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
@@ -273,6 +303,35 @@ inline bool DslParser::long_to_short(std::string& longlang,
 	return true;
 }
 
+/* Determine file encoding based on BOM. 
+This method sets utf16 and little_endian variables. */
+bool DslParser::determine_file_encoding(MapFile& in)
+{
+	//try to determine encoding
+	//TODO: add utf-32 support
+
+	int ch1, ch2;
+	if (in.cur+1<in.end()) {
+		ch1=(unsigned char)*in.cur;
+		ch2=(unsigned char)*(in.cur+1);
+	} else
+		return false;
+
+	utf16=false;
+
+	if (ch1==0xFF && ch2==0xFE) {
+		utf16=true;
+		little_endian=true;
+		g_debug("DslParser::determine_file_encoding(): UTF-16LE encoding\n");
+	} else if (ch1==0xFE && ch2==0xFF) {
+		utf16=true;
+		little_endian=false;
+		g_debug("DslParser::determine_file_encoding(): UTF-16BE encoding\n");
+	}
+	return true;
+}
+
+/* find a file with abbreviations and parse it. */
 void DslParser::parse_abbrs(const std::string& dirname,
 				   const std::string& basename)
 {
@@ -305,11 +364,11 @@ int DslParser::parse(const std::string& filename)
 {
 	int res=EXIT_FAILURE;
 
+	// basename - file name without extension
 	basename.assign(filename);
 	std::string::size_type pos=basename.rfind('.');
 	if (pos!=std::string::size_type(-1))
 		basename.erase(pos, basename.length()-pos);
-
 
 	//search icon
 	std::string icon_name=basename+".bmp";
@@ -325,7 +384,7 @@ int DslParser::parse(const std::string& filename)
 	else
 		dirname=".";
 
-	{
+	{ // parse headers
 		MapFile in;
 		if (!in.open(filename.c_str())) {
 			StdErr.printf(_("Can not open %s\n"), filename.c_str());
@@ -336,7 +395,7 @@ int DslParser::parse(const std::string& filename)
 		name=index_language=contents_language=from_codeset="";
 	}
 
-
+	// parse abbreviations file
 	parse_abbrs(dirname, basename);
 
 	MapFile in;
@@ -347,12 +406,14 @@ int DslParser::parse(const std::string& filename)
 
 	name=index_language=contents_language=from_codeset="";
 
+	// parse main contents
 	if ((res=parse(in, false, false))!=EXIT_SUCCESS)
 		return res;
 
 	return EXIT_SUCCESS;
 }
 
+/* Determine values of properties and set them with the set_dict_info method. */
 int DslParser::print_info()
 {
 	int res=EXIT_FAILURE;
@@ -428,6 +489,7 @@ int DslParser::print_info()
 			goto out;
 		}
 
+		// convert end-of-line to unix style
 		Str2StrTable end_of_line;
 		end_of_line["\r\n"]="\n";
 		end_of_line["\n\r"]="\n";
@@ -551,14 +613,16 @@ DslParser::enHeaderTags DslParser::is_line_has_tag(void)
 
 bool DslParser::get_tag_value(const char* tag_name, std::string& value)
 {
+	// line format: <tag_name> "<value>"
 	value.resize(0);
 
 	std::string::size_type pos, end;
 
-	if ((pos=line.find(tag_name))==std::string::size_type(-1))
+	if ((pos=line.find(tag_name))==std::string::npos)
 		return false;
 
 	pos+=strlen(tag_name);
+	// skip spaces
 	while (pos<=line.length()-1 && (line[pos]=='\t' || line[pos]==' '))
 		++pos;
 	if (line[pos]!='"') {
@@ -572,10 +636,13 @@ bool DslParser::get_tag_value(const char* tag_name, std::string& value)
 		StdErr.printf(_("%d: there are no twin \"\n"), linenum);
 		return false;
 	}
+	// pos at the first '"', end at the second '"'
 	value=line.substr(pos, end-pos);
 	return true;
 }
 
+/* Extract all tags of the header. After this method the line variable
+	 contains the first non-empty line following the header. */
 bool DslParser::parse_header(MapFile& in, CharsetConv& conv)
 {
 	//read all tags
@@ -583,7 +650,7 @@ bool DslParser::parse_header(MapFile& in, CharsetConv& conv)
 		while (getline(in) && line.empty())
 			;
 		if (!in) {
-			StdErr << _("There are no not empty stirngs\n");
+			StdErr << _("There are no not empty strings\n");
 			return false;
 		}
 		enHeaderTags tag=is_line_has_tag();
@@ -638,8 +705,8 @@ bool DslParser::parse_header(MapFile& in, CharsetConv& conv)
 		break;
 
 		default:
-			/*this not should happen*/;
-		}//switch (tag) {
+			/*this should not happen*/;
+		} // switch (tag)
 	}
 	return true;
 }
@@ -668,7 +735,7 @@ bool DslParser::read_keys(MapFile& in, const CharsetConv& conv,
 			return false;
 		}
 
-		std::string key_enc;
+		std::string key_enc; // encoded key
 		const char *p = cur_line->c_str();
 
 		while (*p) {
@@ -697,7 +764,7 @@ bool DslParser::read_keys(MapFile& in, const CharsetConv& conv,
 			++p;
 		}
 
-		//remove last blank characters
+		//remove trailing blank characters
 		std::string::reverse_iterator ri;
 		for (ri=key_enc.rbegin(); ri!=key_enc.rend(); ++ri)
 			if (*ri!=' ' && *ri!='\t')
@@ -710,6 +777,9 @@ bool DslParser::read_keys(MapFile& in, const CharsetConv& conv,
 	return true;
 }
 
+/* find parts of the article containing trunscriptions [t]<trunscription>[\t] or 
+\\[[t]<trunscription>[\t]\\] and convert them from ipa to utf. 
+The result is in the datastr parameter. */
 bool DslParser::encode_article(CharsetConv& conv, std::string& datastr)
 {
 	std::string encoded_str;
@@ -758,13 +828,16 @@ bool DslParser::encode_article(CharsetConv& conv, std::string& datastr)
 	return true;
 }
 
+/* Parameters: 
+key_list - keys of the article, normally only one;
+datastr - article contents */
 void DslParser::article2xdxf(StringList& key_list, std::string& datastr)
 {	
 	std::string resstr;
 	NormalizeTags norm_tags(taginfo_list);
 	const char *p=datastr.c_str();
 	bool have_subarticle=false;
-	while (*p)
+	while (*p) {
 		if (*p=='\\') {
 			if (!(*++p))
 				break;
@@ -863,6 +936,7 @@ void DslParser::article2xdxf(StringList& key_list, std::string& datastr)
 				++p;
 			}
 		}
+	} // while (*p) {
 
 	if (resstr[resstr.length()-1] == '\n')
 		resstr.erase(resstr.begin()+resstr.length()-1);
@@ -879,34 +953,13 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 	int res = EXIT_FAILURE;
 	CharsetConv conv;
 
-	//try to determine encoding
-	//TODO: add utf-32 support
-
-	int ch1;
-	if (in.cur<end_of_file)
-		ch1=(unsigned char)*in.cur;
-	else
-		return res;
-	int ch2;
-	if (in.cur+1<end_of_file)
-		ch2=(unsigned char)*(in.cur+1);
-	else
+	if(!determine_file_encoding(in))
 		return res;
 
-	utf16=false;
-
-	if (ch1==0xFF && ch2==0xFE) {
-		utf16=true;
-		little_endian=true;
-		g_debug("int DslParser::parse(MapFile& in, bool only_info, bool abr): UTF-16 encoding\n");
-	} else if (ch1==0xFE && ch2==0xFF) {
-		utf16=true;
-		little_endian=false;
-	}
 	if (!parse_header(in, conv))
 		return res;
-	//we get all tags from dsl, we have last line, which not tag in
-	//"line" variable
+	// We get all tags from dsl, we have the last line, which is not a tag in
+	// the "line" variable.
 
 	if (from_codeset.empty() && !parser_options_["encoding"].empty()) {
 		from_codeset=parser_options_["encoding"];
@@ -921,17 +974,22 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 		if (!abbrs_begin())
 			return EXIT_FAILURE;
 	
+	/* Iterate over articles. One loop iteration = one article is read. */
 	do {
+		/* The line contains the first key of the article. */
 		StringList key_list;
 
 		if (!read_keys(in, conv, key_list))
 			return res;
 
+		// Now contents of the article. Each line must start with a space or tab
 		if (!in && line[0]!='\t' && line[0]!=' ')
 			break;
 
 		std::string datastr;
 
+		/* Read all article into the datastr variable removing leading
+			 spaces and preserving new lines. */
 		do {
 			const char *real_begin=line.c_str()+1;
 			while (*real_begin && (*real_begin=='\t' || *real_begin==' '))
@@ -940,7 +998,7 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 				datastr += std::string(real_begin) + "\n";
 		} while (getline(in) && (line[0]=='\t' || line[0]==' '));
 
-
+		/* last line of the file requires special processing. */
 		if (in.eof() && !line.empty() && (line[0]=='\t' || line[0]==' ')) {
 			const char *real_begin=line.c_str()+1;
 			while (*real_begin && (*real_begin=='\t' || *real_begin==' '))
@@ -969,14 +1027,16 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 			return res;
 		}
 
+		// put extracted article into a store
 		if (abr) {
-			if (!abbr(key_list, datastr))
+			if (!abbr(key_list, datastr)) // method of the ParserBase
 				return EXIT_FAILURE;
 		} else
-			if (!article(key_list, datastr, false))
+			if (!article(key_list, datastr, false)) // method of the ParserBase
 				return EXIT_FAILURE;
 		key_list.clear();
 
+		// The article has been read. Move to the key of the next article or to the end of file.
 		while (line == "" && getline(in))
 			;
 	} while (in);

@@ -35,9 +35,9 @@ public:
 private:
 	std::string filename_;
 
-	char *data;
-	char *end_of_file;
-	long size;
+	char *data; // pointer to the beginning of the file data
+	char *end_of_file; // pointer to the next to last file data char
+	long size; // file size in bytes
 #ifdef HAVE_MMAP
 	int mmap_fd;
 #elif defined(WIN32)

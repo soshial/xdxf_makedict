@@ -33,6 +33,35 @@
 
 //#define DEBUG
 
+/* Checking WIN32 macro is not enough to determine type of the second argument
+ * of the iconv function. Here I try to provide a generic solution to this
+ * problem... */
+namespace {
+typedef char RT1;
+typedef struct { char a[2]; } RT2;
+
+template<typename RT, typename P1, typename P3, typename P4, typename P5>
+RT1 iconv_func(RT (*)(P1, const char* *, P3, P4, P5));
+template<typename RT, typename P1, typename P3, typename P4, typename P5>
+RT2 iconv_func(RT (*)(P1,       char* *, P3, P4, P5));
+
+template<bool s> struct iconv_traits;
+
+template<>
+struct iconv_traits<true>
+{
+	typedef const char** type;
+};
+
+template<>
+struct iconv_traits<false>
+{
+	typedef char** type;
+};
+
+typedef iconv_traits<sizeof(iconv_func(iconv)) == 1>::type iconv_P2_type;
+} // anonymous namespace
+
 void CharsetConv::workwith(const char *from, const char *to)
 {
 	close();
@@ -66,11 +95,7 @@ bool CharsetConv::convert(const char *str, std::string::size_type len,
 again:
 	err = iconv(cd_,
 //this need because win32 version of iconv and from glibc is different
-#ifdef WIN32
-		    (const char **)&p,
-#else
-		    (char **)&p,
-#endif
+		    (iconv_P2_type)&p,
 		    &inbytesleft, &outp, &outbytesleft);
 	if (err == size_t(-1))
 		if (errno == E2BIG) {

@@ -21,7 +21,8 @@ struct TagInfo {
 		tComment,
 		tDtrn,
 		tExample,
-		tKref
+		tKref,
+		tBlockquote
 	};
 
 	int code;
@@ -48,7 +49,7 @@ struct Tag {
 	TagInfoList::iterator info;
 	std::string::size_type p;
 	std::string value;
-	size_t timestamp_;	
+	size_t timestamp_;
   
 	Tag(TagInfoList::iterator info_, std::string::size_type p_, size_t t)
 		: info(info_), p(p_), timestamp_(t)
@@ -105,7 +106,7 @@ struct Section {
 extern void tag_value(const char *&p, std::string& val);
 
 /**
- * Encapsulate mechanizm to solve such task:
+ * Encapsulate mechanism to solve such task:
  * convert &lt;tag1&gt; aaa &lt;tag2&gt; bbb &lt;/tag1&gt; ccc &lt;/tag2&gt;
  * to normal XML.
  */

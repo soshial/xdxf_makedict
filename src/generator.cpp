@@ -104,6 +104,8 @@ bool GeneratorDictPipeOps::get_info()
 	return true;
 }
 
+/* Parameters:
+ enc_key - should keys be encoded or not */
 GeneratorBase::GeneratorBase(bool enc_key)
 {
 	enc_key_ = enc_key;
