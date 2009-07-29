@@ -143,9 +143,9 @@ static unsigned char b64_list[] =
 /* |b64_encode| encodes |val| in a printable base 64 format.  A MSB-first
    encoding is generated. */
 
-const char *b64_encode(guint32 val)
+const char *b64_encode(guint32 val, char result[7])
 {
-   static char   result[7];
+//   static char   result[7];
    int    i;
 
    result[0] = b64_list[ (val & 0xc0000000) >> 30 ];
@@ -156,7 +156,9 @@ const char *b64_encode(guint32 val)
    result[5] = b64_list[ (val & 0x0000003f)       ];
    result[6] = 0;
 
-   for (i = 0; i < 5; i++) if (result[i] != b64_list[0]) return result + i;
+   for (i = 0; i < 5; i++)
+	   if (result[i] != b64_list[0])
+		   return result + i;
    return result + 5;
 }
 

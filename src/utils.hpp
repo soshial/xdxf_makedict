@@ -37,7 +37,7 @@ static inline bool is_file_exist(const std::string& file)
 typedef std::vector<std::string> StringList;
 extern StringList split(const std::string& str, char sep);
 extern void strip(std::string& str);
-extern const char *b64_encode(guint32 val);
+extern const char *b64_encode(guint32 val, char result[7]);
 extern guint32 b64_decode(const char *val);
 
 extern bool copy_file(const std::string& from, const std::string& to)
