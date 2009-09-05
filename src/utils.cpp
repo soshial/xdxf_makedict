@@ -44,30 +44,30 @@ bool make_directory(const std::string& dir)
 }
 
 void replace(const Str2StrTable& replace_table,
-						 const char *str, std::string& res)
+	     const char *str, std::string& res)
 {
 	res.resize(0);//may be this helps to clear string without freeing memory
 	const char *p=str;
 
-  while (*p) {
-    const char *beg=p;
-    Str2StrTable::const_iterator i;
-    for (i=replace_table.begin(); i!=replace_table.end(); ++i) {
-      p=beg;
-      const char *q=i->first;
-      while (*p && *q && *p==*q)
-        ++p, ++q;
+	while (*p) {
+		const char *beg=p;
+		Str2StrTable::const_iterator i;
+		for (i=replace_table.begin(); i!=replace_table.end(); ++i) {
+			p=beg;
+			const char *q=i->first;
+			while (*p && *q && *p==*q)
+				++p, ++q;
 
-      if (*q=='\0') {
-        res+=i->second;
-        break;
-      }
-    }
-    if (i==replace_table.end()) {
-      p=beg;
-      res+=*p++;
-    }
-  }
+			if (*q=='\0') {
+				res+=i->second;
+				break;
+			}
+		}
+		if (i==replace_table.end()) {
+			p=beg;
+			res+=*p++;
+		}
+	}
 }
 
 StringList split(const std::string& str, char sep)
