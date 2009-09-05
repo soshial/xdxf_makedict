@@ -17,7 +17,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.4 FATAL_ERROR)
 IF(CMAKE_COMPILER_2005)
   ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE)
   ADD_DEFINITIONS(-D_SCL_SECURE_NO_DEPRECATE)
-ENDIF(CMAKE_COMPILER_2005) 
+ENDIF(CMAKE_COMPILER_2005)
 
 SET(GLIB2_REQ "'glib-2.0 >= 2.6.0'")
 #INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/FindPackageHandleStandardArgs.cmake")
@@ -110,7 +110,7 @@ SET(makedict_HDRS
 	src/resource.hpp
 )
 
-ADD_EXECUTABLE(makedict 
+ADD_EXECUTABLE(makedict
 	${makedict_SRCS}
 	${makedict_HDRS}
 )
@@ -120,11 +120,11 @@ TARGET_LINK_LIBRARIES(makedict
 
 INSTALL(TARGETS makedict RUNTIME DESTINATION bin)
 INSTALL(FILES docs/makedict.1 DESTINATION share/man/man1)
-INSTALL(FILES ${CODECS} DESTINATION lib/makedict-codecs 
+INSTALL(FILES ${CODECS} DESTINATION lib/makedict-codecs
 	PERMISSIONS OWNER_READ OWNER_EXECUTE GROUP_EXECUTE GROUP_READ
 	WORLD_EXECUTE WORLD_READ)
 
-INSTALL(FILES ${CODECS_LIB} DESTINATION lib/makedict-codecs 
+INSTALL(FILES ${CODECS_LIB} DESTINATION lib/makedict-codecs
 	PERMISSIONS OWNER_READ GROUP_READ
 	WORLD_READ)
 
@@ -155,6 +155,8 @@ INCLUDE(CPack)
 OPTION(BUILD_TESTS "Enable automatic testing" False)
 IF (BUILD_TESTS)
 	#todo: check that all tools necessary for sh scripts exists
+	FIND_PROGRAM(SHELL_CMD NAMES sh bash
+          DOC "Shell scripts interpretator command")
         MESSAGE(STATUS "Build tests")
         ENABLE_TESTING()# Force "make test" to works
         ADD_SUBDIRECTORY(tests)

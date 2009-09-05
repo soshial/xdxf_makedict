@@ -50,7 +50,7 @@ TARGET_LINK_LIBRARIES(t_normalize
 
 ADD_TEST(t_normalize ${EXECUTABLE_OUPUT_PATH}/t_normalize)
 
-ADD_TEST(t_dslparser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_dslparser.sh"
+ADD_TEST(t_dslparser "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_dslparser.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}/..")
 
 ADD_EXECUTABLE(t_xml
@@ -61,33 +61,33 @@ TARGET_LINK_LIBRARIES(t_xml
 	${GLIB2_LIBRARIES} ${EXPAT_LIBRARIES})
 ADD_TEST(t_xml ${EXECUTABLE_OUPUT_PATH}/t_xml)
 
-ADD_TEST(t_stardict_parser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_stardict_parser.sh"
+ADD_TEST(t_stardict_parser "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_stardict_parser.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_xdxfgenerator "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_xdxfgenerator.sh"
+ADD_TEST(t_xdxfgenerator "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_xdxfgenerator.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_stardict "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_stardict.sh"
+ADD_TEST(t_stardict "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_stardict.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_dummy "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_dummy.sh"
+ADD_TEST(t_dummy "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_dummy.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_generator "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator.sh"
+ADD_TEST(t_generator "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_parser_error "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_error.sh"
+ADD_TEST(t_parser_error "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_error.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_parser_options "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_options.sh"
+ADD_TEST(t_parser_options "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_parser_options.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_sdict_parser "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_sdict_parser.sh"
+ADD_TEST(t_sdict_parser "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_sdict_parser.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_generator_error "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator_error.sh"
+ADD_TEST(t_generator_error "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_generator_error.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
-ADD_TEST(t_perfomance "/bin/sh" "${CMAKE_CURRENT_SOURCE_DIR}/t_perfomance.sh"
+ADD_TEST(t_perfomance "${SHELL_CMD}" "${CMAKE_CURRENT_SOURCE_DIR}/t_perfomance.sh"
 	"${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
 
