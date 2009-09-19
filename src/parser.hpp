@@ -126,7 +126,7 @@ protected:
 	bool article(const std::string& key, const std::string& val,
 		     bool keys_in_article)  ATTRIBUTE_WARN_UNUSED_RESULT;
 
-	//usefull routine for some parsers
+	//useful routine for some parsers
 	std::set<gunichar> not_valid_chars;
 	void remove_not_valid(std::string &str);
 	virtual void basename(const std::string& url);

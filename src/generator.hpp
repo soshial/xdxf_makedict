@@ -140,6 +140,7 @@ public:
 			dict_ops_ = std_dict_ops_.get();
 		dict_ops_->encode_keys(enc_key_);
 	}
+	int set_generator_options(const StringList& options);
 protected:
 	void set_format(const std::string& val)	{ format_ = val; }
 	void set_version(const std::string& val) { version_ = val; }	
@@ -147,6 +148,10 @@ protected:
 	const std::string& get_dict_info(const std::string& name) const {
 		return dict_ops_->get_dict_info(name);
 	}
+private:
+	bool parse_option(const std::string& optarg);
+protected:
+	StringMap generator_options_;
 private:
 	std::string format_;
 	std::string version_;

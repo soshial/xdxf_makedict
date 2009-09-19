@@ -79,6 +79,7 @@ private:
 	std::string line;
 	std::string name, index_language, contents_language;
 	std::string from_codeset;
+	std::string sound_ext; // sound_ext parser option
 
 	static Str2StrTable code_page_table;
 	static Str2StrTable short_lang_table;
@@ -129,6 +130,11 @@ DslParser::DslParser() :
 	parser_options_["encoding"]="";
 	parser_options_["lang_from"]="";
 	parser_options_["lang_to"]="";
+	/* sound file extension. Must be specified without dot. For example, "ogg".
+	 * If not empty string, use this extension for sound files in [s]...[/s]. 
+	 * For example, [s]wright.wav[/s] may be replaced with <rref>wright.ogg</rref>
+	 * when sound_ext is "ogg". */
+	parser_options_["sound_ext"]="";
 
 	if (!code_page_table.empty())
 		return;
@@ -181,8 +187,6 @@ DslParser::DslParser() :
 	replace_table["}}"]="-->";
 	replace_table["<<"]="<kref>";
 	replace_table[">>"]="</kref>";
-	replace_table["[s]"]="<rref>";
-	replace_table["[/s]"]="</rref>";
 	replace_table["[m]"]="";//handle errors in dsl
 	replace_table["[']"] = "<nu />'<nu />";
 	replace_table["[/']"] = "";
@@ -383,6 +387,16 @@ int DslParser::parse(const std::string& filename)
 		dirname.erase(pos, dirname.length()-pos);
 	else
 		dirname=".";
+	
+	/* Parser options
+	 * These options are needed for dsl parser only. We copy them to class members
+	 * to make access faster. If not this reason, we'd use parser_options_ map
+	 * directly. */
+	sound_ext = parser_options_["sound_ext"];
+	if(!sound_ext.empty() && sound_ext[0] == '.') {
+		StdErr << _("sound_ext option: extension must be specified without dot.\n");
+		sound_ext.erase(0, 1);
+	}
 
 	{ // parse headers
 		MapFile in;
@@ -449,7 +463,7 @@ int DslParser::print_info()
 
 	set_dict_info("lang_to", lang);
 
-	//read annotation
+	//read annotation to extract dictionary description
 	std::string anot_name = basename + ".ann";
 	if (is_file_exist(anot_name)) {
 		StdErr.printf(_("Reading: %s\n"), anot_name.c_str());
@@ -490,7 +504,7 @@ int DslParser::print_info()
 		}
 
 		// convert end-of-line to unix style
-		Str2StrTable end_of_line;
+		ReplaceStrTable end_of_line;
 		end_of_line["\r\n"]="\n";
 		end_of_line["\n\r"]="\n";
 		std::string new_convstr;
@@ -777,8 +791,8 @@ bool DslParser::read_keys(MapFile& in, const CharsetConv& conv,
 	return true;
 }
 
-/* find parts of the article containing trunscriptions [t]<trunscription>[\t] or 
-\\[[t]<trunscription>[\t]\\] and convert them from ipa to utf. 
+/* find parts of the article containing transcriptions [t]<transcription>[\t] or 
+\\[[t]<transcription>[\t]\\] and convert them from ipa to utf. 
 The result is in the datastr parameter. */
 bool DslParser::encode_article(CharsetConv& conv, std::string& datastr)
 {
@@ -858,6 +872,25 @@ void DslParser::article2xdxf(StringList& key_list, std::string& datastr)
 						p = closed_braket + 1;
 					else
 						StdErr << _("Tag [lang didn't closed\n");
+				} else if(strncmp(p, "[s]", sizeof("[s]")-1)==0) {
+					// q - begin of tag contents
+					const char *q = p + sizeof("[s]")-1;
+					const char *close_tag = strstr(q, "[/s]");
+					if(close_tag) {
+						std::string sound_file(q, close_tag-q);
+						if(!sound_ext.empty()) {
+							size_t pos = sound_file.find_last_of('.');
+							if(pos == std::string::npos) {
+								sound_file += '.';
+								sound_file += sound_ext;
+							} else {
+								sound_file.replace(pos + 1, std::string::npos, sound_ext);
+							}
+						}
+						resstr += std::string("<rref>") + sound_file + "</rref>";
+						p = close_tag + sizeof("[/s]") - 1;
+					} else
+						StdErr << _("Tag [s] is not closed\n");
 				} else {
 					if (!norm_tags.add_open_tag(resstr, p))
 						goto end_of_handle;

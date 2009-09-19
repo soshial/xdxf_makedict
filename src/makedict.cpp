@@ -57,6 +57,7 @@ private:
 	StringMap input_codecs;
 	StringMap output_codecs;
 	StringList parser_options_;
+	StringList generator_options_;
 	std::string workdir_;
 	std::string input_format_, output_format_;
 	Logger logger_;
@@ -70,18 +71,51 @@ private:
 	void list_codecs();
 	void unknown_input_format(const std::string& format = "");
 	void unknown_output_format(const std::string& format = "");
-	std::string parser_options();
+	std::string parser_options_str();
+	std::string generator_options_str();
+	static void convert_options(gchar **popts, StringList& options);
 };
 
 static int width_of_first(const StringMap &, const StringList&);
 
-std::string MakeDict::parser_options()
+std::string MakeDict::parser_options_str()
 {
 	std::string res;
 	for (StringList::const_iterator it = parser_options_.begin();
 	     it != parser_options_.end(); ++it)
 		res += std::string(" ") + "--parser-option \"" + *it +"\"";
 	return res;
+}
+
+std::string MakeDict::generator_options_str()
+{
+	std::string res;
+	for (StringList::const_iterator it = generator_options_.begin();
+	     it != generator_options_.end(); ++it)
+		res += std::string(" ") + "--generator-option \"" + *it +"\"";
+	return res;
+}
+
+/* Copy a list of options specified by the popts parameter to the options list.
+ * For each option strip optional quotes or double quotes around it, 
+ * i.e. "option_name=option_value" becomes option_name=option_value. */
+void MakeDict::convert_options(gchar **popts, StringList& options)
+{
+	if(!popts)
+		return;
+	while (*popts) {
+		std::string opt = *popts;
+		size_t beg = 0, len = opt.length();
+		if (opt[0] == '"' || opt[0] == '\'')
+			++beg;
+		if (len && (opt[len - 1] == '"' ||
+					opt[len - 1] == '\''))
+			--len;
+		g_info(_("Option: %s\n"),
+					 opt.substr(beg, len - beg).c_str());
+		options.push_back(opt.substr(beg, len - beg));
+		++popts;
+	}
 }
 
 void MakeDict::list_codecs()
@@ -122,6 +156,7 @@ int MakeDict::run(int argc, char *argv[])
 	gboolean list_fmts = FALSE, show_version = FALSE;
 	glib::CharStr input_fmt, output_fmt, work_dir;
 	glib::CharStrArr parser_opts;
+	glib::CharStrArr generator_opts;
 	gint verbose = 2;
 
 	static GOptionEntry entries[] = {
@@ -138,6 +173,9 @@ int MakeDict::run(int argc, char *argv[])
 		{ "parser-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
 		  get_addr(parser_opts), _("\"option_name=option_value\""),
 		  NULL },
+		{ "generator-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
+			get_addr(generator_opts), _("\"option_name=option_value\""),
+			NULL },
 		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
 		  _("set level of verbosity"), NULL },
 		{ NULL },
@@ -203,26 +241,11 @@ int MakeDict::run(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	if (parser_opts) {
-		gchar **popts = get_impl(parser_opts);
-		while (*popts) {
-			std::string pars_opt = *popts;
-			size_t beg = 0, len = pars_opt.length();
-			if (pars_opt[0] == '"' || pars_opt[0] == '\'')
-				++beg;
-			if (len && (pars_opt[len - 1] == '"' ||
-				    pars_opt[len - 1] == '\''))
-				--len;
-			g_info(_("Parser option: %s\n"),
-			       pars_opt.substr(beg, len - beg).c_str());
-			parser_options_.push_back(pars_opt.substr(beg, len - beg));
-			++popts;
-		}
-	}
-
+	convert_options(get_impl(parser_opts), parser_options_);
+	convert_options(get_impl(generator_opts), generator_options_);
 
 	if (1 == argc) {
-		g_warning(_("You do not specify file names of dictionaries\n"
+		g_warning(_("You did not specify file names of dictionaries to convert.\n"
 			    "Use %s --help to get more information\n"), 
 			  g_get_prgname());
 		return EXIT_SUCCESS;
@@ -319,7 +342,6 @@ void MakeDict::unknown_output_format(const std::string& format)
 		StdErr << *it << "\n";
 }
 
-
 void MakeDict::unknown_input_format(const std::string& format)
 {
 	if (!format.empty())
@@ -409,10 +431,10 @@ int MakeDict::convert(const char *arg)
 	const char *ocodec = find_output_codec(output_format_);
 	if (icodec && ocodec) {
 		std::string input_cmd = std::string("'") + icodec + "' '" +
-			arg + "'" + parser_options();
+			arg + "'" + parser_options_str();
 
 		std::string output_cmd = std::string("'") + ocodec +
-			"' --work-dir '"+cur_workdir+"'";
+			"' --work-dir '" + cur_workdir + "'" + generator_options_str();
 
 		Process input_codec, output_codec;
 		if (!input_codec.run_async(input_cmd,
@@ -442,7 +464,7 @@ int MakeDict::convert(const char *arg)
 		std::auto_ptr<ParserBase> parser(create_parser(arg));
 		g_assert(parser.get());
 		std::string output_cmd = std::string("'") + ocodec +
-			"' --work-dir '"+cur_workdir+"'";
+			"' --work-dir '" + cur_workdir + "'" + generator_options_str();
 
 		Process output_codec;
 		if (!output_codec.run_async(output_cmd, Process::OPEN_PIPE_FOR_WRITE))
@@ -463,7 +485,7 @@ int MakeDict::convert(const char *arg)
 
 	} else if (icodec) {
 		std::string input_cmd = std::string("'") + icodec + "' '" +
-			arg + "'" + parser_options();
+			arg + "'" + parser_options_str();
 
 		Process input_codec;
 #ifdef DEBUG
@@ -478,6 +500,8 @@ int MakeDict::convert(const char *arg)
 		g_assert(generator.get());
 		GeneratorDictPipeOps gen_dict_ops(input_codec.output(), *generator);
 		generator->reset_ops(&gen_dict_ops);
+		if(generator->set_generator_options(generator_options_) != EXIT_SUCCESS)
+			return EXIT_FAILURE;
 
 		if (generator->run(g_get_prgname(), cur_workdir) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
@@ -499,6 +523,8 @@ int MakeDict::convert(const char *arg)
 		Connector connector(*generator, cur_workdir);
 		parser->reset_ops(&connector);
 		generator->reset_ops(&connector);
+		if(generator->set_generator_options(generator_options_) != EXIT_SUCCESS)
+			return EXIT_FAILURE;
 		if (parser->run(parser_options_, arg) != EXIT_SUCCESS)
 			return EXIT_FAILURE;
 	}

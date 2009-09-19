@@ -17,7 +17,26 @@ struct less_str {
 };
 typedef std::map<const char*, const char *, less_str> Str2StrTable;
 
-extern void replace(const Str2StrTable& replace_table,
+class ReplaceStrTable {
+public:
+	typedef std::vector<std::pair<const char *, const char *> >::iterator iterator;
+	typedef std::vector<std::pair<const char *, const char *> >::const_iterator const_iterator;
+	const char *&operator[](const char *str) {
+		for (iterator it = tbl_.begin(); it != tbl_.end(); ++it)
+			if (strcmp(it->first, str) == 0)
+				return it->second;
+		tbl_.push_back(std::make_pair(str, ""));
+		return tbl_.back().second;
+	}
+	const_iterator begin(void) const { return tbl_.begin(); }
+	const_iterator end(void) const { return tbl_.end(); }
+	bool empty(void) const { return tbl_.empty(); }
+
+private:
+	std::vector<std::pair<const char *, const char *> > tbl_;
+};
+
+extern void replace(const ReplaceStrTable& replace_table,
 		    const char *str, std::string& res);
 
 extern bool make_directory(const std::string& dir);

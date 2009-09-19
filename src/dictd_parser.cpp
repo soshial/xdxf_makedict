@@ -110,7 +110,7 @@ namespace dictd {
 		}
 	private:
 		std::vector<char> data_buffer;
-		static Str2StrTable replace_table;
+		static ReplaceStrTable replace_table;
 	};
 
 	REGISTER_PARSER(Parser, dictd);
@@ -118,7 +118,7 @@ namespace dictd {
 
 using namespace dictd;
 
-Str2StrTable Parser::replace_table;
+ReplaceStrTable Parser::replace_table;
 
 Parser::Parser()
 {

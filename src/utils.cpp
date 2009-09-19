@@ -43,7 +43,7 @@ bool make_directory(const std::string& dir)
 	return true;
 }
 
-void replace(const Str2StrTable& replace_table,
+void replace(const ReplaceStrTable& replace_table,
 	     const char *str, std::string& res)
 {
 	res.resize(0);//may be this helps to clear string without freeing memory
@@ -51,7 +51,7 @@ void replace(const Str2StrTable& replace_table,
 
 	while (*p) {
 		const char *beg=p;
-		Str2StrTable::const_iterator i;
+		ReplaceStrTable::const_iterator i;
 		for (i=replace_table.begin(); i!=replace_table.end(); ++i) {
 			p=beg;
 			const char *q=i->first;

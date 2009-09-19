@@ -122,6 +122,7 @@ int GeneratorBase::run(int argc, char *argv[])
 	gint verbose = 2;
 	gboolean show_version = FALSE, show_fmt = FALSE;
 	glib::CharStr work_dir, basename;
+	glib::CharStrArr generator_opts;
 
 	static GOptionEntry entries[] = {
 		{ "version", 'v', 0, G_OPTION_ARG_NONE, &show_version,
@@ -134,6 +135,9 @@ int GeneratorBase::run(int argc, char *argv[])
 		  _("set level of verbosity"), NULL },
 		{ "basename", 0, 0, G_OPTION_ARG_STRING, get_addr(basename),
 		  _("base for name of newly create dictionary"), NULL },
+		{ "generator-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
+			get_addr(generator_opts), _("\"option_name=option_value\""),
+			NULL },
 		{ NULL },
 	};
 
@@ -157,11 +161,21 @@ int GeneratorBase::run(int argc, char *argv[])
 		return EXIT_SUCCESS;
 	}
 
-	if (basename) 
+	if (basename)
 		dict_ops_->set_basename(get_impl(basename));
 	std::string str_workdir;
 	if (work_dir)
 		str_workdir = get_impl(work_dir);
+
+	if (generator_opts) {
+		gchar **popts = get_impl(generator_opts);
+		while (*popts) {
+			if (!parse_option(*popts))
+				return EXIT_FAILURE;
+			++popts;
+		}
+	}
+
 	return run(argv[0], str_workdir);
 }
 
@@ -183,6 +197,36 @@ int GeneratorBase::run(const std::string& appname, std::string& workdir)
 	if (!dict_ops_->get_info())
 		return EXIT_FAILURE;
 	return generate();
+}
+
+int GeneratorBase::set_generator_options(const StringList& options)
+{
+	for (StringList::const_iterator it = options.begin();
+	     it != options.end(); ++it)
+		if (!parse_option(*it))
+			return EXIT_FAILURE;
+	return EXIT_SUCCESS;
+}
+
+bool GeneratorBase::parse_option(const std::string& optarg)
+{
+	std::vector<std::string> l = split(optarg, '=');
+	if (l.size() != 2) {
+		StdErr <<
+			_("Invalid usage of generator-option: didn't find '=' in option\n");
+		return false;
+	}
+	StringMap::iterator opt_ptr = generator_options_.find(l[0]);
+	if (opt_ptr == generator_options_.end()) {
+		StdErr.printf(_("Invalid generator option: %s\nPossible options:\n"),
+			      optarg.c_str());
+		for (StringMap::iterator it = generator_options_.begin();
+		     it != generator_options_.end(); ++it)
+			StdErr << it->first << "\n";
+		return false;
+	}
+	opt_ptr->second = l[1];
+	return true;
 }
 
 void GeneratorDictPipeOps::set_dict_info(const std::string& name, const std::string& val)

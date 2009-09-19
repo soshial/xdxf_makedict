@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-//$Id$
-
 /**
  * @file stardict_generator.cpp
  * StarDict dictionaries generator
@@ -47,12 +45,7 @@
 namespace {
 	class StarDictGenerator : public GeneratorBase {
 	public:
-		StarDictGenerator(): GeneratorBase(true) {
-			set_format("stardict");
-			set_version(_("stardict_generator, version 0.2"));
-			cur_off_ = 0;
-			keys_list.reserve(20000);
-		}
+		StarDictGenerator();
 		~StarDictGenerator() {
 			for (std::vector<Key>::iterator p=keys_list.begin();
 			     p!=keys_list.end(); ++p)
@@ -120,10 +113,22 @@ namespace {
 	REGISTER_GENERATOR(StarDictGenerator, stardict);
 
 
+	StarDictGenerator::StarDictGenerator()
+	:
+		GeneratorBase(true) 
+	{
+		set_format("stardict");
+		set_version(_("stardict_generator, version 0.2"));
+		cur_off_ = 0;
+		keys_list.reserve(20000);
+		generator_options_["stardict_ver"]="2.4.2";
+	}
+
 	bool StarDictGenerator::on_prepare_generator(const std::string& workdir,
 						     const std::string& bname)
 	{
-		std::string basename = "stardict-" + bname + "-2.4.2";
+		std::string basename = "stardict-" + bname + "-"
+			+ generator_options_["stardict_ver"];
 		std::string dirname = workdir + G_DIR_SEPARATOR + basename;
 
 		if (!make_directory(dirname))
@@ -255,7 +260,7 @@ namespace {
 		g_message(_("Writing meta-info to %s\n"), filename.c_str());
 
 		f << "StarDict's dict ifo file\n"
-		  << "version=2.4.2\n"
+		  << "version=" << generator_options_["stardict_ver"] << "\n"
 		  << "wordcount=" << wordcount << "\n"
 		  << "idxfilesize=" << idx_file_size << "\n";
 
@@ -267,15 +272,18 @@ namespace {
 		f<<"date="<<get_current_date()<<"\n"
 		 <<"sametypesequence=x\n";
 
+		// handle new lines in description
+		std::string descr2;
+		ReplaceStrTable newline_tbl;
+		//order is important
+		newline_tbl["\r\n"] = "<br>";//DOS, OS/2, Microsoft Windows, Symbian OS
+		newline_tbl["\r"] = "<br>";//Mac OS up to version 9
+		newline_tbl["\n"] = "<br>";//Unix and Unix-like systems
+		replace(newline_tbl, get_dict_info("description").c_str(), descr2);
+		xml::decode(descr2);
 
-		Str2StrTable newline_tbl;
-		newline_tbl["\n"]=" ";
-		newline_tbl["\r"]=" ";
-		std::string descr;
-		replace(newline_tbl, get_dict_info("description").c_str(), descr);
-		xml::decode(descr);
-		if (!descr.empty())
-			f << "description=" << descr << "\n";
+		if (!descr2.empty())
+			f << "description=" << descr2 << "\n";
 
 		return true;
 	}
