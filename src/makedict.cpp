@@ -18,8 +18,6 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-//$Id$
-
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
@@ -370,7 +368,7 @@ const char *MakeDict::find_input_codec(const std::string &url)
 			std::string cmd = it->second + " --is-your-format '" + url + "'";
 			std::string output;
 			if (!Process::run_cmd_line_sync(cmd, output))
-				g_message(_("Cat not execute command `%s': %s\n"),
+				g_message(_("Can not execute command `%s': %s\n"),
 					      cmd.c_str(), strerror(errno));				
 			else
 				return it->second.c_str();
