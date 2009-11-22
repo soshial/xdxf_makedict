@@ -281,6 +281,8 @@ int ParserBase::do_run(const std::string& url)
 {
 	basename(url);
 	int res = parse(url);
+	if (res != EXIT_SUCCESS)
+	  return res;
 	if (generate_xdxf_)
 		if (!dict_ops_->end())
 			return EXIT_FAILURE;
