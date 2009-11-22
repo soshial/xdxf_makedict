@@ -117,16 +117,19 @@ bool Process::wait(int &res)
 	return true;
 }
 
-bool Process::run_cmd_line_sync(const std::string& cmd,
-				std::string& output)
+Process::ResultValue Process::run_cmd_line_sync(const std::string& cmd,
+						std::string& output,
+						GError **err)
 {
 	output.clear();
 	gchar *std_error = NULL;
 	gchar *std_output = NULL;
 	gint exit_status;
+
 	if (!g_spawn_command_line_sync(cmd.c_str(), &std_output, &std_error,
-				       &exit_status, NULL))
-		return false;
+				       &exit_status, err))
+	  return rvEXEC_FAILED;
+
 #ifdef _WIN32
 	if (exit_status == EXIT_SUCCESS) {
 #else
@@ -137,8 +140,8 @@ bool Process::run_cmd_line_sync(const std::string& cmd,
 			--len;
 		std_output[len]='\0';
 		output = std_output;
-		return true;
+		return rvEXIT_SUCCESS;
 	}
 
-	return false;
+	return rvEXIT_FAILURE;
 }

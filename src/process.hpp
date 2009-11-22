@@ -17,8 +17,13 @@ public:
 	bool wait(int &res);
 	File& input() { return input_; }
 	File& output() { return output_; }
-	static bool run_cmd_line_sync(const std::string& cmd,
-				      std::string& output);
+	enum ResultValue {
+	  rvEXIT_SUCCESS = EXIT_SUCCESS,
+	  rvEXIT_FAILURE = EXIT_FAILURE,
+	  rvEXEC_FAILED = (EXIT_FAILURE + EXIT_SUCCESS) * 2
+	};
+	static ResultValue run_cmd_line_sync(const std::string& cmd,
+					     std::string& output, GError **err);
 private:
 	File input_, output_;
 	GPid pid_;

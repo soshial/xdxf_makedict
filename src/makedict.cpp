@@ -95,7 +95,7 @@ std::string MakeDict::generator_options_str()
 }
 
 /* Copy a list of options specified by the popts parameter to the options list.
- * For each option strip optional quotes or double quotes around it, 
+ * For each option strip optional quotes or double quotes around it,
  * i.e. "option_name=option_value" becomes option_name=option_value. */
 void MakeDict::convert_options(gchar **popts, StringList& options)
 {
@@ -146,7 +146,7 @@ void MakeDict::list_codecs()
 
 
 int MakeDict::run(int argc, char *argv[])
-{	
+{
 #ifdef HAVE_LOCALE_H
 	setlocale(LC_ALL, "");
 #endif
@@ -244,7 +244,7 @@ int MakeDict::run(int argc, char *argv[])
 
 	if (1 == argc) {
 		g_warning(_("You did not specify file names of dictionaries to convert.\n"
-			    "Use %s --help to get more information\n"), 
+			    "Use %s --help to get more information\n"),
 			  g_get_prgname());
 		return EXIT_SUCCESS;
 	}
@@ -260,7 +260,7 @@ int MakeDict::run(int argc, char *argv[])
 
 static bool start_cmd(const std::string& cmd, std::string& res)
 {
-	return Process::run_cmd_line_sync(cmd, res);
+	return Process::run_cmd_line_sync(cmd, res, NULL) == Process::rvEXIT_SUCCESS;
 }
 
 bool MakeDict::fill_codecs_table(const std::string& prgname,
@@ -357,21 +357,26 @@ void MakeDict::unknown_input_format(const std::string& format)
 }
 
 const char *MakeDict::find_input_codec(const std::string &url)
-{	
+{
 	if (!input_format_.empty()) {
 		StringMap::const_iterator it = input_codecs.find(input_format_);
 		if (it != input_codecs.end())
 			return it->second.c_str();
 	} else {
 		for (StringMap::iterator it = input_codecs.begin();
-		     it != input_codecs.end(); ++it) {			
+		     it != input_codecs.end(); ++it) {
 			std::string cmd = it->second + " --is-your-format '" + url + "'";
 			std::string output;
-			if (!Process::run_cmd_line_sync(cmd, output))
+			glib::Error gerr;
+			switch (Process::run_cmd_line_sync(cmd, output, get_addr(gerr))) {
+			case Process::rvEXEC_FAILED:
 				g_message(_("Can not execute command `%s': %s\n"),
-					      cmd.c_str(), strerror(errno));				
-			else
+					      cmd.c_str(), gerr->message);
+			case Process::rvEXIT_SUCCESS:
 				return it->second.c_str();
+			default:
+				/*ignore*/break;
+			}
 		}
 	}
 
