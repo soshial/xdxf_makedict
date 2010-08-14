@@ -80,6 +80,8 @@ private:
 	std::string name, index_language, contents_language;
 	std::string from_codeset;
 	std::string sound_ext; // sound_ext parser option
+	// sound file name conversion
+	enum { svLower, svUpper, svNothing } sound_name_convert;
 
 	static Str2StrTable code_page_table;
 	static Str2StrTable short_lang_table;
@@ -122,6 +124,7 @@ DslParser::DslParser() :
 	ipa_to_unicode_(ipa_to_unicode_tbl().first, ipa_to_unicode_tbl().second)
 {
 	not_close_comment=false;
+	sound_name_convert=svNothing;
 
 	set_parser_info("format", "dsl");
 	set_parser_info("version", "dsl_parser, version 0.1");
@@ -135,6 +138,8 @@ DslParser::DslParser() :
 	 * For example, [s]wright.wav[/s] may be replaced with <rref>wright.ogg</rref>
 	 * when sound_ext is "ogg". */
 	parser_options_["sound_ext"]="";
+	/* convert sound file name. Possible values: lower, upper. */
+	parser_options_["sound_name_convert"]="";
 
 	if (!code_page_table.empty())
 		return;
@@ -396,6 +401,17 @@ int DslParser::parse(const std::string& filename)
 	if(!sound_ext.empty() && sound_ext[0] == '.') {
 		StdErr << _("sound_ext option: extension must be specified without dot.\n");
 		sound_ext.erase(0, 1);
+	}
+	if(parser_options_["sound_name_convert"] == "lower")
+		sound_name_convert = svLower;
+	else if(parser_options_["sound_name_convert"] == "upper")
+		sound_name_convert = svUpper;
+	else if(parser_options_["sound_name_convert"] == "")
+		sound_name_convert = svNothing;
+	else {
+		sound_name_convert = svNothing;
+		StdErr << _("sound_name_convert option: unsupported conversion. "
+			"Supported conversions are: lower, upper.\n");
 	}
 
 	{ // parse headers
@@ -886,6 +902,13 @@ void DslParser::article2xdxf(StringList& key_list, std::string& datastr)
 							} else {
 								sound_file.replace(pos + 1, std::string::npos, sound_ext);
 							}
+						}
+						if(sound_name_convert == svLower) {
+							glib::CharStr temp(g_utf8_strdown(sound_file.c_str(), -1));
+							sound_file = get_impl(temp);
+						} else if(sound_name_convert == svUpper) {
+							glib::CharStr temp(g_utf8_strup(sound_file.c_str(), -1));
+							sound_file = get_impl(temp);
 						}
 						resstr += std::string("<rref>") + sound_file + "</rref>";
 						p = close_tag + sizeof("[/s]") - 1;
