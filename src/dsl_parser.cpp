@@ -88,6 +88,13 @@ private:
 	static Str2StrTable replace_table;
 
 	std::map<gunichar, std::string> ipa_to_unicode_;
+#ifdef DEBUG_IPA
+	File ipa_dump;
+	guint32 lineoffset; // offset of the beginning of the current line
+	guint32 articlelinenum; // line of the beginning of the article
+	guint32 articleoffset; // offset of the beginning of the article
+	std::string articlekey;
+#endif
 	char *end_of_file;
 	bool not_close_comment;
 
@@ -140,6 +147,10 @@ DslParser::DslParser() :
 	parser_options_["sound_ext"]="";
 	/* convert sound file name. Possible values: lower, upper. */
 	parser_options_["sound_name_convert"]="";
+#ifdef DEBUG_IPA
+	/* when specified, dump IPA data into this file */
+	parser_options_["ipa_dump_file"]="";
+#endif
 
 	if (!code_page_table.empty())
 		return;
@@ -262,26 +273,43 @@ DslParser::DslParser() :
 
 void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
 {
-	std::map<gunichar, std::string>::const_iterator it;	
+	std::map<gunichar, std::string>::const_iterator it;
 	gunichar ch;
 	char buf[7];
 
-	while (*p && p < end) {
-		ch = g_utf8_get_char(p);
-//#define DEBUG_IPA
 #ifdef DEBUG_IPA
+	if(ipa_dump) {
+		ipa_dump.printf("%s\nline %u, offset = 0x%x\n", articlekey.c_str(), articlelinenum, articleoffset);
+		const char* q=p;
+		while(*q && q < end) {
+			ch = g_utf8_get_char(q);
+			ipa_dump.printf("%04llX ", (unsigned long long)ch);
+			q = g_utf8_next_char(q);
+		}
+		ipa_dump << "\n\n";
+	}
+	int charnum=-1;
+#endif
+
+	while (*p && p < end) {
+#ifdef DEBUG_IPA
+		++charnum;
+#endif
+		ch = g_utf8_get_char(p);
+#if 0
 		g_debug("%s: before %llX\n", __FUNCTION__, (unsigned long long)ch);
 #endif
 		it = ipa_to_unicode_.find(ch);
 
 		if (it != ipa_to_unicode_.end()) {
 			resstr += it->second;
-#ifdef DEBUG_IPA
+#if 0
 			g_debug("%s: converted: %s\n", __FUNCTION__, it->second.c_str());
 #endif
 		} else {
 #ifdef DEBUG_IPA
-			g_debug("%s: not changed %llX\n", __FUNCTION__);
+			g_print("unknown IPA code. Article line %u, offset 0x%x, char num %u, IPA code 0x%llX\n",
+				articlelinenum, articleoffset, charnum, (unsigned long long)ch);
 #endif
 			buf[g_unichar_to_utf8(ch, buf)] = '\0';
 			resstr += buf;
@@ -300,7 +328,7 @@ inline bool DslParser::long_to_short(std::string& longlang,
 	tolower(longlang);
 	Str2StrTable::iterator lang=short_lang_table.find(longlang.c_str());
 	if (lang==short_lang_table.end()) {
-		StdErr.printf(_("Unknwon language %s\nPossible languages:\n"), longlang.c_str());
+		StdErr.printf(_("Unknown language %s\nPossible languages:\n"), longlang.c_str());
 
 		for (lang=short_lang_table.begin(); lang!=short_lang_table.end(); ++lang)
 			StdErr << lang->first << "\t";
@@ -413,6 +441,11 @@ int DslParser::parse(const std::string& filename)
 		StdErr << _("sound_name_convert option: unsupported conversion. "
 			"Supported conversions are: lower, upper.\n");
 	}
+#ifdef DEBUG_IPA
+	if(!parser_options_["ipa_dump_file"].empty()) {
+		ipa_dump.reset(fopen(parser_options_["ipa_dump_file"].c_str(), "wb"));
+	}
+#endif
 
 	{ // parse headers
 		MapFile in;
@@ -548,6 +581,9 @@ bool DslParser::getline(MapFile& in)
 {
 reread_line:
 	++linenum;
+#ifdef DEBUG_IPA
+	lineoffset = in.cur - in.begin();
+#endif
 	line.clear();
 
 	if (!utf16) {
@@ -1003,6 +1039,12 @@ void DslParser::article2xdxf(StringList& key_list, std::string& datastr)
 int DslParser::parse(MapFile& in, bool only_info, bool abr)
 {
 	linenum = 0;
+#ifdef DEBUG_IPA
+	lineoffset = 0;
+	articlelinenum = 0;
+	articleoffset = 0;
+	articlekey.clear();
+#endif
 
 	end_of_file=in.end();
 
@@ -1034,9 +1076,16 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 	do {
 		/* The line contains the first key of the article. */
 		StringList key_list;
+#ifdef DEBUG_IPA
+		articlelinenum = linenum;
+		articleoffset = lineoffset;
+#endif
 
 		if (!read_keys(in, conv, key_list))
 			return res;
+#ifdef DEBUG_IPA
+		articlekey = key_list[0];
+#endif
 
 		// Now contents of the article. Each line must start with a space or tab
 		if (!in && line[0]!='\t' && line[0]!=' ')

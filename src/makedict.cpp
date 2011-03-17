@@ -223,7 +223,7 @@ int MakeDict::run(int argc, char *argv[])
 	}
 
 	if (show_version) {
-		StdOut.printf(_("Utiltity for creating dictionaries, %s\n"), VERSION);
+		StdOut.printf(_("Utility for creating dictionaries, %s\n"), VERSION);
 		return EXIT_SUCCESS;
 	}
 	if (list_fmts) {
