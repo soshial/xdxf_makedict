@@ -67,17 +67,17 @@ std::pair<UniToStrPair *, UniToStrPair *> ipa_to_unicode_tbl()
 		ipa_to_unicode_make_pair(0x002D,  0x002D), // -
 		ipa_to_unicode_make_pair(0x002E,  0x002E), // .
 		ipa_to_unicode_make_pair(0x002F,  0x002F), // /
-		ipa_to_unicode_make_pair(0x0030,  0x00DF), // ?
-		ipa_to_unicode_make_pair(0x0031,  0x0065, 0x0303), // ?
+		ipa_to_unicode_make_pair(0x0030,  0x00DF), // ß ?
+		ipa_to_unicode_make_pair(0x0031,  0x0065, 0x0303), // ẽ ?
 		ipa_to_unicode_make_pair(0x0032,  0x025C), // ɜ
-		ipa_to_unicode_make_pair(0x0033,  0x0069, 0x0303), // ?
-		ipa_to_unicode_make_pair(0x0034,  0x006F, 0x0303), // ?
-		ipa_to_unicode_make_pair(0x0035,  0x0075, 0x0303), // ?
-		ipa_to_unicode_make_pair(0x0036,  0x028E), // ?
-		ipa_to_unicode_make_pair(0x0037,  0x0263), // ?
+		ipa_to_unicode_make_pair(0x0033,  0x0069, 0x0303), // ĩ ?
+		ipa_to_unicode_make_pair(0x0034,  0x006F, 0x0303), // õ ?
+		ipa_to_unicode_make_pair(0x0035,  0x0075, 0x0303), // ũ ?
+		ipa_to_unicode_make_pair(0x0036,  0x028E), // ʎ ?
+		ipa_to_unicode_make_pair(0x0037,  0x0263), // ɣ ?
 		ipa_to_unicode_make_pair(0x0038,  0x026A), // e
 		ipa_to_unicode_make_pair(0x003A,  0x20D0), // ː
-		ipa_to_unicode_make_pair(0x003B,  0x003B), // ?
+		ipa_to_unicode_make_pair(0x003B,  0x003B), // ; ?
 		ipa_to_unicode_make_pair(0x006F,  0x006F), // o
 		ipa_to_unicode_make_pair(0x0078,  0x0078), // x
 		ipa_to_unicode_make_pair(0x0079,  0x0079), // y
@@ -122,7 +122,7 @@ std::pair<UniToStrPair *, UniToStrPair *> ipa_to_unicode_tbl()
 		ipa_to_unicode_make_pair(0x044C,  0x0251, 0x0303), // ɑ̃
 		ipa_to_unicode_make_pair(0x044D,  0x026A), // ɪ
 		ipa_to_unicode_make_pair(0x044E,  0x025C, 0x02D0), // ɜː
-		ipa_to_unicode_make_pair(0x044F,  0x0252), // ?
+		ipa_to_unicode_make_pair(0x044F,  0x0252), // ɒ ?
 		ipa_to_unicode_make_pair(0x0452,  0x0076), // v
 		ipa_to_unicode_make_pair(0x0453,  0x0075, 0x02D0), // uː
 		ipa_to_unicode_make_pair(0x0454,  0x0254, 0x035C, 0x00F8), // ɔ͜ø
@@ -135,7 +135,7 @@ std::pair<UniToStrPair *, UniToStrPair *> ipa_to_unicode_tbl()
 		ipa_to_unicode_make_pair(0x0491,  0x025b), // ɛ
 		ipa_to_unicode_make_pair(0x2018,  0x0251), // ɑ
 		ipa_to_unicode_make_pair(0x201a,  0x0254, 0x02D0), // ɔː
-		ipa_to_unicode_make_pair(0x201e,  0x0259), // ?
+		ipa_to_unicode_make_pair(0x201e,  0x0259), // ə ?
 		ipa_to_unicode_make_pair(0x2020,  0x0259), // ə
 		ipa_to_unicode_make_pair(0x2021,  0x00e6), // æ
 		ipa_to_unicode_make_pair(0x2026,  0x028c), // ʌ
