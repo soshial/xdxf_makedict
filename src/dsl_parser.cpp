@@ -308,8 +308,9 @@ void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& re
 #endif
 		} else {
 #ifdef DEBUG_IPA
-			g_print("unknown IPA code. Article line %u, offset 0x%x, char num %u, IPA code 0x%llX\n",
-				articlelinenum, articleoffset, charnum, (unsigned long long)ch);
+			g_print("unknown IPA code. Article line %u, offset 0x%x, char num %u, IPA code 0x%llX\n"
+				"key: %s\n",
+				articlelinenum, articleoffset, charnum, (unsigned long long)ch, articlekey.c_str());
 #endif
 			buf[g_unichar_to_utf8(ch, buf)] = '\0';
 			resstr += buf;
@@ -384,10 +385,10 @@ void DslParser::parse_abbrs(const std::string& dirname,
 		map_file.open(it->c_str());
 
 		if (map_file) {
-			StdErr.printf(_("Parse file with abbrevations: %s\n"), it->c_str());
+			StdErr.printf(_("Parse file with abbreviations: %s\n"), it->c_str());
 			name=index_language=contents_language=from_codeset="";
 			if (parse(map_file, false, true) != EXIT_SUCCESS) {
-				StdErr << _("Error during parse abbrevation this file: ")
+				StdErr << _("Error during parse abbreviation this file: ")
 				     << *it << "\n";
 				break;
 			}
