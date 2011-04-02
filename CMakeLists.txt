@@ -94,7 +94,7 @@ SET(makedict_SRCS
 	src/dsl_parser.cpp
 	src/dummy_generator.cpp
 	src/dummy_parser.cpp
-	src/langs_2to3.cpp
+	src/lang_tbl.cpp
 	src/mapfile.cpp
 	src/normalize_tags.cpp
 	src/sdict_parser.cpp
@@ -115,7 +115,7 @@ SET(makedict_HDRS
 	src/xml.hpp
 	src/charset_conv.hpp
 	src/dsl_ipa.hpp
-	src/langs_2to3.hpp
+	src/lang_tbl.hpp
 	src/mapfile.hpp
 	src/normalize_tags.hpp
 	src/repository.hpp

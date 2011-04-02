@@ -34,7 +34,7 @@
 #include <zlib.h>
 
 
-#include "langs_2to3.hpp"
+#include "lang_tbl.hpp"
 #include "normalize_tags.hpp"
 #include "utils.hpp"
 #include "file.hpp"
@@ -144,17 +144,27 @@ std::string Parser::convert_lang(const char *lang, size_t len)
 		len = res - lang;
 	std::string buf(lang, len);
 
-	tolower(buf);
+	tolower_ascii(buf);
 
 	StringMap::const_iterator it = langs_.find(buf);
 	if (it == langs_.end())
-		return "unkown language: " + buf;
+		return "unknown language: " + buf;
 
 	return it->second;
 }
 
-Parser::Parser() : langs_(langs_2to3, langs_2to3 + langs_2to3_count)
+Parser::Parser()
 {
+	// fill langs_ map
+	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
+		if(!p->code2[0])
+			continue;
+		std::string code2(p->code2);
+		std::string code3(p->code3);
+		tolower_ascii(code2);
+		toupper_ascii(code3);
+		langs_[code2] = code3;
+	}
 	set_parser_info("format", "sdict");
 	set_parser_info("version", "sdict_parser, version 0.2");
 
@@ -191,7 +201,7 @@ Parser::Parser() : langs_(langs_2to3, langs_2to3 + langs_2to3_count)
 	replace_table["<li>"]="";
 	replace_table["</li>"]="";
 
-	//FIXME: find out what it form of word and change to aporopriate tag
+	//FIXME: find out what it form of word and change to appropriate tag
 	replace_table["<f>"]="";
 	replace_table["</f>"]="";
 	replace_table["&Icirc;"]="Î";
@@ -299,7 +309,7 @@ int Parser::parse(const std::string& filename)
 	case cmBZIP2:
 		//break; //TODO: bzip2 not supported yet
 	default:
-		StdErr.printf(_("Unkown compression method: %d\n"),
+		StdErr.printf(_("Unknown compression method: %d\n"),
 			      int(header.compress_method_));
 		return EXIT_FAILURE;
 	}

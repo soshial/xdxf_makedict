@@ -41,9 +41,14 @@ extern void replace(const ReplaceStrTable& replace_table,
 
 extern bool make_directory(const std::string& dir);
 
-static inline void tolower(std::string& str)
+static inline void tolower_ascii(std::string& str)
 {
 	std::transform(str.begin(), str.end(), str.begin(), g_ascii_tolower);
+}
+
+static inline void toupper_ascii(std::string& str)
+{
+	std::transform(str.begin(), str.end(), str.begin(), g_ascii_toupper);
 }
 
 static inline bool is_file_exist(const std::string& file)

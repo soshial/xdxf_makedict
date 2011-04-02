@@ -41,6 +41,7 @@
 #include "file.hpp"
 #include "xml.hpp"
 #include "resource.hpp"
+#include "lang_tbl.hpp"
 
 #include "parser.hpp"
 
@@ -84,7 +85,6 @@ private:
 	enum { svLower, svUpper, svNothing } sound_name_convert;
 
 	static Str2StrTable code_page_table;
-	static Str2StrTable short_lang_table;
 	static Str2StrTable replace_table;
 
 	std::map<gunichar, std::string> ipa_to_unicode_;
@@ -101,7 +101,7 @@ private:
 	bool getline(MapFile& in);
 	enHeaderTags is_line_has_tag(void);
 	bool get_tag_value(const char* tag_name, std::string& value);
-	static bool long_to_short(std::string& longlang, std::string& shortlang);
+	static bool long_to_short(const std::string& longlang, std::string& shortlang);
 	bool determine_file_encoding(MapFile& in);
 
 	//this is a real function which parse file,
@@ -124,7 +124,6 @@ REGISTER_PARSER(DslParser,dsl);
 
 Str2StrTable DslParser::code_page_table;
 Str2StrTable DslParser::replace_table;
-Str2StrTable DslParser::short_lang_table;
 TagInfoList DslParser::taginfo_list;
 
 DslParser::DslParser() : 
@@ -157,36 +156,6 @@ DslParser::DslParser() :
 	code_page_table["Latin"]="CP1252";
 	code_page_table["Cyrillic"]="CP1251";
 	code_page_table["EasternEuropean"]="CP1250";
-
-	short_lang_table["afrikaans"]="AFR";
-	short_lang_table["basque"]="BAQ";
-	short_lang_table["belarusian"]="BEL";
-	short_lang_table["bulgarian"]="BUL";
-	short_lang_table["czech"]="CZE";
-	short_lang_table["danish"]="DAN";
-	short_lang_table["dutch"]="DUT";
-	short_lang_table["english"]="ENG";
-	short_lang_table["finnish"]="FIN";
-	short_lang_table["french"]="FRA";
-	short_lang_table["german"]="GER";
-	short_lang_table["germannewspelling"]="GER";
-	short_lang_table["hungarian"]="HUN";
-	short_lang_table["indonesian"]="IND";
-	short_lang_table["italian"]="ITA";
-	short_lang_table["norwegianbokmal"]="NOB";
-	short_lang_table["norwegiannynorsk"]="NNO";
-	short_lang_table["polish"]="POL";
-	short_lang_table["portuguesestandard"]="POR";
-	short_lang_table["russian"]="RUS";
-	short_lang_table["serbiancyrillic"]="SCC";
-	short_lang_table["spanishmodernsort"]="SPA";
-	short_lang_table["spanishtraditionalsort"]="SPA";
-	short_lang_table["swahili"]="SWA";
-	short_lang_table["swedish"]="SWE";
-	short_lang_table["ukrainian"]="UKR";
-	short_lang_table["chinese"] = "CHI";
-	short_lang_table["latin"] = "LAT";
-	short_lang_table["turkish"] = "TUR";
 
 #if 0
 	replace_table["[ref]"]="<kref>";
@@ -321,24 +290,32 @@ void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& re
 
 }
 
-//convert from Long language name, like English
-//to short, like eng
-inline bool DslParser::long_to_short(std::string& longlang,
+/* convert from Long language name, like English
+ * to short, like eng
+ * This function is relatively computation-intensive,
+ * but this is not a problem since it's normally called only 8 times
+ * per a dictionary.
+*/
+bool DslParser::long_to_short(const std::string& longlang,
 				      std::string& shortlang)
 {
-	tolower(longlang);
-	Str2StrTable::iterator lang=short_lang_table.find(longlang.c_str());
-	if (lang==short_lang_table.end()) {
-		StdErr.printf(_("Unknown language %s\nPossible languages:\n"), longlang.c_str());
-
-		for (lang=short_lang_table.begin(); lang!=short_lang_table.end(); ++lang)
-			StdErr << lang->first << "\t";
-		StdErr<<"\n";
-		return false;
+	glib::CharStr longlang_fold;
+	glib::CharStr lang_fold;
+	longlang_fold.reset(g_utf8_casefold(longlang.c_str(), -1));
+	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
+		lang_fold.reset(g_utf8_casefold(p->name, -1));
+		if(strcmp(get_impl(longlang_fold), get_impl(lang_fold)) == 0) {
+			shortlang = p->code3;
+			toupper_ascii(shortlang);
+			return true;
+		}
 	}
-	shortlang=lang->second;
 
-	return true;
+	StdErr.printf(_("Unknown language %s\nPossible languages (case-insensitive):\n"), longlang.c_str());
+	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
+		StdErr << p->name << "\n";
+	}
+	return false;
 }
 
 /* Determine file encoding based on BOM. 

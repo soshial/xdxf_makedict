@@ -214,7 +214,7 @@ void tag_value(const char *&p, std::string& val)
 
     if (q>p) {
       val.assign(p, q+1-p);
-      ::tolower(val);
+      ::tolower_ascii(val);
     }
     p=closed_braket+1;
   }
