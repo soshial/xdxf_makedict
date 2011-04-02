@@ -310,11 +310,6 @@ bool DslParser::long_to_short(const std::string& longlang,
 			return true;
 		}
 	}
-
-	StdErr.printf(_("Unknown language %s\nPossible languages (case-insensitive):\n"), longlang.c_str());
-	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
-		StdErr << p->name << "\n";
-	}
 	return false;
 }
 
@@ -458,11 +453,12 @@ int DslParser::parse(const std::string& filename)
 int DslParser::print_info()
 {
 	int res=EXIT_FAILURE;
-	if (name.empty() && parser_options_["full_name"].empty()) {
+	if (!parser_options_["full_name"].empty()) {
+		name=parser_options_["full_name"];
+	}
+	if (name.empty()) {
 		StdErr<<_("NAME not defined\n");
 		return res;
-	} else if (!parser_options_["full_name"].empty()) {
-		name=parser_options_["full_name"];
 	}
 
 	set_dict_info("full_name", name);
@@ -471,7 +467,11 @@ int DslParser::print_info()
 	std::string lang;
 
 	if (index_language.empty() && parser_options_["lang_from"].empty()) {
-		StdErr<<_("INDEX_LANGUAGE not defined\n");
+		StdErr<<_("INDEX_LANGUAGE not defined.\n"
+			"To specify INDEX_LANGUAGE on command line, use lang_from option.\n"
+			"For example, --parser-option lang_from=ENG.\n"
+			"For the list of supported languages use --list-supported-languages makedict option, "
+			"you need alpha-3 code column.\n\n");
 		return res;
 	} else if (!parser_options_["lang_from"].empty()) {
 		lang=parser_options_["lang_from"];
@@ -481,7 +481,11 @@ int DslParser::print_info()
 	set_dict_info("lang_from", lang);
 	lang.clear();
 	if (contents_language.empty() && parser_options_["lang_to"].empty()) {
-		StdErr<<_("CONTENTS_LANGUAGE not defined\n");
+		StdErr<<_("CONTENTS_LANGUAGE not defined.\n"
+			"To specify CONTENTS_LANGUAGE on command line, use lang_to option.\n"
+			"For example, --parser-option lang_to=ENG.\n"
+			"For the list of supported languages use --list-supported-languages makedict option, "
+			"you need alpha-3 code column.\n\n");
 		return res;
 	} else if (!parser_options_["lang_to"].empty()) {
 		lang=parser_options_["lang_to"];
@@ -711,8 +715,13 @@ bool DslParser::parse_header(MapFile& in, CharsetConv& conv)
 			if (!get_tag_value("#INDEX_LANGUAGE", index_language))
 				return false;
 			std::string shortlang;
-			if (!long_to_short(index_language, shortlang))
-				return false;
+			if (!long_to_short(index_language, shortlang)) {
+				StdErr.printf(_("Unknown source language %s. Ignoring.\n"
+					"For the list of supported languages use --list-supported-languages makedict option, "
+					"you need English language name column.\n\n"
+					), index_language.c_str());
+				index_language = "";
+			}
 		}
 		break;
 
@@ -721,8 +730,13 @@ bool DslParser::parse_header(MapFile& in, CharsetConv& conv)
 			if (!get_tag_value("#CONTENTS_LANGUAGE", contents_language))
 				return false;
 			std::string shortlang;
-			if (!long_to_short(contents_language, shortlang))
-				return false;
+			if (!long_to_short(contents_language, shortlang)) {
+				StdErr.printf(_("Unknown target language %s. Ignoring.\n"
+					"For the list of supported languages use --list-supported-languages makedict option, "
+					"you need English language name column.\n\n"
+					), contents_language.c_str());
+				contents_language = "";
+			}
 		}
 		break;
 

@@ -41,6 +41,7 @@
 #include "parser.hpp"
 #include "resource.hpp"
 #include "utils.hpp"
+#include "lang_tbl.hpp"
 
 //#define DEBUG
 
@@ -67,6 +68,7 @@ private:
 	bool fill_codecs_table(const std::string& prgname,
 			       const std::string& dirname="");
 	void list_codecs();
+	void list_languages();
 	void unknown_input_format(const std::string& format = "");
 	void unknown_output_format(const std::string& format = "");
 	std::string parser_options_str();
@@ -144,6 +146,15 @@ void MakeDict::list_codecs()
 		StdOut.printf(_("%*s  supported by me\n"), w, it->c_str());
 }
 
+void MakeDict::list_languages()
+{
+	StdOut << _("Supported languages\n"
+			"(alpha-2 code, alpha-3 (bibliographic) code, English language name):\n"
+			"LN  LNG  Language name\n");
+	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
+		StdOut.printf("%2s  %3s  %s\n", p->code2, p->code3, p->name);
+	}
+}
 
 int MakeDict::run(int argc, char *argv[])
 {
@@ -151,7 +162,7 @@ int MakeDict::run(int argc, char *argv[])
 	setlocale(LC_ALL, "");
 #endif
 
-	gboolean list_fmts = FALSE, show_version = FALSE;
+	gboolean list_fmts = FALSE, show_version = FALSE, list_langs = FALSE;
 	glib::CharStr input_fmt, output_fmt, work_dir;
 	glib::CharStrArr parser_opts;
 	glib::CharStrArr generator_opts;
@@ -176,6 +187,8 @@ int MakeDict::run(int argc, char *argv[])
 			NULL },
 		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
 		  _("set level of verbosity"), NULL },
+		{ "list-supported-languages", 0, 0, G_OPTION_ARG_NONE, &list_langs,
+		  _("list all supported languages"), NULL },
 		{ NULL },
 	};
 
@@ -228,6 +241,10 @@ int MakeDict::run(int argc, char *argv[])
 	}
 	if (list_fmts) {
 		list_codecs();
+		return EXIT_SUCCESS;
+	}
+	if (list_langs) {
+		list_languages();
 		return EXIT_SUCCESS;
 	}
 
