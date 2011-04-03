@@ -50,6 +50,9 @@ INCLUDE(FindEXPAT)
 INCLUDE(CheckFunctionExists)
 Check_Function_Exists(mmap HAVE_MMAP)
 
+INCLUDE(CheckIncludeFile)
+CHECK_INCLUDE_FILE(locale.h HAVE_LOCALE_H)
+
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/config.h.cmake
 	${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
