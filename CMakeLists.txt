@@ -2,15 +2,16 @@ PROJECT(makedict)
 
 # Older versions have a different signature for CMAKE_MINIMUM_REQUIRED,
 # check it manually just to make sure
-IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4)
-  MESSAGE(FATAL_ERROR "${PROJECT_NAME} requires at least CMake v2.4."
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
+  MESSAGE(FATAL_ERROR "${PROJECT_NAME} requires at least CMake v2.6."
 		" You are running v${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}."
 		" Please upgrade." )
-ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.4)
+ENDIF(${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
 
 # If we get this far, use the modern signature.  This will also cause newer
 # CMake versions to try to be backwards-compatible with the desired version
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6 FATAL_ERROR)
+cmake_policy(VERSION 2.6)
 
 # Disable deprecation warnings for standard C and STL functions in VS2005
 # and later
@@ -160,11 +161,11 @@ SET(CPACK_PACKAGE_VERSION_PATCH "1-beta1")
 #GET_TARGET_PROPERTY(makedict_VERSION makedict VERSION)
 SET(makedict_VERSION
 	"${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}")
-SET(CODECSDIR "\\\"${CMAKE_INSTALL_PREFIX}/lib/makedict-codecs\\\"")
+SET(CODECSDIR "${CMAKE_INSTALL_PREFIX}/lib/makedict-codecs")
 
-ADD_DEFINITIONS(-DVERSION="\\\"${makedict_VERSION}\\\""
+ADD_DEFINITIONS(-DVERSION="${makedict_VERSION}"
 	-DCODECSDIR="${CODECSDIR}"
-	-DDUMMY_FORMAT_NAME="\\\"dummy\\\""
+	-DDUMMY_FORMAT_NAME="dummy"
 	-DHAVE_CONFIG_H)
 
 IF (DEBUG_IPA)
