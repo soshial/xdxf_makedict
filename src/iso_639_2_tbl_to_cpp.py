@@ -24,7 +24,7 @@ def convert_to_cpp_str(text):
 print \
 """/* 
  * WARNING generated automatically by
- * cat ISO-639-2_utf-8.txt | iso_639_2_tbl_to_cpp.py  > langs_tbl.cpp
+ * cat ISO-639-2_utf-8.txt | iso_639_2_tbl_to_cpp.py  > lang_tbl_auto.cpp
  * DO not edit
  *
  * To get ISO-639-2_utf-8.txt follow the link
@@ -39,7 +39,8 @@ print \
 #include <cstddef>
 #include "lang_tbl.hpp"
 
-LangTblItem lang_tbl[] = {"""
+void load_iso_639_2_langs()
+{"""
 
 contents = sys.stdin.read()
 if contents.startswith("\xEF\xBB\xBF"): # UTF-8 BOM
@@ -59,9 +60,8 @@ for line in re.split("[\r\n]+", contents):
 		if name == '':
 			continue
 		name = convert_to_cpp_str(name)
-		print "\t{{ {0}, {1}, {2} }},".format(code3, code2, name)
+		print "\tlang_tbl.push_back(LangTblItem({0}, {1}, {2}));".format(code3, code2, name)
 
 print \
-"""	{ NULL, NULL, NULL }
-};
+"""}
 """

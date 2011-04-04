@@ -149,10 +149,14 @@ void MakeDict::list_codecs()
 void MakeDict::list_languages()
 {
 	StdOut << _("Supported languages\n"
-			"(alpha-2 code, alpha-3 (bibliographic) code, English language name):\n"
-			"LN  LNG  Language name\n");
-	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
-		StdOut.printf("%2s  %3s  %s\n", p->code2, p->code3, p->name);
+			"(alpha-3 (bibliographic) code, alpha-2 code, English language name):\n"
+			"LNG  LN  Language name\n");
+	for(size_t i=0; i<lang_tbl.size(); ++i) {
+		StdOut.printf("%3s  %2s  %s\n",
+			lang_tbl[i].code3.c_str(),
+			lang_tbl[i].code2.c_str(),
+			lang_tbl[i].name.c_str()
+		);
 	}
 }
 
@@ -163,7 +167,7 @@ int MakeDict::run(int argc, char *argv[])
 #endif
 
 	gboolean list_fmts = FALSE, show_version = FALSE, list_langs = FALSE;
-	glib::CharStr input_fmt, output_fmt, work_dir;
+	glib::CharStr input_fmt, output_fmt, work_dir, lang_file;
 	glib::CharStrArr parser_opts;
 	glib::CharStrArr generator_opts;
 	gint verbose = 2;
@@ -174,21 +178,23 @@ int MakeDict::run(int argc, char *argv[])
 		{ "list-supported-formats", 'l', 0, G_OPTION_ARG_NONE, &list_fmts,
 		  _("list all supported formats"), NULL },
 		{ "input-format", 'i', 0, G_OPTION_ARG_STRING, get_addr(input_fmt),
-		  _("format of input file"), NULL },
+		  _("format of input file"), _("FORMAT") },
 		{ "output-format", 'o', 0, G_OPTION_ARG_STRING, get_addr(output_fmt),
-		  _("format of output file"), NULL },
+		  _("format of output file"), _("FORMAT") },
 		{ "work-dir", 'd', 0, G_OPTION_ARG_STRING, get_addr(work_dir),
-		  _("root directory for all created dictionaries"), NULL },
+		  _("root directory for all created dictionaries"), _("DIR") },
 		{ "parser-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
 		  get_addr(parser_opts), _("\"option_name=option_value\""),
-		  NULL },
+		  _("OPTION") },
 		{ "generator-option", 0, 0, G_OPTION_ARG_STRING_ARRAY,
 			get_addr(generator_opts), _("\"option_name=option_value\""),
-			NULL },
+			_("OPTION") },
 		{ "verbose", 0, 0, G_OPTION_ARG_INT, &verbose,
-		  _("set level of verbosity"), NULL },
+		  _("set level of verbosity"), _("LEVEL") },
 		{ "list-supported-languages", 0, 0, G_OPTION_ARG_NONE, &list_langs,
 		  _("list all supported languages"), NULL },
+		{ "language-file", 0, 0, G_OPTION_ARG_STRING, get_addr(lang_file),
+		  _("file with additional languages"), _("FILE") },
 		{ NULL },
 	};
 
@@ -234,6 +240,10 @@ int MakeDict::run(int argc, char *argv[])
 		}
 		output_format_ = get_impl(output_fmt);
 	}
+
+	load_iso_639_2_langs();
+	if(lang_file)
+		load_languages(get_impl(lang_file));
 
 	if (show_version) {
 		StdOut.printf(_("Utility for creating dictionaries, %s\n"), VERSION);

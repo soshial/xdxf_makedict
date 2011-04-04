@@ -4,6 +4,8 @@
 #ifdef HAVE_CONFIG_H
 #  include "config.h"
 #endif
+#include <string>
+#include <vector>
 
 /* Codes for the Representation of Names of Languages
  * according to ISO 639.2 standard http://www.loc.gov/standards/iso639-2/
@@ -17,17 +19,27 @@
  * To mitigate string encoding problem, all characters with codes >= 128
  * are represented with octal escape sequences. */
 struct LangTblItem {
+	LangTblItem()
+	{
+	}
+	LangTblItem(const std::string& code3_, const std::string& code2_, const std::string& name_):
+		code3(code3_), code2(code2_), name(name_)
+	{
+	}
 	// alpha-3 (bibliographic) code
-	const char* code3;
+	std::string code3;
 	// alpha-2 code, an empty string when not given
-	const char* code2;
+	std::string code2;
 	// English name
-	const char* name;
+	std::string name;
 };
 
-/* An array of languages terminated with a NULL record: { NULL, NULL, NULL }
+/* An array of languages
  * Note. One language may have a number of English names,
  * each name is contained in a separate array element. */
-extern LangTblItem lang_tbl[];
+extern std::vector<LangTblItem> lang_tbl;
+
+void load_iso_639_2_langs();
+void load_languages(const char* file_path);
 
 #endif //!_LANG_TBL_HPP_

@@ -156,11 +156,11 @@ std::string Parser::convert_lang(const char *lang, size_t len)
 Parser::Parser()
 {
 	// fill langs_ map
-	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
-		if(!p->code2[0])
+	for(size_t i=0; i<lang_tbl.size(); ++i) {
+		if(lang_tbl[i].code2.empty())
 			continue;
-		std::string code2(p->code2);
-		std::string code3(p->code3);
+		std::string code2(lang_tbl[i].code2);
+		std::string code3(lang_tbl[i].code3);
 		tolower_ascii(code2);
 		toupper_ascii(code3);
 		langs_[code2] = code3;

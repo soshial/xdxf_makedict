@@ -302,10 +302,10 @@ bool DslParser::long_to_short(const std::string& longlang,
 	glib::CharStr longlang_fold;
 	glib::CharStr lang_fold;
 	longlang_fold.reset(g_utf8_casefold(longlang.c_str(), -1));
-	for(const LangTblItem* p = lang_tbl; p->name; ++p) {
-		lang_fold.reset(g_utf8_casefold(p->name, -1));
+	for(size_t i=0; i<lang_tbl.size(); ++i) {
+		lang_fold.reset(g_utf8_casefold(lang_tbl[i].name.c_str(), -1));
 		if(strcmp(get_impl(longlang_fold), get_impl(lang_fold)) == 0) {
-			shortlang = p->code3;
+			shortlang = lang_tbl[i].code3;
 			toupper_ascii(shortlang);
 			return true;
 		}

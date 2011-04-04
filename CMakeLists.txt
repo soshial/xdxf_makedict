@@ -99,6 +99,7 @@ SET(makedict_SRCS
 	src/dummy_generator.cpp
 	src/dummy_parser.cpp
 	src/lang_tbl.cpp
+	src/lang_tbl_auto.cpp
 	src/mapfile.cpp
 	src/normalize_tags.cpp
 	src/sdict_parser.cpp
