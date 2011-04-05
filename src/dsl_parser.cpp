@@ -273,7 +273,14 @@ void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& re
 		if (it != ipa_to_unicode_.end()) {
 			resstr += it->second;
 #if 0
-			g_debug("%s: converted: %s\n", __FUNCTION__, it->second.c_str());
+#ifdef DEBUG_IPA
+			gchar buf[7];
+			buf[g_unichar_to_utf8(it->first, buf)] = '\0';
+			if(it->second != buf)
+				g_print("non-identical IPA code. Article line %u, offset 0x%x, char num %u, IPA code 0x%llX\n"
+					"key: %s\n",
+					articlelinenum, articleoffset, charnum, (unsigned long long)ch, articlekey.c_str());
+#endif
 #endif
 		} else {
 #ifdef DEBUG_IPA
