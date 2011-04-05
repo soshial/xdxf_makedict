@@ -150,6 +150,7 @@ DslParser::DslParser() :
 	/* when specified, dump IPA data into this file */
 	parser_options_["ipa_dump_file"]="";
 #endif
+	parser_options_["no_ipa_translation"]="";
 
 	if (!code_page_table.empty())
 		return;
@@ -242,6 +243,11 @@ DslParser::DslParser() :
 
 void DslParser::trans_ipa_to_utf(const char *p, const char *end, std::string& resstr)
 {
+	if(!parser_options_["no_ipa_translation"].empty()) {
+		resstr.append(p, end - p);
+		return;
+	}
+
 	std::map<gunichar, std::string>::const_iterator it;
 	gunichar ch;
 	char buf[7];
