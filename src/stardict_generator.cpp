@@ -43,6 +43,10 @@
 #include "generator.hpp"
 
 namespace {
+	/* Maximum size of word in index. strlen(word) < MAX_INDEX_KEY_SIZE.
+	 * See doc/StarDictFileFormat. */
+	const int MAX_INDEX_KEY_SIZE=256;
+
 	class StarDictGenerator : public GeneratorBase {
 	public:
 		StarDictGenerator();
@@ -237,8 +241,21 @@ namespace {
 	bool StarDictGenerator::on_have_data(const StringList& keys,
 					     const std::string& data)
 	{
-		for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p)
-			keys_list.push_back(Key(*p, cur_off_, data.length()));
+		std::string tmpkey;
+		for (StringList::const_iterator p = keys.begin(); p != keys.end(); ++p) {
+			const std::string* pkey = &*p;
+			if(pkey->length() >= MAX_INDEX_KEY_SIZE) {
+				// truncate long key
+				tmpkey.assign(*pkey);
+				size_t keylen = truncate_utf8_string(tmpkey.c_str(), tmpkey.length(), MAX_INDEX_KEY_SIZE-1);
+				// truncate trailing blanks
+				while(keylen > 0 && (tmpkey[keylen-1] == ' ' || tmpkey[keylen-1] == '\t'))
+					--keylen;
+				tmpkey.resize(keylen);
+				pkey = &tmpkey;
+			}
+			keys_list.push_back(Key(*pkey, cur_off_, data.length()));
+		}
 		tmp_dict_file_.write(&data[0], data.length());
 		cur_off_ += data.length();
 

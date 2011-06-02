@@ -66,5 +66,6 @@ extern guint32 b64_decode(const char *val);
 
 extern bool copy_file(const std::string& from, const std::string& to)
 	ATTRIBUTE_WARN_UNUSED_RESULT;
+extern size_t truncate_utf8_string(const char* const beg, const size_t str_len, const size_t max_len);
 
 #endif//!_UTILS_HPP_

@@ -1098,7 +1098,7 @@ int DslParser::parse(MapFile& in, bool only_info, bool abr)
 
 		std::string datastr;
 
-		/* Read all article into the datastr variable removing leading
+		/* Read complete article into the datastr variable removing leading
 			 spaces and preserving new lines. */
 		do {
 			const char *real_begin=line.c_str()+1;
