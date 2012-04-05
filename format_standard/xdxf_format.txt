@@ -1,0 +1,182 @@
+                                 XDXF standand;  Draft 028
+
+XDXF stands for XML Dictionary Exchange Format, and as its name implies, specifies an
+interchange format for dictionary data files.
+Some dictionaries use XDXF as native format.
+
+Each dictionary is located in its own folder, the name of the folder is used as ID, and
+must contain only Latin characters and must not contain spaces or other special characters.
+So, if the dictionary name is "Webster's Unabridged Dictionary published in 1913" then
+the folder name should be something like "Webster1913".  The dictionary file itself is
+always "dict.xdxf". It is recommended for each dictionary to have a set of icons for toolbars
+and a large icon for the front page. The sizes should be: 16x16, 32x32, 512x512.  And the
+filenames would be icon16.png icon32.png and icon512.png respectively.
+Note that all file names are case sensitive.
+
+All XDXF dictionary text files (those with .xdxf extension) are in XML format with UTF-8 encoding.
+
+
+------------------------------------------------------------------------------------
+XDXF Tags:
+------------------------------------------------------------------------------------
+<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT">
+    The root element must have 3 attributes. For lang_from and lang_to the value is a 3-letter
+    language code according to ISO 639.2 standand http://www.loc.gov/standards/iso639-2/
+    and represents the language of key-phrases and definitions respectively.
+    The format attribute specifies the default formatting for the dictionary and might be
+    either "visual" or "logical". The default format might be overwritten for specific articles
+    as described below.
+    In visual format, the articles are formatted visually and are intended to be shown by
+    dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
+    However, shells may mark the content of logical tags with different colors.
+    In logical format, the articles are not formatted visually and shells are responsible
+    for formating them before presenting them to the user.
+
+
+<full_name>    Full name of the dictionary, like it would appear on the book cover.
+                It may contain non-English symbols.
+
+<description>  Description of the dictionary in free words.  It is recommended to include the
+    following: Copyright, License, From where this file can be downloaded, From where the 
+    unformatted file (i.e. the original dictionary file before the conversion into XDXF format) 
+    can be downloaded, From where the original unformatted dictionary file was obtained, Link
+    to the script which was used to convert the original unformatted dictionary file into
+    XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and
+    specified below.
+
+<abbreviations> section is a list of <abr_def> tags. It describes abbreviations used in the
+    dictionary.  The <abr_def> tag defines an abbreviation and contains two types of tags:
+        <k> (k stands for key-phrase) The abbreviated text.
+        <v> (v stands for value) The full text.
+        Note that there may be more than one <k> per <abr_def> to specify synonyms like "Ave."
+        and "Av.", but <v> tag can be only one.
+
+<ar f="x"> Article tag has one optional attribute 'f' which may have value either "v" or "l" and
+    can be used to overwrite the default dictionary format, which was specified in <xdxf> tag.
+    The <ar> tag groups together all the stuff related to one key-phrase.
+    The following tags are allowed only in between <ar></ar> tags.
+
+    <k> Key phrase is a phrase by which an article containing it can be found.
+        Article may contain more than one key phrase.
+        Tag <k> may not be nested in another <k>.
+
+    <opt> Marks optional part of key-phrase, if any.
+        Tag <opt> might be used only in between <k></k> tags.
+
+    <nu> Marks part of key-phrase that is not used for identification, but affects only the 
+        appearance. That is when the key-phrase is visually presented it should
+        include the content of <nu> tag, but for searching and indexing content of <nu> tag
+        should be stripped away. Tag <nu> can be used only in between <k></k> tags.
+
+    <def>  This tag marks a definition or a group of definitions which fall into a certain category.
+        For English language those categories could be parts of speech. For example: noun, verb,
+        adverb, etc. Note that <def> tags can be nested.  For articles that have logical format
+        shells may use <def> tag in a similar way as <blockquote> tag is used in HTML, or may also
+        put '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. before each definition, and increase
+        the font size of '1)','2)'... etc. according to the nesting level.
+        The <def> tag is optional. If the article is simple and there is nothing to group - don't
+        use it.
+        In articles with visual format <def> tags do not effect the formatting.
+
+    <pos>   specifies the Part Of Speech like: noun, verb, adverb, etc.
+
+    <tense> The tense. For example: past, present, future, past participle, etc.
+
+    <tr>    Marks transcription.
+
+    <dtrn>  This tag marks Direct Translation of the key-phrase.
+
+    <kref>  Reference to another key-phrase, which is located in the same file.
+
+    <rref>  Reference to a Resource file, which is located in the same folder.
+
+    <rref start="xxx" size="xxx">  Optional attributes are necessary for audio and video files,
+        when the reference points to a certain part of a large file. The attribute "start"
+        specifies position in the file of the first byte of the chunk of interest, and "size"
+        specifies its length in bytes.  If the "start" attribute is omitted then it is assumed
+        that it is 0.  If the "size" attribute is omitted then it is assumed that the file
+        should be played up to the end.
+
+    <iref href="http://www.somewebsite.com">  Reference to an Internet resource.
+
+    <abr>   Marks an abbreviation that is listed in the <abbreviations> section.
+
+    <c c="xxxxxx">...</c> (c c stands for Color Code)  Marks text with a given color.
+       The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
+       If the color attribute is omitted, the default color is implied.  The default color is
+        chosen by the dictionary program.
+
+    <ex> Marks the text of an example. (usually shown in a different color by the program)
+
+    <co> Marks the text of an editorial comment.
+      (comments are usually shown in a different color by the program)
+
+    <su> Marks a sub-article. Sub-articles are used to represent nested articles. [TODO: Add more
+        description, and an example]
+
+------------------------------------------------------------------------------------
+Non-XDXF Tags:
+------------------------------------------------------------------------------------
+For visually formatted articles in addition to XDXF tags, the following XHTML tags are allowed:
+  <sup>, <sub>, <i>, <b>, <tt>, <big>, <small>,  <blockquote>
+Their syntax and semantics is the same an in XHTML.
+
+
+------------------------------------------------------------------------------------
+Example:
+------------------------------------------------------------------------------------
+<?xml version="1.0" encoding="UTF-8" ?>
+<xdxf lang_from="ENG" lang_to="ENG" format="visual">
+<full_name>Webster's Unabridged Dictionary</full_name>
+<description>Webster's Unabridged Dictionary published 1913 by the... </description>
+
+
+<abbreviations>
+  <abr_def><k>n.</k> <v>noun</v></abr_def>
+  <abr_def><k>v.</k> <v>verb</v></abr_def>
+  <abr_def><k>Av.</k><k>Ave.</k><v>Avenue</v> </abr_def>
+</abbreviations>
+
+<ar><k><opt>The </opt>Unite States<opt> of America</opt></k>
+  Соединенные Штаты Америки</ar>
+
+<ar><k>record</k>
+<pos><abr>n.</abr></pos>
+[<tr>re'kord</tr>]
+Anything written down and preserved.
+<pos><abr>v.</abr></pos>
+[<tr>reko'rd</tr>]
+To write down for future use.</ar>
+
+<ar><k>home</k>
+[<tr>ho:um</tr>]
+<pos><abr>n.</abr></pos>
+<rref start="16384" size="512"> sounds_of_words.ogg </rref>
+1) One's own dwelling place; the house in which one lives.
+2) One's native land; the place or country in which one dwells.
+3) The abiding place of the affections. <ex>For without hearts there is no home.</ex>
+4) <dtrn>дом</dtrn> at home - дома, у себя; make yourself at home - будьте как дома
+<ex>XDXF <b>Home</b> page: <iref> http://xdxf.sourceforge.net </iref></ex>
+See also: <kref> home-made </kref></ar>
+
+<ar f="l"><k>home</k><tr>ho:um</tr><pos><abr>n.</abr></pos><rref start="16384" size="512">
+sounds_of_words.ogg </rref><def>One's own dwelling place; the house in which one lives.</def>
+<def>One's native land; the place or country in which one dwells.</def><def>The abiding place
+of the affections. <ex>For without hearts there is no home.</ex></def><def><dtrn>дом</dtrn> at
+home - дома, у себя; make yourself at home - будьте как дома</def><ex>XDXF <b>Home</b> page:
+<iref> http://xdxf.sourceforge.net </iref></ex>See also: <kref> home-made </kref></ar>
+
+
+<ar><k>indices</k>
+Plural form of word <kref>index</kref></ar>
+
+<ar><k>disc</k>
+<k>disk</k>
+<pos><abr>n.</abr></pos>
+A flat, circular plate; as, a disk of metal or paper.</ar>
+
+<ar><k>CO<nu><sub></nu>2<nu></sub></nu></k>
+Carbon dioxide (CO<sub>2</sub>) - a heavy odorless gas formed during respiration.</ar>
+
+</xdxf>
+--------------------------------- End of document -----------------------------------------------
