@@ -1,4 +1,4 @@
-                                 XDXF standand;  Draft 028
+                                 XDXF standand;  Draft 029;  Sept 27th 2011
 
 XDXF stands for XML Dictionary Exchange Format, and as its name implies, specifies an
 interchange format for dictionary data files.
@@ -17,6 +17,19 @@ All XDXF dictionary text files (those with .xdxf extension) are in XML format wi
 
 
 ------------------------------------------------------------------------------------
+Changelog:
+------------------------------------------------------------------------------------
+* <su> tag has been removed: for that purpose nested <def>s should be used instead
+* <pos> and <tense> merged into one general grammar tag <gr>
+* <full_name> renamed into <full_title>; <title> added
+* <abr> renamed into <abbr>
+* <publisher> and <authors> tags added
+* <tt> cannot be used since now (little used, hardly known, lonely old html tag)
+* <nu> (nu = not-used) tag has been removed (because it violated xml and all representational tags
+    should be stripped away by dictionary software automatically;
+* <di> instead introduced necessary tag "dont-index" for mark the text (not tags) to be omitted in the index
+
+------------------------------------------------------------------------------------
 XDXF Tags:
 ------------------------------------------------------------------------------------
 <xdxf lang_from="XXX" lang_to="XXX" format="FORMAT">
@@ -32,13 +45,18 @@ XDXF Tags:
     In logical format, the articles are not formatted visually and shells are responsible
     for formating them before presenting them to the user.
 
+<title>         The short title of the dictionary written in English
+<full_title>    Full name of the dictionary, like it would appear on the book cover.
+                Usually contains non-English title.
 
-<full_name>    Full name of the dictionary, like it would appear on the book cover.
-                It may contain non-English symbols.
+<publisher>     The oficial publisher of the dictionary; optional.
+
+<authors>       All people that took part in making dictionary: from lexicographers and proofreaders to programmers and designers; optional.
+    <author>    One tag for each author.
 
 <description>  Description of the dictionary in free words.  It is recommended to include the
-    following: Copyright, License, From where this file can be downloaded, From where the 
-    unformatted file (i.e. the original dictionary file before the conversion into XDXF format) 
+    following: Copyright, License, From where this file can be downloaded, From where the
+    unformatted file (i.e. the original dictionary file before the conversion into XDXF format)
     can be downloaded, From where the original unformatted dictionary file was obtained, Link
     to the script which was used to convert the original unformatted dictionary file into
     XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and
@@ -63,11 +81,6 @@ XDXF Tags:
     <opt> Marks optional part of key-phrase, if any.
         Tag <opt> might be used only in between <k></k> tags.
 
-    <nu> Marks part of key-phrase that is not used for identification, but affects only the 
-        appearance. That is when the key-phrase is visually presented it should
-        include the content of <nu> tag, but for searching and indexing content of <nu> tag
-        should be stripped away. Tag <nu> can be used only in between <k></k> tags.
-
     <def>  This tag marks a definition or a group of definitions which fall into a certain category.
         For English language those categories could be parts of speech. For example: noun, verb,
         adverb, etc. Note that <def> tags can be nested.  For articles that have logical format
@@ -78,9 +91,9 @@ XDXF Tags:
         use it.
         In articles with visual format <def> tags do not effect the formatting.
 
-    <pos>   specifies the Part Of Speech like: noun, verb, adverb, etc.
+    <di>    Marks the part of def's text that should not be indexed.
 
-    <tense> The tense. For example: past, present, future, past participle, etc.
+    <gr>    Specifies grammar information about the word.
 
     <tr>    Marks transcription.
 
@@ -99,7 +112,7 @@ XDXF Tags:
 
     <iref href="http://www.somewebsite.com">  Reference to an Internet resource.
 
-    <abr>   Marks an abbreviation that is listed in the <abbreviations> section.
+    <abbr>   Marks an abbreviation that is listed in the <abbreviations> section.
 
     <c c="xxxxxx">...</c> (c c stands for Color Code)  Marks text with a given color.
        The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
@@ -111,19 +124,16 @@ XDXF Tags:
     <co> Marks the text of an editorial comment.
       (comments are usually shown in a different color by the program)
 
-    <su> Marks a sub-article. Sub-articles are used to represent nested articles. [TODO: Add more
-        description, and an example]
-
 ------------------------------------------------------------------------------------
 Non-XDXF Tags:
 ------------------------------------------------------------------------------------
 For visually formatted articles in addition to XDXF tags, the following XHTML tags are allowed:
-  <sup>, <sub>, <i>, <b>, <tt>, <big>, <small>,  <blockquote>
+  <sup>, <sub>, <i>, <b>, <big>, <small>, <blockquote>
 Their syntax and semantics is the same an in XHTML.
 
 
 ------------------------------------------------------------------------------------
-Example:
+Examples:
 ------------------------------------------------------------------------------------
 <?xml version="1.0" encoding="UTF-8" ?>
 <xdxf lang_from="ENG" lang_to="ENG" format="visual">
@@ -141,16 +151,16 @@ Example:
   Соединенные Штаты Америки</ar>
 
 <ar><k>record</k>
-<pos><abr>n.</abr></pos>
+<gr><abbr>n.</abbr></gr>
 [<tr>re'kord</tr>]
 Anything written down and preserved.
-<pos><abr>v.</abr></pos>
+<gr><abbr>v.</abbr></gr>
 [<tr>reko'rd</tr>]
 To write down for future use.</ar>
 
 <ar><k>home</k>
 [<tr>ho:um</tr>]
-<pos><abr>n.</abr></pos>
+<gr><abbr>n.</abbr></gr>
 <rref start="16384" size="512"> sounds_of_words.ogg </rref>
 1) One's own dwelling place; the house in which one lives.
 2) One's native land; the place or country in which one dwells.
@@ -159,7 +169,7 @@ To write down for future use.</ar>
 <ex>XDXF <b>Home</b> page: <iref> http://xdxf.sourceforge.net </iref></ex>
 See also: <kref> home-made </kref></ar>
 
-<ar f="l"><k>home</k><tr>ho:um</tr><pos><abr>n.</abr></pos><rref start="16384" size="512">
+<ar f="l"><k>home</k><tr>ho:um</tr><gr><abbr>n.</abbr></gr><rref start="16384" size="512">
 sounds_of_words.ogg </rref><def>One's own dwelling place; the house in which one lives.</def>
 <def>One's native land; the place or country in which one dwells.</def><def>The abiding place
 of the affections. <ex>For without hearts there is no home.</ex></def><def><dtrn>дом</dtrn> at
@@ -172,10 +182,10 @@ Plural form of word <kref>index</kref></ar>
 
 <ar><k>disc</k>
 <k>disk</k>
-<pos><abr>n.</abr></pos>
+<gr><abbr>n.</abbr></gr>
 A flat, circular plate; as, a disk of metal or paper.</ar>
 
-<ar><k>CO<nu><sub></nu>2<nu></sub></nu></k>
+<ar><k>CO<sub>2</sub></k>
 Carbon dioxide (CO<sub>2</sub>) - a heavy odorless gas formed during respiration.</ar>
 
 </xdxf>
