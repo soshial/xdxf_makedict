@@ -9,7 +9,7 @@
 - port to win32?
 - more good message about wrong dsl "{{ comment }" - not closed comment
 - Use cmake build system:
-	- building and using test - done
-	- installing: makedict, plugins, man page - done
-	- build source dump - done
-	- remove autotools stuff - done
+    - building and using test - done
+    - installing: makedict, plugins, man page - done
+    - build source dump - done
+    - remove autotools stuff - done

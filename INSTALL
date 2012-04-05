@@ -1,12 +1,16 @@
 Installation Instructions
 *************************
 
-1)Unpack sources of makedict somewhere, lets name directory where you
-unpack source code as $SRC_DIR
-1)Choose directory to build makedict, lets name it as $BUILD_DIR, 
-2)Go to this directory 
-$cd $BUILD_DIR
-3)Run `cmake'
-$cmake $SRC_DIR
-4)Run `make'
-5)Run make install
+1) Unpack sources of makedict somewhere, lets name directory where you unpack source code as $SRC_DIR
+2) Choose directory to build makedict, lets name it as $BUILD_DIR, and go to this directory with
+        cd $BUILD_DIR
+3) Run 'cmake'
+        cmake $SRC_DIR
+4) Run 'make'
+5) NEVER run 'make install', always run 'checkinstall' in order to be able to delete the software
+
+6) After installation you should put "codecs" to somewhere like "/usr/share/makedict/codecs".
+    "codecs" are executable files except makedict in "src" subdirectory.
+
+7) After that add "export MAKEDICT_PLUGIN_DIR=/usr/share/makedict/codecs" somewhere into ~/.bashrc.
+

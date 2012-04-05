@@ -1,16 +1,13 @@
-After or before installation you should put "codecs" to 
-somewhere like "/usr/share/makedict/codecs". 
-"codecs" is executable files except makedict in "src" subdirectory.
+This package is for converting dictionary files any-to-any.
+The principal format for dictionary is XDXF though, because it is:
+* a free and open format distibuted freely
+* has a simple human-readible XML structure
+* has a lot of sematic tags that dictionary nuances
 
-After that add "export MAKEDICT_PLUGIN_DIR=/usr/share/makedict/codecs"
-somewhere into ~/.bashrc.
-
-Examples of usage:
-to convert from dictd format to stardict
-makedict -o stardict file.index
-
-to convert from dictd format to xdxf format
-makedict -o xdxf path/to/file.index
-
-to convert from dsl to stardict format
-makedict -o stardict path/to/dictionary.dsl
+makedict helps you converting dictionary files just by such simple interface:
+* to convert from dictd format to stardict
+    makedict -o stardict file.index
+* to convert from dictd format to xdxf format
+    makedict -o xdxf path/to/file.index
+* to convert from dsl to stardict format
+    makedict -o stardict path/to/dictionary.dsl
