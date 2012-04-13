@@ -55,7 +55,7 @@ bool PipeParserDictOps::send_info()
 {
 	out_ <<
 		"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n"
-		"<!DOCTYPE xdxf SYSTEM \"http://xdxf.sourceforge.net/xdxf_lousy.dtd\">\n"
+		"<!DOCTYPE xdxf SYSTEM \"https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd\">\n"
 		  << "<xdxf lang_from=\"" << dict_info_["lang_from"]
 		  << "\" lang_to=\"" << dict_info_["lang_to"]
 		  << "\" format=\"visual\">\n"

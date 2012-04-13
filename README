@@ -1,4 +1,6 @@
-This package is for converting dictionary files any-to-any.
+This package is for converting dictionary files many-to-many:
+    dictd/dsl/sdict/stardict/xdxf → dictd/stardict/xdxf
+
 The principal format for dictionary is XDXF though, because it is:
 * a free and open format distibuted freely
 * has a simple human-readible XML structure

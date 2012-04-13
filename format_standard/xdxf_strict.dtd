@@ -1,30 +1,54 @@
-<!ELEMENT xdxf (full_name,description,abbreviations?,ar+)>
-<!ELEMENT full_name (#PCDATA)>
+<!ELEMENT xdxf (title,full_title,description,publisher,authors,abbreviations?,ar+)>
+    <!ATTLIST xdxf format (visual|logical) #REQUIRED>
+<!ELEMENT full_title (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
-<!ELEMENT abbreviations (abr_def+)>
-<!ELEMENT abr_def (k+,v)>
-<!ELEMENT v (#PCDATA)>
-<!ELEMENT ar (#PCDATA | k|def|pos|tense|tr|dtrn|kref|rref|iref|abr|c|ex|co|i|b)* >
-<!ELEMENT i  (#PCDATA | c | sup | sub)* >
-<!ELEMENT b (#PCDATA | c | sup | sub)* >
-<!ELEMENT k (#PCDATA | opt)* >
+<!ELEMENT publisher (#PCDATA)>
+<!ELEMENT authors (author+)>
+<!ELEMENT author (#PCDATA)>
+<!ELEMENT abbreviations (abbr_def+)>
+<!ELEMENT abbr_def (abbr_k+,abbr_v)>
+<!ELEMENT abbr_k (#PCDATA)>
+<!ELEMENT abbr_v (#PCDATA)>
+<!ELEMENT ar (k+,def) >
+    <!ATTLIST ar f (v|l) #IMPLIED>
+<!ELEMENT k (#PCDATA|opt|sup|sub)* >
 <!ELEMENT opt (#PCDATA)>
-<!ELEMENT def (#PCDATA | k|def|pos|tense|tr|dtrn|kref|rref|iref|abr|c|ex|co|i|b)* >
-<!ELEMENT pos (#PCDATA|abr)* >
-<!ELEMENT tense (#PCDATA)>
+<!ELEMENT def (#PCDATA|def|gr|tr|dtrn|kref|rref|iref|abbr|c|ex|co|i|b|syn|ant|hpr|hpn|par|spv|mer|hol|ent|rel|etm|phr)* >
+    <!ATTLIST def id (#PCDATA) #IMPLIED>
+<!ELEMENT syn (kref+)>
+<!ELEMENT ant (kref+)>
+<!ELEMENT hpr (kref+)>
+<!ELEMENT hpn (kref+)>
+<!ELEMENT par (kref+)>
+<!ELEMENT spv (kref+)>
+<!ELEMENT mer (kref+)>
+<!ELEMENT hol (kref+)>
+<!ELEMENT ent (kref+)>
+<!ELEMENT rel (kref+)>
+<!ELEMENT etm (#PCDATA|kref|c|sup|sub|i|b)>
+<!ELEMENT phr (#PCDATA|kref|c|sup|sub|i|b)>
+<!ELEMENT gr (#PCDATA|abbr)* >
 <!ELEMENT tr (#PCDATA)>
+    <!ATTLIST tr format (X-SAMPA|erkIPA) #IMPLIED>
 <!ELEMENT dtrn (#PCDATA | kref | sup | sub | i | b)* >
-<!ELEMENT kref (#PCDATA)>
+<!ELEMENT kref (#PCDATA|sup|sub)>
 <!ELEMENT rref (#PCDATA)>
+    <!ATTLIST rref start (#PCDATA) #IMPLIED>
+    <!ATTLIST rref size (#PCDATA) #IMPLIED>
 <!ELEMENT iref (#PCDATA)>
-<!ELEMENT abr (#PCDATA)>
-<!ELEMENT c (#PCDATA | dtrn | co | ex | i | b)* >
-<!ELEMENT ex (#PCDATA | kref | co | sup | sub | i | b)* >
-<!ELEMENT co (#PCDATA | kref | c | sup | sub | b | i)* >
-<!ELEMENT sup (#PCDATA | b | i)* >
-<!ELEMENT sub (#PCDATA | b | i)* >
+    <!ATTLIST iref href (#PCDATA) #REQUIRED>
+<!ELEMENT abbr (#PCDATA)>
+<!ELEMENT ex (ex_main|ex_transl*) >
+<!ELEMENT ex_main (#PCDATA|kref|co|sup|sub|i|b)* >
+<!ELEMENT ex_transl (#PCDATA|kref|co|sup|sub|i|b)* >
+<!ELEMENT co (#PCDATA|kref|c|sup|sub|i|b)* >
+<!ELEMENT i (#PCDATA|c|sup|sub)* >
+<!ELEMENT b (#PCDATA|c|sup|sub)* >
+<!ELEMENT c (#PCDATA|dtrn|co|ex|i|b)* >
+    <!ATTLIST c c CDATA #IMPLIED>
+<!ELEMENT sup (#PCDATA)* >
+<!ELEMENT sub (#PCDATA)* >
 
-<!ATTLIST c c CDATA #IMPLIED>
 
 <!ATTLIST xdxf lang_from (
 AAR|ABK|ACE|ACH|ADA|ADY|AFA|AFH|AFR|AIN|AKA|AKK|ALB|ALE|ALG|ALT|AMH|ANG|APA|ARA|ARC|ARG|ARM|ARN|
@@ -70,5 +94,3 @@ TAH|TAI|TAM|TAT|TEL|TEM|TER|TET|TGK|TGL|THA|TIB|TIG|TIR|TIV|TKL|TLH|TLI|TMH|TOG|
 TSO|TUK|TUM|TUP|TUR|TUT|TVL|TWI|TYV|UDM|UGA|UIG|UKR|UMB|UND|URD|UZB|VAI|VEN|VIE|VOL|VOT|WAK|WAL|
 WAR|WAS|WEL|WEN|WLN|WOL|XAL|XHO|YAO|YAP|YID|YOR|YPK|ZAP|ZEN|ZHA|ZND|ZUL|ZUN) #REQUIRED>
 
-<!ATTLIST xdxf format (visual|logical) #REQUIRED>
-<!ATTLIST ar   f      (v|l)            #IMPLIED>

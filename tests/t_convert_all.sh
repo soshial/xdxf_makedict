@@ -10,7 +10,7 @@ RES_DIR=/tmp/xdxf
 
 LOG=/tmp/makedict.log
 
-alias VALIDATE="xmlvalid --dtd=./dtd/xdxf_lousy.dtd"
+alias VALIDATE="xmlvalid --dtd=../format_standard/xdxf_strict.dtd"
 
 if [ -z "$1" -o -z "$2" ]; then
         echo "Usage: $0 input_format(you can use all) ouput_format" >&2
