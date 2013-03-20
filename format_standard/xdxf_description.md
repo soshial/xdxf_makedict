@@ -1,4 +1,4 @@
-                                 XDXF standand;  Draft 031;  May 29th 2012
+                                    XDXF standand;  Draft 031;  May 29th 2012
 
 XDXF stands for XML Dictionary Exchange Format, and as its name implies, specifies a format for dictionary data files.
 Some dictionary software supports XDXF natively (see for ex., GoldenDict, XDClient).
@@ -16,7 +16,6 @@ All XDXF dictionary text files (those with .xdxf extension) are in XML format wi
 Any other encodings are strictly prohibited.
 
 
-------------------------------------------------------------------------------------------------------------------------
 Changelog:
 ------------------------------------------------------------------------------------------------------------------------
 * <meta_info>, <lexicon> were introduced to have simpler structure of the dict file
@@ -25,21 +24,21 @@ Changelog:
 * phrasemes (aka phraseologisms) moved into <ex> section; also added proverbs to <ex>
 * file version and date, dictionary edition and date, dict source url added to <meta_info>
 
-------------------------------------------------------------------------------------------------------------------------
 XDXF Tags:
-------------------------------------------------------------------------------------------------------------------------
-<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT">
-    The root element must have 3 attributes. For lang_from and lang_to the value is a 3-letter
-    language code according to ISO 639.2 standand http://www.loc.gov/standards/iso639-2/
-    and represents the language of key-phrases and definitions respectively.
-    The format attribute specifies the default formatting for the dictionary and might be
-    either "visual" or "logical". The default format might be overwritten for specific articles
-    as described below.
-    In visual format, the articles are formatted visually and are intended to be shown by
-    dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
-    However, shells may mark the content of logical tags with different colors.
-    In logical format, the articles are not formatted visually and shells are responsible
-    for formating them before presenting them to the user.
+====================================================================================================================
+<code><xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD"></code>
+    The root element must have 4 attributes:
+    * 'lang_from' and 'lang_to' values are 3-letter language codes from [ISO 639-3 standard](http://sil.org/iso639-3/)
+      and represents the language of key-phrases and definitions respectively.
+    * The 'format' attribute specifies the default formatting for the dictionary and might be either "visual" or
+      "logical". The default format might be overwritten for specific articles as described below.
+      **In visual format, the articles are formatted visually and are intended to be shown by
+        dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
+        However, shells may mark the content of logical tags with different colors.
+      **In logical format, the articles are not formatted visually and shells are responsible
+        for formating them before presenting them to the user.
+    * 'revision' attribute specifies format version that your XDXF file is formatted in.
+
 
 <meta_info> A container for all meta information about the dictionary.
 <title>       The short title of the dictionary written in English
@@ -172,7 +171,7 @@ Their syntax and semantics are the same as in XHTML.
 Examples:
 ------------------------------------------------------------------------------------------------------------------------
 Viasual format (NOT RECOMMENDED, only for compatibility with old converted dictionaries)
-
+<code>
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
 <xdxf lang_from="ENG" lang_to="ENG" format="visual">
@@ -221,8 +220,9 @@ Viasual format (NOT RECOMMENDED, only for compatibility with old converted dicti
         </ar>
     </lexicon>
 </xdxf>
-
-Example of the correct logical example
+</code>
+Example of the correct logical examples
+<code>
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
 <xdxf lang_from="ENG" lang_to="ENG" format="logical">
@@ -273,5 +273,5 @@ Example of the correct logical example
             </def>
         </ar>
     </lexicon>
-</xdxf>
+</xdxf></code>
 --------------------------------- End of document ----------------------------------------------------------------------
