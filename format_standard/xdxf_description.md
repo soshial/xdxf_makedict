@@ -41,33 +41,34 @@ Any other encodings are strictly prohibited.
 
 
 1. `<meta_info>` A container for all meta information about the dictionary.
-    1.1. `<title>`       The short title of the dictionary written in English  
-    1.2. `<full_title>`  Full name of the dictionary, like it would appear on the book cover.
-              Usually contains non-English title.  
-    1.3. `<publisher>`   The official publisher of the dictionary; optional.  
-    1.4. `<authors>`     All people that took part in making dictionary: lexicographers, proofreaders, programmers etc.; optional.  
+    1.1. `<title>` The short title of the dictionary written in English  
+    1.2. `<full_title>` Full name of the dictionary, like it would appear on the book cover.
+        *Tip*: Usually contains non-English title.  
+    1.3. `<publisher>` The official publisher of the dictionary; optional.  
+    1.4. `<authors>` All people that took part in making dictionary: lexicographers, proofreaders, programmers etc.; optional.
+    
         1.4.1. `<author role="xxx">` One tag for each author.  
-            *Tip*: Some authors might have 2 roles: in this case he should be listed using 2 `<author>` tags  
-    1.5. `<description>`  Description of the dictionary in free words or an annotation/resume/reader's note from publisher.  
-    It is recommended to include the following: Copyright, License, whence this file can be downloaded, whence the
-    unformatted file (i.e. the original dictionary file before the conversion into XDXF format) can be downloaded,
-    whence the original unformatted dictionary file was obtained, Link
-    to the script which was used to convert the original unformatted dictionary file into
-    XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and
-    specified below.
+            *Tip*: some authors might have >1 roles: in this case (s)he should be listed using two `<author>` tags  
+    1.5. `<description>` of the dictionary is in free words or an annotation/resume/reader's note from publisher.  
+        It is recommended to include the following: Copyright, License, whence this file can be downloaded, whence the
+        unformatted file (i.e. the original dictionary file before the conversion into XDXF format) can be downloaded,
+        whence the original unformatted dictionary file was obtained, Link
+        to the script which was used to convert the original unformatted dictionary file into
+        XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and
+        specified below.  
     1.6. `<abbreviations>` section is a list of `<abbr_def>` tags. It describes abbreviations used in the dictionary.  
         The `<abbr_def>` tag defines an abbreviation and contains two types of tags:
             `<abbr_k>` (abbr_k stands for abbreviation key): abbreviated text.
             `<abbr_v>` (v stands for value): full text.
         Note that there may be more than one <abbr_k> per <abbr_def> to specify synonyms like "Ave." and "Av.",
         but <v> tag can be only one.
-        ```xml
-        <abbreviations>
-            <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
-            <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
-            <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v></abbr_def>
-        </abbreviations>
-        ```
+```xml
+<abbreviations>
+    <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
+    <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
+    <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v></abbr_def>
+</abbreviations>
+```
     1.7. `<file_ver>`, `<creation_date>`, `<last_edited_date>`, `<dict_edition>`, `<publishing_date>`, `<dict_src_url>` are optional meta info.
 
 2. `<lexicon>` This is just a container for all <ar>s.
