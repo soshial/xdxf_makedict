@@ -1,4 +1,4 @@
-                                    XDXF standand;  Draft 031;  May 29th 2012
+                                    XDXF standand;  Draft 032beta;  March 2013
 
 ## Description
 XDXF stands for XML Dictionary Exchange Format, and as its name implies, specifies a format for dictionary data files.
@@ -26,42 +26,63 @@ Any other encodings are strictly prohibited.
 
 ## XDXF Tags:
 
-`<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD">` is the **root element**.
-    It must have 4 attributes:
-    * `lang_from` and `lang_to` values are 3-letter language codes from [ISO 639-3 standard](http://sil.org/iso639-3/)
-        and represents the language of key-phrases and definitions respectively.
-    * The `format` attribute specifies the default formatting for the dictionary and might be either `visual` or
-        `logical`. The default format might be overwritten for specific articles as described below.
-        * In visual format, the articles are formatted visually and are intended to be shown by
-            dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
-            However, shells may mark the content of logical tags with different colors.
-        * In logical format, the articles are not formatted visually and shells are responsible
-            for formating them before presenting them to the user.
-    * `revision` attribute specifies format version that your XDXF file is formatted in.
-        *Tip*: this attribute is obligatory, but it was first introduced in recent format standard, so it might be
-        absent in some old xdxf files.
+`<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD">` is the **root element**. It must have 4 attributes:
+* `lang_from` and `lang_to` values are 3-letter language codes from [ISO 639-3 standard](http://sil.org/iso639-3/)
+    and represents the language of key-phrases and definitions respectively.
+* The `format` attribute specifies the default formatting for the dictionary and might be either `visual` or
+    `logical`. The default format might be overwritten for specific articles as described below.
+    * In visual format, the articles are formatted visually and are intended to be shown by
+        dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
+        However, shells may mark the content of logical tags with different colors.
+    * In logical format, the articles are not formatted visually and shells are responsible
+        for formating them before presenting them to the user.
+* `revision` attribute specifies format version that your XDXF file is formatted in.  
+    *Tip*: this attribute is obligatory, but it was first introduced in recent format standard, so it might be
+    absent in some old xdxf files.
 
+The structure of a file is divided into 2 parts:
+```xml
+<xdxf ...>
+    <meta_info>
+        All meta information about the dictionary: its title, author etc. 
+    </meta_info>
+    <lexicon>
+        <ar>article 1</ar>
+        <ar>article 2</ar>
+        <ar>article 3</ar>
+        <ar>article 4</ar>
+        ...
+    </lexicon>
+</xdxf>
+```
 
-* `<meta_info>` A container for all meta information about the dictionary.
+1. `<meta_info>` A container for all meta information about the dictionary.
     1. `<title>` The short title of the dictionary written in English
     2. `<full_title>` Full name of the dictionary, like it would appear on the book cover.
         *Tip*: Usually contains non-English title.
     3. `<publisher>` The official publisher of the dictionary; optional.
-    4. `<authors>` All people that took part in making dictionary: lexicographers, proofreaders, programmers etc.; optional.
+    4. `<authors>` is a list of `<author>` tags and represents all people (organizations) that took part in making
+        dictionary: lexicographers, proofreaders, programmers etc. It is optional.
         * `<author role="xxx">` One tag for each author.
-            *Tip*: some authors might have >1 roles: in this case (s)he should be listed using two `<author>` tags
+
+        *Tip*: some authors might have >1 roles: in this case (s)he should be listed using two `<author>` tags
     5. `<description>` of the dictionary is in free words or an annotation/resume/reader's note from publisher.  
         It is recommended to include the following: Copyright, License, whence this file can be downloaded, whence the
         unformatted file (i.e. the original dictionary file before the conversion into XDXF format) can be downloaded,
         whence the original unformatted dictionary file was obtained, Link
         to the script which was used to convert the original unformatted dictionary file into
         XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and specified below.
-    6. `<abbreviations>` section is a list of `<abbr_def>` tags. It describes abbreviations used in the dictionary.  
-        * `<abbr_def>` tag defines an abbreviation and contains two types of tags:
-            * `<abbr_k>` (abbr_k stands for abbreviation key): abbreviated text.
-            * `<abbr_v>` (v stands for value): full text.
-        *Tip*: Note that there may be more than one `<abbr_k>` per `<abbr_def>` to specify synonyms like "Ave." and "Av.",
-        but `<v>` tag can be only one.  
+    6. `<abbreviations>` section is a list of `<abbr_def>` tags. It contains all abbreviations used for labels in the dictionary
+        (grammar labels, for example). `<abbr_def>` tag defines an abbreviation and contains two types of tags:
+        * `<abbr_k>` (stands for abbreviation key): abbreviated text.
+        * `<abbr_v>` (stands for value): full text.  
+        There could be different type of abbreviations, like stating grammatical features of word (noun, past participle
+        etc.), or its stylistical properties of a word (vulgar, archaic, poetic etc.) or area/field of knowledge
+        (computers, literature, culinary, typography etc.) or simple subsidiary words like ('e.g.', 'i.e.', 'cf.',
+        'also', 'rare' etc.). For this purpose `<abbr_def>` might contain `type` attribute, which states which type of
+        label this abbreviation is. It could be `stl`, `grm`, `aux`, `knl` or `oth`.  
+        *Tip*: Note that each abbreviation definition may contain more than one `<abbr_k>` per `<abbr_def>` to specify synonyms like "Ave." and "Av.",
+        but `<abbr_k>` tag can be only one.  
 ```xml
 <abbreviations>
     <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
@@ -69,48 +90,44 @@ Any other encodings are strictly prohibited.
     <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v></abbr_def>
 </abbreviations>
 ```
-    7. `<file_ver>`, `<creation_date>`, `<last_edited_date>`, `<dict_edition>`, `<publishing_date>`, `<dict_src_url>` are optional meta info.
+    7. `<file_ver>`, `<creation_date>` are obligatory info.
+        `<last_edited_date>`, `<dict_edition>`, `<publishing_date>`, `<dict_src_url>` are optional meta info.
+        All dates should be formatted as `DD-MM-YYYY`. When the date is not fully known, there should be zeros: 05-00-2011.
 
-* `<lexicon>` This is just a container for all `<ar>`s.
+2. `<lexicon>` This is just a container for all `<ar>`s.
     `<ar f="x">` Article tag has one optional attribute `f` which may have value either `v` (visual) or `l` (logic) and
     can be used to overwrite the default dictionary format, which was specified in `<xdxf>` tag.
     NB! Remember, that visual format is NOT recommended! XDXF is developed especially for logically structured
     dicts and visual format was introduced only to be compatible with dicts converted from old plain-text formats.
     The `<ar>` tag groups together all the stuff related to one key-phrase.
-    The following tags are allowed only in between `<ar></ar>` tags.
-
+    The following tags are allowed only in between `<ar></ar>` tags.  
     1. `<k>` Key phrase is a phrase by which an article containing it can be found alphabetically.
         Article may contain more than one key phrase and always at least one. If there are more than one `<k>`,
         while the article is opened by one key-phrase, the dictionary software should show all other variants in the
         article. Tag `<k>` may not be nested in another `<k>`.
         * `<opt>` Marks optional part of key-phrase. The article is searched by the `<k>` contents without `<opt>` contents,
             but showed in the article with it. Tag `<opt>` might be used only in between `<k></k>` tags.
-    
-    2. `<def>` This tag marks a group of definitions which fall into a certain category and every definition itself.
-        For English language those categories could be parts of speech. For example: noun, verb, adverb, etc.
-        Note that `<def>` tags can be nested. For articles that have logical format
-        shells may use `<def>` tag in a similar way as `<blockquote>` tag is used in HTML, or may also
-        put '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. before each definition, and increase
-        the font size of '1)','2)'... etc. according to the nesting level.
+    2. `<def>` This tag marks the whole body of word article, each definition itself and a group of definitions which fall into a certain category.
+        *Tip*. Those categories could be parts of speech or different etymology.  
+        Note that `<def>` tags can nest and they usually do.
         The `<def>` tag must be inside `<ar>` even if the article is simple and there is nothing to group.
-        In articles with visual format `<def>` tags do not effect the formatting ()
+        In articles with visual format `<def>` tags do not effect the formatting ()  
         * might have a 'cmt' attribute, that helps disambiguate this exact definition from others
         * might have a unique lowcase alphanumerical `id` attribute [1-90a-z].
-        * might have an integer/float attribute `freq`: some absolute/relative frequency value of the definition.
-    
+        * might have an integer/float attribute `freq`: some absolute/relative frequency value of the definition.  
+        For articles that have logical format
+        shells may use `<def>` tag in a similar way as `<blockquote>` tag is used in HTML, or may also
+        put '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. before each definition, and increase
+        the font size of '1)','2)'... etc. according to the nesting level.  
         1. `<gr>` Specifies grammar information about the word.
-        
         2. `<tr>` Marks transcription/pronunciation information; IPA symbols are default.
             Might also have "mode" attribute with values "X-SAMPA" or "erkIPA".
-        
         3. `<kref>` Simple reference to another key-phrase, which is located in the same file.
-        
         4. `<dtrn>` This tag marks Direct Translation of the key-phrase. Should be used to help dictionary software
             automatically know the simplest translations of the key-phrase — this might be useful for:
             * automatic extraction of data for tooltip translations (e.g. qDictionary)
             * make visible `<dtrn>` in the word-list to avoid too frequent "full article" look-ups
             These words might also be automatically `<kref>`, of opposite language pair is present
-        
         5. `<rref>` Reference to a Resource file, which should be located in the same folder as dictionary.
             * "start" and "size". Optional attributes `start` and `size` are necessary for audio and video files,
             when the reference points to a certain part of a large file. The attribute `start`
@@ -118,46 +135,38 @@ Any other encodings are strictly prohibited.
             specifies its length in bytes. If the "start" attribute is omitted then it is assumed
             that it is 0. If the `size` attribute is omitted then it is assumed that the file
             should be played up to the end. Using: `<rref start="xxx" size="xxx">`
-        
         6. `<iref href="http://www.somewebsite.com">` Reference to an Internet resource.
-        
         7. `<abbr>` Marks an abbreviation that is listed in the `<abbreviations>` section.
-        
         8. `<c c="xxxxxx">...</c>` (c c stands for Color Code) Marks text with a given color.
-                The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
-                If the color attribute is omitted, the default color is implied.  The default color is
-                chosen by the dictionary program.
-        
+            The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
+            If the color attribute is omitted, the default color is implied.  The default color is
+            chosen by the dictionary program.
         9. `<ex>` Marks the text of an example (usually shown in a different color by the program).
-                _indexing: Usually stays indexed, but users should be able to configure whether they want examples to be
-                    indexed and searched for.
-                Attribute `type` might be
-                * `exm` - susal examples with or without translations
-                * `phr` - might contain any type of phrasemes (idioms, collocations, clichés etc.)
-                * `prv` - proberbs
+            _indexing: Usually stays indexed, but users should be able to configure whether they want examples to be
+                indexed and searched for.
+            Attribute `type` might be
+            * `exm` - susal examples with or without translations
+            * `phr` - might contain any type of phrasemes (idioms, collocations, clichés etc.)
+            * `prv` - proberbs
         
             `<ex_main>` is for the original phrase of the example; should always be
             `<ex_tran>` is optional; may be multiple translations
-        
         10. `<co>` Marks the text of an editorial comment (shown in a different color by the program; usually grey).
-                _indexing: might be indexed
-        
+            _indexing: might be indexed
         11. `<sr>` There is a section dedicated to sematic relations to other words like synonyms, holonyms, hypernyms etc.
-                It uses `<kref>` to address other word with additional tag attributes. `<sr>` section looks like:
-                    > <sr><kref type="syn" comt="obsolete">game</kref><kref type="hol" comt="partly">play</kref></sr>
-                _indexing: should not be indexed as text
-                Possible "type" values:
-                    * 'syn' and 'ant' — synonyms and antonyms
-                    * 'hpr' and 'hpn' — hyperonyms and hyponims (incorporate troponyms)
-                    * 'par' and 'spv' — paronyms and spelling variants
-                    * 'mer' and 'hol' — meronyms and holonyms
-                    * 'ent' — entailment, special verb category: the v. Y is entailed by X if by doing X you must be doing Y
-                        might also be used for nouns: doing, having or being this noun entails some other thing
-                        (doing a "felony" entails being a "criminal")
-                    * 'rel' — denotes relevance (for ex., "handsome" and "ugly" are relevant to "appearance")
-        
+            It uses `<kref>` to address other word with additional tag attributes. `<sr>` section looks like:
+                > <sr><kref type="syn" comt="obsolete">game</kref><kref type="hol" comt="partly">play</kref></sr>
+            _indexing: should not be indexed as text
+            Possible "type" values:
+                * 'syn' and 'ant' — synonyms and antonyms
+                * 'hpr' and 'hpn' — hyperonyms and hyponims (incorporate troponyms)
+                * 'par' and 'spv' — paronyms and spelling variants
+                * 'mer' and 'hol' — meronyms and holonyms
+                * 'ent' — entailment, special verb category: the v. Y is entailed by X if by doing X you must be doing Y
+                    might also be used for nouns: doing, having or being this noun entails some other thing
+                    (doing a "felony" entails being a "criminal")
+                * 'rel' — denotes relevance (for ex., "handsome" and "ugly" are relevant to "appearance")
         12. `<etm>` Etymology information about the word.
-        
         13. `<di>` Marks the part of `<def>`'s text that should not be indexed. Might be used only inside `<def>` and some its
             children: `<co>`, `<ex>`, `<etm>`, `<phr>`
 
