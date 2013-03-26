@@ -41,21 +41,21 @@ Any other encodings are strictly prohibited.
 
 
 1. `<meta_info>` A container for all meta information about the dictionary.
-    1.1. `<title>`       The short title of the dictionary written in English
+    1.1. `<title>`       The short title of the dictionary written in English  
     1.2. `<full_title>`  Full name of the dictionary, like it would appear on the book cover.
-              Usually contains non-English title.
-    1.3. `<publisher>`   The official publisher of the dictionary; optional.
-    1.4. `<authors>`     All people that took part in making dictionary: lexicographers, proofreaders, programmers etc.; optional.
-        1.4.1. `<author role="xxx">` One tag for each author.
-            *Tip*: Some authors might have 2 roles: in this case he should be listed using 2 `<author>` tags
-    1.5. `<description>`  Description of the dictionary in free words or an annotation/resume/reader's note from publisher.
+              Usually contains non-English title.  
+    1.3. `<publisher>`   The official publisher of the dictionary; optional.  
+    1.4. `<authors>`     All people that took part in making dictionary: lexicographers, proofreaders, programmers etc.; optional.  
+        1.4.1. `<author role="xxx">` One tag for each author.  
+            *Tip*: Some authors might have 2 roles: in this case he should be listed using 2 `<author>` tags  
+    1.5. `<description>`  Description of the dictionary in free words or an annotation/resume/reader's note from publisher.  
     It is recommended to include the following: Copyright, License, whence this file can be downloaded, whence the
     unformatted file (i.e. the original dictionary file before the conversion into XDXF format) can be downloaded,
     whence the original unformatted dictionary file was obtained, Link
     to the script which was used to convert the original unformatted dictionary file into
     XDXF format.  The description may contain XHTML tags, that are allowed in XDXF and
     specified below.
-    1.6. `<abbreviations>` section is a list of `<abbr_def>` tags. It describes abbreviations used in the dictionary.
+    1.6. `<abbreviations>` section is a list of `<abbr_def>` tags. It describes abbreviations used in the dictionary.  
         The `<abbr_def>` tag defines an abbreviation and contains two types of tags:
             `<abbr_k>` (abbr_k stands for abbreviation key): abbreviated text.
             `<abbr_v>` (v stands for value): full text.
@@ -78,87 +78,87 @@ Any other encodings are strictly prohibited.
     The <ar> tag groups together all the stuff related to one key-phrase.
     The following tags are allowed only in between <ar></ar> tags.
 
-2.1. `<k>` Key phrase is a phrase by which an article containing it can be found alphabetically.
-    Article may contain more than one key phrase and always at least one. If there are more than one <k>,
-    while the article is opened by one key-phrase, the dictionary software should show all other variants in the
-    article. Tag <k> may not be nested in another <k>.
-    * <opt> Marks optional part of key-phrase. The article is searched by the <k> contents without <opt> contents,
-        but showed in the article with it. Tag <opt> might be used only in between <k></k> tags.
-
-2.2. `<def>`  This tag marks a group of definitions which fall into a certain category and every definition itself.
-    For English language those categories could be parts of speech. For example: noun, verb, adverb, etc.
-    Note that <def> tags can be nested. For articles that have logical format
-    shells may use <def> tag in a similar way as <blockquote> tag is used in HTML, or may also
-    put '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. before each definition, and increase
-    the font size of '1)','2)'... etc. according to the nesting level.
-    The `<def>` tag must be inside <ar> even if the article is simple and there is nothing to group.
-    In articles with visual format <def> tags do not effect the formatting ()
-    * might have a 'cmt' attribute, that helps disambiguate this exact definition from others
-    * might have a unique lowcase alphanumerical 'id' attribute [1-90a-z].
-    * might have an integer/float attribute 'freq': some absolute/relative frequency value of the definition.
-
-2.2.1. `<gr>`    Specifies grammar information about the word.
-
-2.2.2. `<tr>`    Marks transcription/pronunciation information; IPA symbols are default.
-        Might also have "mode" attribute with values "X-SAMPA" or "erkIPA".
-
-2.2.3. `<kref>`  Simple reference to another key-phrase, which is located in the same file.
-
-2.2.4. `<dtrn>`  This tag marks Direct Translation of the key-phrase. Should be used to help dictionary software
-    automatically know the simplest translations of the key-phrase — this might be useful for:
-    * automatic extraction of data for tooltip translations (e.g. qDictionary)
-    * make visible <dtrn> in the word-list to avoid too frequent "full article" look-ups
-    These words might also be automatically <kref>, of opposite language pair is present
-
-2.2.5. `<rref>`  Reference to a Resource file, which should be located in the same folder as dictionary.
-    * "start" and "size". Optional attributes "start" and "size" are necessary for audio and video files,
-    when the reference points to a certain part of a large file. The attribute "start"
-    specifies position in the file of the first byte of the chunk of interest, and "size"
-    specifies its length in bytes.  If the "start" attribute is omitted then it is assumed
-    that it is 0.  If the "size" attribute is omitted then it is assumed that the file
-    should be played up to the end. Using: <rref start="xxx" size="xxx">
-
-2.2.6. `<iref href="http://www.somewebsite.com">`  Reference to an Internet resource.
-
-2.2.7. `<abbr>`   Marks an abbreviation that is listed in the <abbreviations> section.
-
-2.2.8. `<c c="xxxxxx">...</c>` (c c stands for Color Code)  Marks text with a given color.
-        The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
-        If the color attribute is omitted, the default color is implied.  The default color is
-        chosen by the dictionary program.
-
-2.2.9. `<ex>`    Marks the text of an example (usually shown in a different color by the program).
-        _indexing: Usually stays indexed, but users should be able to configure whether they want examples to be
-            indexed and searched for.
-        Attribute `type` might be
-        * `exm` - susal examples with or without translations
-        * `phr` - might contain any type of phrasemes (idioms, collocations, clichés etc.)
-        * `prv` - proberbs
-
-    `<ex_main>` is for the original phrase of the example; should always be
-    `<ex_tran>` is optional; may be multiple translations
-
-2.2.10. `<co>`    Marks the text of an editorial comment (shown in a different color by the program; usually grey).
-        _indexing: might be indexed
-
-2.2.11. `<sr>`    There is a section dedicated to sematic relations to other words like synonyms, holonyms, hypernyms etc.
-        It uses <kref> to address other word with additional tag attributes. <sr> section looks like:
-            <sr><kref type="syn" comt="obsolete">game</kref><kref type="hol" comt="partly">play</kref></sr>
-        _indexing: should not be indexed as text
-        Possible "type" values:
-            * 'syn' and 'ant' — synonyms and antonyms
-            * 'hpr' and 'hpn' — hyperonyms and hyponims (incorporate troponyms)
-            * 'par' and 'spv' — paronyms and spelling variants
-            * 'mer' and 'hol' — meronyms and holonyms
-            * 'ent' — entailment, special verb category: the v. Y is entailed by X if by doing X you must be doing Y
-                might also be used for nouns: doing, having or being this noun entails some other thing
-                (doing a "felony" entails being a "criminal")
-            * 'rel' — denotes relevance (for ex., "handsome" and "ugly" are relevant to "appearance")
-
-2.2.12. `<etm>`   Etymology information about the word.
-
-2.2.13. `<di>`    Marks the part of <def>'s text that should not be indexed. Might be used only inside <def> and some its
-            children: <co>, <ex>, <etm>, <phr>
+    2.1. `<k>` Key phrase is a phrase by which an article containing it can be found alphabetically.
+        Article may contain more than one key phrase and always at least one. If there are more than one <k>,
+        while the article is opened by one key-phrase, the dictionary software should show all other variants in the
+        article. Tag <k> may not be nested in another <k>.
+        * <opt> Marks optional part of key-phrase. The article is searched by the <k> contents without <opt> contents,
+            but showed in the article with it. Tag <opt> might be used only in between <k></k> tags.
+    
+    2.2. `<def>`  This tag marks a group of definitions which fall into a certain category and every definition itself.
+        For English language those categories could be parts of speech. For example: noun, verb, adverb, etc.
+        Note that <def> tags can be nested. For articles that have logical format
+        shells may use <def> tag in a similar way as <blockquote> tag is used in HTML, or may also
+        put '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. before each definition, and increase
+        the font size of '1)','2)'... etc. according to the nesting level.
+        The `<def>` tag must be inside <ar> even if the article is simple and there is nothing to group.
+        In articles with visual format <def> tags do not effect the formatting ()
+        * might have a 'cmt' attribute, that helps disambiguate this exact definition from others
+        * might have a unique lowcase alphanumerical 'id' attribute [1-90a-z].
+        * might have an integer/float attribute 'freq': some absolute/relative frequency value of the definition.
+    
+        2.2.1. `<gr>`    Specifies grammar information about the word.
+        
+        2.2.2. `<tr>`    Marks transcription/pronunciation information; IPA symbols are default.
+                Might also have "mode" attribute with values "X-SAMPA" or "erkIPA".
+        
+        2.2.3. `<kref>`  Simple reference to another key-phrase, which is located in the same file.
+        
+        2.2.4. `<dtrn>`  This tag marks Direct Translation of the key-phrase. Should be used to help dictionary software
+            automatically know the simplest translations of the key-phrase — this might be useful for:
+            * automatic extraction of data for tooltip translations (e.g. qDictionary)
+            * make visible <dtrn> in the word-list to avoid too frequent "full article" look-ups
+            These words might also be automatically <kref>, of opposite language pair is present
+        
+        2.2.5. `<rref>`  Reference to a Resource file, which should be located in the same folder as dictionary.
+            * "start" and "size". Optional attributes "start" and "size" are necessary for audio and video files,
+            when the reference points to a certain part of a large file. The attribute "start"
+            specifies position in the file of the first byte of the chunk of interest, and "size"
+            specifies its length in bytes.  If the "start" attribute is omitted then it is assumed
+            that it is 0.  If the "size" attribute is omitted then it is assumed that the file
+            should be played up to the end. Using: <rref start="xxx" size="xxx">
+        
+        2.2.6. `<iref href="http://www.somewebsite.com">`  Reference to an Internet resource.
+        
+        2.2.7. `<abbr>`   Marks an abbreviation that is listed in the <abbreviations> section.
+        
+        2.2.8. `<c c="xxxxxx">...</c>` (c c stands for Color Code)  Marks text with a given color.
+                The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
+                If the color attribute is omitted, the default color is implied.  The default color is
+                chosen by the dictionary program.
+        
+        2.2.9. `<ex>`    Marks the text of an example (usually shown in a different color by the program).
+                _indexing: Usually stays indexed, but users should be able to configure whether they want examples to be
+                    indexed and searched for.
+                Attribute `type` might be
+                * `exm` - susal examples with or without translations
+                * `phr` - might contain any type of phrasemes (idioms, collocations, clichés etc.)
+                * `prv` - proberbs
+        
+            `<ex_main>` is for the original phrase of the example; should always be
+            `<ex_tran>` is optional; may be multiple translations
+        
+        2.2.10. `<co>`    Marks the text of an editorial comment (shown in a different color by the program; usually grey).
+                _indexing: might be indexed
+        
+        2.2.11. `<sr>`    There is a section dedicated to sematic relations to other words like synonyms, holonyms, hypernyms etc.
+                It uses <kref> to address other word with additional tag attributes. <sr> section looks like:
+                    <sr><kref type="syn" comt="obsolete">game</kref><kref type="hol" comt="partly">play</kref></sr>
+                _indexing: should not be indexed as text
+                Possible "type" values:
+                    * 'syn' and 'ant' — synonyms and antonyms
+                    * 'hpr' and 'hpn' — hyperonyms and hyponims (incorporate troponyms)
+                    * 'par' and 'spv' — paronyms and spelling variants
+                    * 'mer' and 'hol' — meronyms and holonyms
+                    * 'ent' — entailment, special verb category: the v. Y is entailed by X if by doing X you must be doing Y
+                        might also be used for nouns: doing, having or being this noun entails some other thing
+                        (doing a "felony" entails being a "criminal")
+                    * 'rel' — denotes relevance (for ex., "handsome" and "ugly" are relevant to "appearance")
+        
+        2.2.12. `<etm>`   Etymology information about the word.
+        
+        2.2.13. `<di>`    Marks the part of <def>'s text that should not be indexed. Might be used only inside <def> and some its
+                    children: <co>, <ex>, <etm>, <phr>
 
 ### Non-XDXF Tags:
 
