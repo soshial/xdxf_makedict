@@ -1,5 +1,6 @@
                                     XDXF standand;  Draft 031;  May 29th 2012
 
+## Description
 XDXF stands for XML Dictionary Exchange Format, and as its name implies, specifies a format for dictionary data files.
 Some dictionary software supports XDXF natively (see for ex., GoldenDict, XDClient).
 
@@ -15,32 +16,31 @@ Note that all file names are case sensitive.
 All XDXF dictionary text files (those with .xdxf extension) are in XML format with any Unicode encoding (usually UTF-8).
 Any other encodings are strictly prohibited.
 
+### Changelog:
 
-Changelog:
-------------------------------------------------------------------------------------------------------------------------
 * <meta_info>, <lexicon> were introduced to have simpler structure of the dict file
 * semantic relations' section revamped to reduce the number of tags
 * definition usage frequency attribute added
 * phrasemes (aka phraseologisms) moved into <ex> section; also added proverbs to <ex>
 * file version and date, dictionary edition and date, dict source url added to <meta_info>
 
-XDXF Tags:
-====================================================================================================================
-<code><xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD"></code>
+## XDXF Tags:
+
+1. `<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD">`
     The root element must have 4 attributes:
     * 'lang_from' and 'lang_to' values are 3-letter language codes from [ISO 639-3 standard](http://sil.org/iso639-3/)
-      and represents the language of key-phrases and definitions respectively.
+        and represents the language of key-phrases and definitions respectively.
     * The 'format' attribute specifies the default formatting for the dictionary and might be either "visual" or
-      "logical". The default format might be overwritten for specific articles as described below.
-      **In visual format, the articles are formatted visually and are intended to be shown by
-        dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
-        However, shells may mark the content of logical tags with different colors.
-      **In logical format, the articles are not formatted visually and shells are responsible
-        for formating them before presenting them to the user.
+        "logical". The default format might be overwritten for specific articles as described below.
+        **In visual format, the articles are formatted visually and are intended to be shown by
+            dictionary programs (shells) as is without inserting or removing any spaces or EOLs.
+            However, shells may mark the content of logical tags with different colors.
+        **In logical format, the articles are not formatted visually and shells are responsible
+            for formating them before presenting them to the user.
     * 'revision' attribute specifies format version that your XDXF file is formatted in.
 
 
-<meta_info> A container for all meta information about the dictionary.
+2. `<meta_info>` A container for all meta information about the dictionary.
 <title>       The short title of the dictionary written in English
 <full_title>  Full name of the dictionary, like it would appear on the book cover.
               Usually contains non-English title.
@@ -170,108 +170,106 @@ Their syntax and semantics are the same as in XHTML.
 ------------------------------------------------------------------------------------------------------------------------
 Examples:
 ------------------------------------------------------------------------------------------------------------------------
-Viasual format (NOT RECOMMENDED, only for compatibility with old converted dictionaries)
-<code>
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
-<xdxf lang_from="ENG" lang_to="ENG" format="visual">
-    <meta_info>
-        <full_title>Webster's Unabridged Dictionary</full_title>
-        <description>Webster's Unabridged Dictionary published 1913 by the... </description>
-        <abbreviations>
-            <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
-            <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
-            <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
-        </abbreviations>
-    </meta_info>
-    <lexicon>
-        <ar>
-            <k><opt>The </opt>Unite States<opt> of America</opt></k>
-            Соединенные Штаты Америки
-        </ar>
-        <ar f="l">
-            <k>record</k>
-            <def>
+Visual format (NOT RECOMMENDED, only for compatibility with old converted dictionaries)
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
+    <xdxf lang_from="ENG" lang_to="ENG" format="visual">
+        <meta_info>
+            <full_title>Webster's Unabridged Dictionary</full_title>
+            <description>Webster's Unabridged Dictionary published 1913 by the... </description>
+            <abbreviations>
+                <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
+                <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
+                <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
+            </abbreviations>
+        </meta_info>
+        <lexicon>
+            <ar>
+                <k><opt>The </opt>Unite States<opt> of America</opt></k>
+                Соединенные Штаты Америки
+            </ar>
+            <ar f="l">
+                <k>record</k>
+                <def>
+                    <def>
+                        <gr><abbr>n.</abbr></gr>
+                        [<tr>re'kord</tr>]
+                        Anything written down and preserved.
+                    </def>
+                    <def>
+                        <gr><abbr>v.</abbr></gr>
+                        [<tr>reko'rd</tr>]
+                        To write down for future use.
+                    </def>
+                </def>
+            </ar>
+            <ar>
+                <def>
+                    <k>home</k>
+                    [<tr>ho:um</tr>]
+                    <gr><abbr>n.</abbr></gr>
+                    <rref start="16384" size="512"> sounds_of_words.ogg </rref>
+                    1) One's own dwelling place; the house in which one lives.
+                    2) One's native land; the place or country in which one dwells.
+                    3) The abiding place of the affections. <ex>For without hearts there is no home.</ex>
+                    4) <dtrn>дом</dtrn> at home - дома, у себя; make yourself at home - будьте как дома
+                    <ex>XDXF <iref href="http://xdxf.sourceforge.net"><b>Home</b> page</iref></ex>
+                    See also: <kref>home-made</kref>
+                </def>
+            </ar>
+        </lexicon>
+    </xdxf>
+
+Example of the correct logical examples:
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
+    <xdxf lang_from="ENG" lang_to="ENG" format="logical">
+        <meta_info>
+            <full_title>Webster's Unabridged Dictionary</full_title>
+            <description>Webster's Unabridged Dictionary published 1913 by the Webster Institute</description>
+            <abbreviations>
+              <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
+              <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
+              <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
+            </abbreviations>
+        </meta_info>
+        <lexicon>
+            <ar>
+                <k>home</k>
+                <def>
+                    <tr>'həum</tr>
+                    <gr><abbr>n.</abbr></gr><rref start="16384" size="512">sounds_of_words.ogg</rref>
+                    <def>One's own dwelling place; the house in which one lives.</def>
+                    <def>One's native land; the place or country in which one dwells.</def>
+                    <def>
+                        The abiding place of the affections.
+                        <ex>For without hearts there is no home.</ex>
+                    </def>
+                    <def><dtrn>дом</dtrn>, at home - дома, у себя; make yourself at home - будьте как дома</def>
+                    <co>XDXF <iref href="http://xdxf.sourceforge.net"><b>Home</b> page</iref></co>
+                    See also: <kref>home-made</kref>
+                </def>
+            </ar>
+            <ar>
+                <def>
+                    <k>indices</k>
+                    Plural form of word <kref>index</kref>
+                </def>
+            </ar>
+            <ar>
+                <k>disc</k>
+                <k>disk</k>
                 <def>
                     <gr><abbr>n.</abbr></gr>
-                    [<tr>re'kord</tr>]
-                    Anything written down and preserved.
+                    A flat, circular plate; as, a disk of metal or paper.
                 </def>
+            </ar>
+            <ar>
+                <k>CO<sub>2</sub></k>
                 <def>
-                    <gr><abbr>v.</abbr></gr>
-                    [<tr>reko'rd</tr>]
-                    To write down for future use.
+                    Carbon dioxide (CO<sub>2</sub>) - a heavy odorless gas formed during respiration.
                 </def>
-            </def>
-        </ar>
-        <ar>
-            <def>
-                <k>home</k>
-                [<tr>ho:um</tr>]
-                <gr><abbr>n.</abbr></gr>
-                <rref start="16384" size="512"> sounds_of_words.ogg </rref>
-                1) One's own dwelling place; the house in which one lives.
-                2) One's native land; the place or country in which one dwells.
-                3) The abiding place of the affections. <ex>For without hearts there is no home.</ex>
-                4) <dtrn>дом</dtrn> at home - дома, у себя; make yourself at home - будьте как дома
-                <ex>XDXF <iref href="http://xdxf.sourceforge.net"><b>Home</b> page</iref></ex>
-                See also: <kref>home-made</kref>
-            </def>
-        </ar>
-    </lexicon>
-</xdxf>
-</code>
-Example of the correct logical examples
-<code>
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
-<xdxf lang_from="ENG" lang_to="ENG" format="logical">
-    <meta_info>
-        <full_title>Webster's Unabridged Dictionary</full_title>
-        <description>Webster's Unabridged Dictionary published 1913 by the Webster Institute</description>
-        <abbreviations>
-          <abbr_def><abbr_k>n.</abbr_k> <abbr_v>noun</abbr_v></abbr_def>
-          <abbr_def><abbr_k>v.</abbr_k> <abbr_v>verb</abbr_v></abbr_def>
-          <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
-        </abbreviations>
-    </meta_info>
-    <lexicon>
-        <ar>
-            <k>home</k>
-            <def>
-                <tr>'həum</tr>
-                <gr><abbr>n.</abbr></gr><rref start="16384" size="512">sounds_of_words.ogg</rref>
-                <def>One's own dwelling place; the house in which one lives.</def>
-                <def>One's native land; the place or country in which one dwells.</def>
-                <def>
-                    The abiding place of the affections.
-                    <ex>For without hearts there is no home.</ex>
-                </def>
-                <def><dtrn>дом</dtrn>, at home - дома, у себя; make yourself at home - будьте как дома</def>
-                <co>XDXF <iref href="http://xdxf.sourceforge.net"><b>Home</b> page</iref></co>
-                See also: <kref>home-made</kref>
-            </def>
-        </ar>
-        <ar>
-            <def>
-                <k>indices</k>
-                Plural form of word <kref>index</kref>
-            </def>
-        </ar>
-        <ar>
-            <k>disc</k>
-            <k>disk</k>
-            <def>
-                <gr><abbr>n.</abbr></gr>
-                A flat, circular plate; as, a disk of metal or paper.
-            </def>
-        </ar>
-        <ar>
-            <k>CO<sub>2</sub></k>
-            <def>
-                Carbon dioxide (CO<sub>2</sub>) - a heavy odorless gas formed during respiration.
-            </def>
-        </ar>
-    </lexicon>
-</xdxf></code>
---------------------------------- End of document ----------------------------------------------------------------------
+            </ar>
+        </lexicon>
+    </xdxf>
+
