@@ -79,7 +79,6 @@ namespace stardict {
 		}
 	private:
 		static const char *magic_;
-		gulong nwords_;
 		DictData dict_data_;
 
 		bool parse_ifo_file(const std::string&);
