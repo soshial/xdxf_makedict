@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE xdxf SYSTEM "http://xdxf.sourceforge.net/xdxf_lousy.dtd">
+<!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
 <xdxf lang_from="ENG" lang_to="FIN" format="visual">
 <full_name>Sample 1 test dictionary</full_name>
 <description>Copyright: GNU Public License.; Version: 0.1</description>
