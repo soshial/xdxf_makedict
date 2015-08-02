@@ -87,7 +87,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
         * `<abbr_def type="aux">` — simple subsidiary words like ('e.g.', 'i.e.', 'cf.', 'also', 'rare' etc.).
         * `<abbr_def type="oth">` — others  
 
-        *Notice!* Note that each abbreviation definition may contain more than one `<abbr_k>` per `<abbr_def>` to specify synonyms like "Ave." and "Av.", but `<abbr_k>` tag can be only one.
+        *Notice!* Note that each abbreviation definition may contain more than one `<abbr_k>` per `<abbr_def>` to specify synonyms like "Ave." and "Av.", but `<abbr_v>` tag can be only one.
 ```xml
 <abbreviations>
     <abbr_def type="grm"><abbr_k>n.</abbr_k><abbr_v>noun</abbr_v></abbr_def>
