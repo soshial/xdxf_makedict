@@ -2,7 +2,7 @@
     <!ATTLIST xdxf format (visual|logical) "logical">
     <!ATTLIST xdxf revision CDATA #REQUIRED>
 
-<!ELEMENT meta_info (title,full_title,description,publisher?,authors?,file_ver,creation_date,last_edited_date?,dict_edition?,publishing_date?,dict_src_url?,abbreviations?)>
+<!ELEMENT meta_info (title,full_title,description,publisher?,authors?,file_ver,creation_date,last_edited_date,dict_edition?,publishing_date?,dict_src_url?,abbreviations?)>
 <!ELEMENT title (#PCDATA)>
 <!ELEMENT full_title (#PCDATA)>
 <!ELEMENT description (#PCDATA)>
@@ -10,7 +10,6 @@
 <!ELEMENT authors (author+)>
 <!ELEMENT author (#PCDATA)>
     <!ATTLIST author role CDATA #IMPLIED>
-
 <!ELEMENT file_ver (#PCDATA)>
 <!ELEMENT creation_date (#PCDATA)>
 <!ELEMENT last_edited_date (#PCDATA)>
@@ -24,46 +23,54 @@
 <!ELEMENT abbr_v (#PCDATA)>
 
 <!ELEMENT lexicon (ar+)>
-<!ELEMENT ar (k+,def) >
+<!ELEMENT ar (k+,def)>
     <!ATTLIST ar f (v|l) "l">
-<!ELEMENT k (#PCDATA|opt|sup|sub)* >
-<!ELEMENT opt (#PCDATA)>
-<!ELEMENT def ((gr?,tr*,rref*,def+,ex*,sr?,etm?,categ*)|(gr?,tr*,(#PCDATA,dtrn|kref|rref|iref|abbr|c|ex|co|i|b|gr)*,sr?,etm?,categ*)) >
+<!ELEMENT k (#PCDATA|opt|sup|sub)*>
+<!ELEMENT opt (#PCDATA|sup|sub)*>
+<!ENTITY % style "c|sup|sub|i|b|u">
+<!ENTITY % ref "kref|rref|iref">
+<!ELEMENT def (gr?,ex*,co*,sr?,etm?,categ*,(def+|deftext))>
+<!ELEMENT deftext (#PCDATA|tr|dtrn|abbr|co|di|%ref;|%style;|br)*>
     <!ATTLIST def id ID #IMPLIED>
     <!ATTLIST def cmt CDATA #IMPLIED>
     <!ATTLIST def freq CDATA #IMPLIED>
 <!ELEMENT sr (kref+)>
-<!ELEMENT etm (#PCDATA|kref|c|sup|sub|i|b)*>
-<!ELEMENT categ (#PCDATA)>
-<!ELEMENT gr (#PCDATA|abbr)* >
+<!ELEMENT etm (#PCDATA|tr|abbr|co|di|mrkd|%ref;|%style;|br)*>
+<!ELEMENT categ (kref+)>
+<!ELEMENT gr (#PCDATA|tr|abbr|co|di|%ref;|%style;)*>
 <!ELEMENT tr (#PCDATA)>
-    <!ATTLIST tr format (IPA|X-SAMPA|erkIPA) "IPA">
-<!ELEMENT dtrn (#PCDATA|sup|sub|i|b)* >
-<!ELEMENT kref (#PCDATA|dtrn|sup|sub)* >
+    <!ATTLIST tr format (IPA|X-SAMPA|erkIPA|CDATA) "IPA">
+<!ELEMENT dtrn (#PCDATA|kref)*>
+<!ELEMENT kref (#PCDATA|%style;)*>
     <!ATTLIST kref idref IDREF #IMPLIED>
     <!ATTLIST kref type (syn|ant|hpr|hpn|par|spv|mer|hol|ent|rel|etm) #IMPLIED>
     <!ATTLIST kref kcmt CDATA #IMPLIED>
 <!ELEMENT rref (#PCDATA)>
     <!ATTLIST rref start CDATA "0">
     <!ATTLIST rref size CDATA #IMPLIED>
-<!ELEMENT iref (#PCDATA)>
+    <!ATTLIST rref lctn CDATA #IMPLIED>
+    <!ATTLIST rref type CDATA #IMPLIED>
+<!ELEMENT iref (#PCDATA|%style;)*>
     <!ATTLIST iref href CDATA #REQUIRED>
 <!ELEMENT abbr (#PCDATA)>
-<!ELEMENT ex (ex_orig+,ex_transl*) >
-    <!ATTLIST ex type (exm|phr|prv|oth) "exm">
+<!ELEMENT ex (ex_orig+,ex_transl*,iref*)>
+    <!ATTLIST ex type (exm|phr|prv|oth|PCDATA) "exm">
     <!ATTLIST ex source CDATA #IMPLIED>
     <!ATTLIST ex author CDATA #IMPLIED>
-<!ELEMENT ex_orig (#PCDATA|mrkd|kref|co|sup|sub|i|b)* >
-<!ELEMENT ex_transl (#PCDATA|mrkd|kref|co|sup|sub|i|b)* >
-<!ELEMENT mrkd (#PCDATA) >
-<!ELEMENT co (#PCDATA|kref|c|sup|sub|i|b)* >
-<!ELEMENT i (#PCDATA|c|sup|sub)* >
-<!ELEMENT b (#PCDATA|c|sup|sub)* >
-<!ELEMENT c (#PCDATA|dtrn|co|ex|i|b)* >
+<!ELEMENT ex_orig (#PCDATA|mrkd|co|%ref;|%style;|br)*>
+<!ELEMENT ex_transl (#PCDATA|mrkd|co|%ref;|%style;|br)*>
+<!ELEMENT mrkd (#PCDATA|kref|%style;)*>
+<!ELEMENT co (#PCDATA|co|tr|abbr|di|%ref;|%style;|br)*>
+    <!ATTLIST co type CDATA #IMPLIED>
+<!ELEMENT i (#PCDATA|%style;)*>
+<!ELEMENT b (#PCDATA|%style;)*>
+<!ELEMENT u (#PCDATA|%style;)*>
+<!ELEMENT c (#PCDATA|%style;)*>
     <!ATTLIST c c CDATA #IMPLIED>
-<!ELEMENT sup (#PCDATA) >
-<!ELEMENT sub (#PCDATA) >
-<!ELEMENT di (#PCDATA) >
+<!ELEMENT sup (#PCDATA)>
+<!ELEMENT sub (#PCDATA)>
+<!ELEMENT di (#PCDATA)>
+<!ELEMENT br EMPTY>
 
 
 <!ATTLIST xdxf lang_from (
