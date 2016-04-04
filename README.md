@@ -1,7 +1,7 @@
 ## XDXF format
-XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries.
+XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries. Full format specification you may find in [this repository](https://github.com/soshial/xdxf_makedict/blob/master/format_standard/xdxf_description.md).
 
-The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://github.com/soshial/xdxf_makedict/groups.google.com/group/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
+The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://groups.google.com/forum/#!forum/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
 
 The **main distinction of XDXF** that makes it stand out among all other dictionary formats is that it doesn't contain almost any representational information about how articles should look like.
 Instead, XDXF stores only structural and semantic information in word articles.
@@ -10,7 +10,7 @@ Moreover, the format has many tags that are specific to dictionaries: etymologie
 For more information on advantages of the format, consider reading the article "[Why XDXF is better?](https://github.com/soshial/xdxf_makedict/wiki/Why-is-XDXF-better%3F)". 
 
 For opponents of using XML for storing dictionary and the problem of storing and parsing big XML-files in RAM, XDXF schema and structure of any dictionary allow to store all word articles on disk with help of hash-tables/. Some dictionary software applies this approach quite efficiently (for example, see [GoldenDict](http://goldendict.org/)).
-Although, there is no software that allows editing dictionaries at the moment, XDXF is a mor eor less human-readible XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
+Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readible XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
 
 ## makedict converter
 This package is for converting dictionary files many-to-many: `dictd/dsl/sdict/stardict/xdxf → dictd/stardict/xdxf`. The principal format for dictionary is XDXF though, for aforementioned reasons.

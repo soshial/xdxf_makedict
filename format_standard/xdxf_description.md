@@ -11,7 +11,7 @@ Moreover, the format has many tags that are specific to dictionaries: etymologie
 For more information on advantages of the format, consider reading the article "[Why XDXF is better?](https://github.com/soshial/xdxf_makedict/wiki/Why-is-XDXF-better%3F)". 
 
 For opponents of using XML for storing dictionary and the problem of storing and parsing big XML-files in RAM, XDXF schema and structure of any dictionary allow to store all word articles on disk with help of hash-tables/. Some dictionary software applies this approach quite efficiently (for example, see [GoldenDict](http://goldendict.org/)).
-Although, there is no software that allows editing dictionaries at the moment, XDXF is a mor eor less human-readible XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
+Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readible XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
 
 ### Changelog (rev. 33)
 * `<defbody>` introduced in order to fix multiple errors in DTD scheme
@@ -25,8 +25,6 @@ Although, there is no software that allows editing dictionaries at the moment, X
 * `<br/>` tag introduced for newlines inside articles
 * `<ex>` now might have `<iref>` tag inside
 * `<ex>`, `<tr>`, `<co>` tags now may have user-set attribute values
-
-+ XML against decription + main README
 
 #### Known limitations:
 * ISO 639-3 contains around 7776 languages. The DTD scheme does not contain all of them. If there is a need for this, all codes may be added to the scheme.
@@ -225,7 +223,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
-<xdxf lang_from="ENG" lang_to="ENG" format="visual" revision="032beta">
+<xdxf lang_from="ENG" lang_to="ENG" format="visual">
     <meta_info>
         <title>Webster's Dictionary</title>
         <full_title>Webster's Unabridged Dictionary</full_title>
@@ -280,7 +278,7 @@ Example of the RECCOMENDED logical format:
 ```xml
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE xdxf SYSTEM "https://raw.github.com/soshial/xdxf_makedict/master/format_standard/xdxf_strict.dtd">
-<xdxf lang_from="ENG" lang_to="ENG" format="logical" revision="032beta">
+<xdxf lang_from="ENG" lang_to="ENG" format="logical" revision="033">
     <meta_info>
         <title>Webster's Dictionary</title>
         <full_title>Webster's Unabridged Dictionary</full_title>
@@ -290,7 +288,7 @@ Example of the RECCOMENDED logical format:
           <abbr_def><abbr_k>v.</abbr_k><abbr_v>verb</abbr_v></abbr_def>
           <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
         </abbreviations>
-        <file_ver>001</file_version>
+        <file_ver>001</file_ver>
         <creation_date>07-04-2013</creation_date>
     </meta_info>
     <lexicon>
