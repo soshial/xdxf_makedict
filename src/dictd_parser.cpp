@@ -149,6 +149,7 @@ Parser::Parser()
 	replace_table[">"]="&gt;";
 	replace_table["&"]="&amp;";
 	replace_table["\""]="&quot;";
+	replace_table["'"]="&apos;";
 }
 
 static inline const char *skip(const char *str, const char *skip)
