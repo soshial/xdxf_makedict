@@ -185,7 +185,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
         
             An `<ex>` tag might contain these tags:
             * `<ex_orig>` is for the original phrase of the example (amount: 1 or more).  
-            * `<ex_tran>` is optional; may be multiple translations (amount: 0 or more).  
+            * `<ex_transl>` is optional; may be multiple translations (amount: 0 or more).  
             * Inside the previous two there might be useful `<mrkd>` tags. They are used to mark down main word(s) of an article both in original phrase and in translation ([example from Wiktionary](http://img834.imageshack.us/img834/634/snapshot14t.png)).
             * `<iref>` may contain a link to external resource.
         10. `<co>` Marks the text of an editorial comment that elucidates meaning or context (shown in a different colour by program depending on `type`). `type` attribute specifies what kind of comment it is: grammatical, stylistic, usage etc., anything that didn't fit for be placed into corrsponding sections.   
