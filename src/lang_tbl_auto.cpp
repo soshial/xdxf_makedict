@@ -27,6 +27,7 @@ void load_iso_639_2_langs()
 	lang_tbl.push_back(LangTblItem("afa", "", "Afro-Asiatic languages"));
 	lang_tbl.push_back(LangTblItem("afh", "", "Afrihili"));
 	lang_tbl.push_back(LangTblItem("afr", "af", "Afrikaans"));
+	lang_tbl.push_back(LangTblItem("ahk", "", "Ahka"));
 	lang_tbl.push_back(LangTblItem("ain", "", "Ainu"));
 	lang_tbl.push_back(LangTblItem("aka", "ak", "Akan"));
 	lang_tbl.push_back(LangTblItem("akk", "", "Akkadian"));
@@ -299,6 +300,7 @@ void load_iso_639_2_langs()
 	lang_tbl.push_back(LangTblItem("lat", "la", "Latin"));
 	lang_tbl.push_back(LangTblItem("lav", "lv", "Latvian"));
 	lang_tbl.push_back(LangTblItem("lez", "", "Lezghian"));
+	lang_tbl.push_back(LangTblItem("lhu", "", "Lahu"));
 	lang_tbl.push_back(LangTblItem("lim", "li", "Limburgan"));
 	lang_tbl.push_back(LangTblItem("lim", "li", "Limburger"));
 	lang_tbl.push_back(LangTblItem("lim", "li", "Limburgish"));
@@ -350,6 +352,7 @@ void load_iso_639_2_langs()
 	lang_tbl.push_back(LangTblItem("mus", "", "Creek"));
 	lang_tbl.push_back(LangTblItem("mwl", "", "Mirandese"));
 	lang_tbl.push_back(LangTblItem("mwr", "", "Marwari"));
+	lang_tbl.push_back(LangTblItem("mya", "", "Myanmar"));
 	lang_tbl.push_back(LangTblItem("myn", "", "Mayan languages"));
 	lang_tbl.push_back(LangTblItem("myv", "", "Erzya"));
 	lang_tbl.push_back(LangTblItem("nah", "", "Nahuatl languages"));
