@@ -2,7 +2,7 @@
 ## Introduction
 XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries.
 
-The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://github.com/soshial/xdxf_makedict/groups.google.com/group/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
+The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://groups.google.com/forum/#!forum/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
 
 The **main distinction of XDXF** that makes it stand out among all other dictionary formats is that it doesn't contain almost any representational information about how articles should look like.
 Instead, XDXF stores only structural and semantic information in word articles.
