@@ -26,10 +26,11 @@
 <!ELEMENT ar (k+,def)>
     <!ATTLIST ar f (v|l) "l">
 <!ELEMENT k (#PCDATA|opt|sup|sub)*>
+    <!ATTLIST k id ID #IMPLIED>
 <!ELEMENT opt (#PCDATA|sup|sub)*>
 <!ENTITY % style "c|sup|sub|i|b|u">
 <!ENTITY % ref "kref|rref|iref">
-<!ELEMENT def (gr?,ex*,co*,sr?,etm?,categ*,(def+|deftext))>
+<!ELEMENT def (gr?,co*,(def+|deftext),ex*,sr?,etm?,categ*)>
 <!ELEMENT deftext (#PCDATA|tr|dtrn|abbr|co|di|%ref;|%style;|br)*>
     <!ATTLIST def id ID #IMPLIED>
     <!ATTLIST def cmt CDATA #IMPLIED>
@@ -53,12 +54,12 @@
 <!ELEMENT iref (#PCDATA|%style;)*>
     <!ATTLIST iref href CDATA #REQUIRED>
 <!ELEMENT abbr (#PCDATA)>
-<!ELEMENT ex (ex_orig+,ex_transl*,iref*)>
+<!ELEMENT ex (ex_orig+,ex_tran*,iref*)>
     <!ATTLIST ex type (exm|phr|prv|oth|PCDATA) "exm">
     <!ATTLIST ex source CDATA #IMPLIED>
     <!ATTLIST ex author CDATA #IMPLIED>
 <!ELEMENT ex_orig (#PCDATA|mrkd|co|%ref;|%style;|br)*>
-<!ELEMENT ex_transl (#PCDATA|mrkd|co|%ref;|%style;|br)*>
+<!ELEMENT ex_tran (#PCDATA|mrkd|co|%ref;|%style;|br)*>
 <!ELEMENT mrkd (#PCDATA|kref|%style;)*>
 <!ELEMENT co (#PCDATA|co|tr|abbr|di|%ref;|%style;|br)*>
     <!ATTLIST co type CDATA #IMPLIED>

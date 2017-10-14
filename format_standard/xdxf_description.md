@@ -283,13 +283,14 @@ Example of the RECCOMENDED logical format:
         <title>Webster's Dictionary</title>
         <full_title>Webster's Unabridged Dictionary</full_title>
         <description>Webster's Unabridged Dictionary published 1913 by the Webster Institute</description>
+        <file_ver>001</file_ver>
+        <creation_date>07-04-2013</creation_date>
+        <last_edited_date>13-10-2017</last_edited_date>
         <abbreviations>
           <abbr_def><abbr_k>n.</abbr_k><abbr_v>noun</abbr_v></abbr_def>
           <abbr_def><abbr_k>v.</abbr_k><abbr_v>verb</abbr_v></abbr_def>
           <abbr_def><abbr_k>Av.</abbr_k><abbr_k>Ave.</abbr_k><abbr_v>Avenue</abbr_v> </abbr_def>
         </abbreviations>
-        <file_ver>001</file_ver>
-        <creation_date>07-04-2013</creation_date>
     </meta_info>
     <lexicon>
         <ar>
@@ -297,12 +298,11 @@ Example of the RECCOMENDED logical format:
             <def>
                 <gr><abbr>n.</abbr> <tr>'həum</tr><rref start="16384" size="512" lctn="sounds_of_words.ogg"/></gr>
                 <co>XDXF <iref href="http://xdxf.sourceforge.net"><b>Home</b> page</iref></co>
-                <sr><kref type="rel">home-made</kref></sr>
                 <def><deftext>One's own dwelling place; the house in which one lives.</deftext></def>
                 <def><deftext>One's native land; the place or country in which one dwells.</deftext></def>
                 <def>
                     <deftext>The abiding place of the affections.</deftext>
-                    <ex>For without hearts there is no home.</ex>
+                    <ex><ex_orig>For without hearts there is no home.</ex_orig></ex>
                 </def>
                 <def>
                     <deftext>
@@ -314,10 +314,11 @@ Example of the RECCOMENDED logical format:
                     </ex>
                     <categ><kref idref="fb982hk">Society</kref></categ>
                 </def>
+                <sr><kref type="rel">home-made</kref></sr>
             </def>
         </ar>
         <ar>
-            <k>indices</k>
+            <k id="fb982hk">Society</k>
             <def>
                 <deftext>Plural form of word <kref>index</kref>.</deftext>
             </def>
