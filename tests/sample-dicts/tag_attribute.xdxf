@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE xdxf SYSTEM "http://xdxf.sourceforge.net/xdxf_lousy.dtd">
-<xdxf lang_from="ENG" lang_to="ENG" format="visual">
- <full_name>tag attribute test</full_name>
- <description></description>
-  <ar><k>color key</k> <c c="blue">color data</c></ar>
-</xdxf>
