@@ -2,7 +2,7 @@
 ## Introduction
 XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries.
 
-The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://github.com/soshial/xdxf_makedict/groups.google.com/group/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
+The format is **open and free** to use for everyone. Anyone interested in its further development and popularization are welcome [on Github](https://github.com/soshial/xdxf_makedict/). If you need some help with converting to/from XDXF, you might ask in [XDXF Google group](https://groups.google.com/forum/#!forum/xdxf-format) or on different [converter](https://github.com/ilius/pyglossary) pages.
 
 The **main distinction of XDXF** that makes it stand out among all other dictionary formats is that it doesn't contain almost any representational information about how articles should look like.
 Instead, XDXF stores only structural and semantic information in word articles.
@@ -119,7 +119,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
     
     The following tags are allowed inside `<ar></ar>` tag.  
     1. `<k>` A "key phrase", that is written inside `<k>` tag is a sequence of letters/ideograms which a correspondent word article is identified with.
-        Each article may contain more than one key phrase, but always at least one. If there are more than one `<k>`, DS should display all key-phrases. that are assigned to the article, no matter which key-phrase a user was looking for. Developers of DS should make sure that convenient search through all keys is possible (with disregarding diacritics, wildcards and so on).  
+        Each article may contain more than one key phrase, but always at least one. If there are more than one `<k>`, DS must display all key-phrases. that are assigned to the article, no matter which key-phrase a user was looking for. Developers of DS should make sure that convenient search through all keys is possible (with disregarding diacritics, wildcards and so on).
         *Notice*, that if it's not possible to merge two articles into one article because of key phrases, then there could be several different articles with identical key-phrases (but different article bodies). For example:
         
         ```xml
@@ -148,7 +148,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
         \* They might have an integer/float attribute `freq`: some absolute or relative frequency value of the definition.
         
         In articles with visual format `<def>` tags do not effect the representation, while in logical they do.
-        For articles that have logical format DS must distinguish visually one definition from another according to nesting level by means of indentation, font size or enumeration definitions with  '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. Consider checking out the examples or the DTD schema to understand the structure better.
+        For articles that have logical format DS should distinguish visually one definition from another according to nesting level by means of indentation, font size or enumeration definitions with  '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. Consider checking out the examples or the DTD schema to understand the structure better.
         1. `<gr>` Specifies grammar information about the word. Might contain different word forms, word usage, grammatical labels and other information of this sort.
         2. `<tr>` Marks transcription/pronunciation information; IPA symbols are the default.
             Might also have "mode" attribute with values "X-SAMPA" or "erkIPA".
@@ -174,7 +174,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
             The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
             If the color attribute is omitted, the default color is implied. The default color is chosen by DS.
         9. `<ex>` Marks the text of an example (usually shown in grey or other color by DS).  
-            *Tip* (indexing): examples must be indexed by default, but users should be able to configure, whether they want examples to be indexed and searched for or not.  
+            *Tip* (indexing): examples should be indexed by default, but users should be able to configure, whether they want examples to be indexed and searched for or not.
             Attribute `type` might be:
             * `exm` - common examples with or without translations
             * `phr` - might contain any type of phrasemes (idioms, collocations, clichés etc.)
@@ -186,7 +186,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
             An `<ex>` tag might contain these tags:
             * `<ex_orig>` is for the original phrase of the example (amount: 1 or more).  
             * `<ex_tran>` is optional; may be multiple translations (amount: 0 or more).  
-            * Inside the previous two there might be useful `<mrkd>` tags. They are used to mark down main word(s) of an article both in original phrase and in translation ([example from Wiktionary](http://img834.imageshack.us/img834/634/snapshot14t.png)).
+            * Inside the previous two there might be useful `<mrkd>` tags. They are used to mark down main word(s) of an article both in original phrase and in translation ([example from Wiktionary](https://github.com/soshial/xdxf_makedict/raw/master/format_standard/images/mrkd_tag_in_examples.png)).
             * `<iref>` may contain a link to external resource.
         10. `<co>` Marks the text of an editorial comment that elucidates meaning or context (shown in a different colour by program depending on `type`). `type` attribute specifies what kind of comment it is: grammatical, stylistic, usage etc., anything that didn't fit for be placed into corrsponding sections.   
             *Tip* (indexing): comments are normally indexed.
@@ -212,7 +212,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
             ```
         12. `<etm>` Etymological information about the word. `<etm>` may have `<mrkd>` tag inside to mark etymological ancestors or cognates of the key-word.
         13. `<di>` Marks the part of `<def>`'s text that should not be indexed. Might be used only inside `<def>` and some its children: `<co>`, `<ex>`, `<etm>`, `<phr>`
-        14. `<categ>` tag is somewhat an equivalent of Wiktionary categories (e.g. 'inquisition' might have 'Medieval history' category or 'checkers' having 'Pluralia tantum' category). All categories are simply `<kref>` tags with `idref` attributes, that link to pre-created articles with some description. DS should create a list of all articles that link to a corresponding category. 
+        14. `<categ>` tag is somewhat an equivalent of Wiktionary categories (e.g. 'inquisition' might have 'Medieval history' category or 'checkers' having 'Pluralia tantum' category). All categories are simply `<kref>` tags with `idref` attributes, that link to pre-created articles with some description. DS must create a list of all articles that link to a corresponding category.
         15. All style tags `<sup>`, `<sub>`, `<i>`, `<b>`, `<u>` are used for representation of text. `<br/>` tag is used for newlines. Any other newline spaces besides this tag are ignored.
 
 

@@ -1,7 +1,7 @@
 ## XDXF format
-XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries. Full format specification you may find in [this repository](https://github.com/soshial/xdxf_makedict/blob/master/format_standard/xdxf_description.md).
+XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries. Full format specification you may find inside [`format_standard`](https://github.com/soshial/xdxf_makedict/blob/master/format_standard/xdxf_description.md) folder.
 
-The format is **open and free** to use for everyone. Anyone interested in its further development are welcome in XDXF [Google group](https://groups.google.com/forum/#!forum/xdxf-format) or [XDXF project on github](https://github.com/soshial/xdxf_makedict/).
+The format is **open and free** to use for everyone. Anyone interested in its further development and popularization are welcome [on Github](https://github.com/soshial/xdxf_makedict/). If you need some help with converting to/from XDXF, you might ask in [XDXF Google group](https://groups.google.com/forum/#!forum/xdxf-format) or on different [converter](https://github.com/ilius/pyglossary) pages.
 
 ### Advantages
 The **main distinction** that makes XDXF stand out among all other dictionary formats is that it doesn't contain almost any representational information about how articles should look like.
