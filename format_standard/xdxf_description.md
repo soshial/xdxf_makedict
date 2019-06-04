@@ -139,9 +139,9 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
         ```
         Also, `<sup>` and `<sub>` tags are allowed inside `<k>`.
         * `<opt>` Marks optional part of a key-phrase. Articles are searched by the `<k>` contents without `<opt>` contents, but are showed in the article with it. Tag `<opt>` might be used only inside `<k>` tag.
-    2. `<def>` This tag cotains either whole body of a word article inside `<ar>`, or a definition itself or a group of definitions, that fall into a certain category.  
+    2. `<def>` This tag contains either whole body of a word article inside `<ar>`, or a definition itself or a group of definitions, that fall into a certain category.  
         *Tip*. Those categories could be different parts of speech or have different etymology, for example, or the same sense with different connotations.  
-        Note that `<def>` tags can be nested inside each other and they usually do, unless the article is as plain as "1 word-to-1 word" translation.  
+        Note that `<def>` tags can be nested inside each other and they usually do, unless the article is as plain as "1 word-to-1 word" translation. Check out some examples [here](https://github.com/soshial/xdxf_makedict/issues/37).  
         Main `<def>` tag must be inside `<ar>` even if an article is simple and there is nothing to group. `<deftext>` tags contain actual textual definitions.  
         \* They might have a `cmt` (comment) attribute, that helps disambiguate one definition from others.  
         \* They might have a unique lowercase alphanumerical `id` attribute [01-9a-z], that can be referred to from another article.  
@@ -151,12 +151,12 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
         For articles that have logical format DS should distinguish visually one definition from another according to nesting level by means of indentation, font size or enumeration definitions with  '1)','2)'... or 1.','2.'... or 'A.','B.'... etc. Consider checking out the examples or the DTD schema to understand the structure better.
         1. `<gr>` Specifies grammar information about the word. Might contain different word forms, word usage, grammatical labels and other information of this sort.
         2. `<tr>` Marks transcription/pronunciation information; IPA symbols are the default.
-            Might also have "mode" attribute with values "X-SAMPA" or "erkIPA".
+            Might also have "format" attribute with values "X-SAMPA" or "erkIPA".
         3. `<kref>` is a reference to some `<ar>` or `<def>`, that is located in the same dictionary file. Links should be clickable. Examples:
             * Code `<kref>answer</kref>` will link to the article(s), which has `<k>answer</k>`.
-            * If `<kref>` has `idref` attribute, then it references the `<def>` tag that has an `id` equal to this attribute. The word "answered" in code `<kref idref"nf0837glo9">answered</kref>` will link to the verb "answer" (and not the noun because of the specific `id`).
+            * If `<kref>` has `idref` attribute, then it references the `<def>` tag that has an `id` equal to this attribute. The word "answered" in code `<kref idref="nf0837glo9">answered</kref>` will link to the verb "answer" (and not the noun because of the specific `id`).
             
-            For the additional attibutes and usage, see `<sr>`.
+            For the additional attributes and usage, see `<sr>`.
         4. `<dtrn>` This tag marks *Direct Translation* of the key-phrase (not usually used for explanatory dictionaries). But in non-monolingual dictionaries the tag should be used to help dictionary software automatically extract main and simplest translations of the key-phrase — this might be useful for:
             * automatic extraction of data for tooltip translations (e.g. [like qDictionary](http://www.cgliberty.com/articles/software/dictionaries/translite.jpg))
             * make visible `<dtrn>` in the word-list to avoid too frequent "full article" look-ups ([example](https://github.com/soshial/xdxf_makedict/wiki/Why-is-XDXF-better%3F))  
@@ -168,7 +168,7 @@ The structure of a file is divided into 2 parts: the ``<meta_info>`` and the `<l
             * optional `start` and `size` attributes are necessary for audio and video files, when the reference points to a certain part of a file. It is very convenient to keep all audio data for the dictionary in one file, referring to different parts of it from articles. The attribute `start` specifies an offset: a position in the file of the first byte of the chunk of interest, and `size` specifies its length in bytes. If the "start" attribute is omitted then it is assumed that it is 0. If the `size` attribute is omitted then it is assumed that the file is to be played up to the end.  
             
             Usage: `<rref lctn="audio.ogg" type="audio/opus" start="xxx" size="xxx">crawl</rref>` or just `<rref lctn="audio/transcription1.mp3"/>`
-        6. `<iref href="http://www.somewebsite.com">description</iref>` Reference to an external online resource. Preserving the protocol ("http://", "https://" etc.) is obligatory.
+        6. `<iref href="http://www.somewebsite.com">description</iref>` Reference to an external online resource. Preserving the protocol ("<http://>", "<https://>" etc.) is obligatory.
         7. `<abbr>` tag marks an abbreviated label. Note, that encountered labels should have explanation listed in correspondent `<abbr_k>` tag in `<abbreviations>` section.
         8. `<c c="#xxxxxx">...</c>` ("xxxxxx" stands for a 6-digit hex color code). Marks text with a given color.
             The syntax for "c" attribute is the same as for "color" attribute of "font" tag in HTML.
