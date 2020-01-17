@@ -27,7 +27,6 @@ Although, there is no software that allows editing dictionaries at the moment, X
 * `<ex>`, `<tr>`, `<co>` tags now may have user-set attribute values
 
 #### Known limitations:
-* ISO 639-3 contains around 7776 languages. The DTD scheme does not contain all of them. If there is a need for this, all codes may be added to the scheme.
 * `lang_to` attribute may have multiple languages, since some dictionaries are multilingual.
 
 ## Format description
@@ -49,6 +48,17 @@ Any non-Unicode encodings are strictly prohibited.
 `<xdxf lang_from="XXX" lang_to="XXX" format="FORMAT" revision="DD">` is the **root element**. It must have 4 attributes:
 * `lang_from` and `lang_to` values are 3-letter language codes from [ISO 639-3 standard](http://sil.org/iso639-3/)
     and represents the language of key-phrases and definitions respectively.
+    The ISO standard contains around 7776 languages. The DTD scheme does not contain all of them. If there is a need for
+    languages that are missing, codes may be added to the scheme or a document by overriding the customLanguages entity:
+    ```xml
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <!DOCTYPE xdxf SYSTEM "xdxf_strict.dtd" [
+    <!ENTITY % customLanguages "FOO|BAR|">
+    ]>
+    <xdxf lang_from="FOO" lang_to="BAR" format="logical" revision="033">
+        ...
+    </xdxf>
+    ```
 * The `format` attribute specifies default formatting for the dictionary and might be either `visual` or
     `logical`. The default format might be overwritten for specific articles as described below.
     * In visual format, the articles are formatted visually and are intended to be shown by
