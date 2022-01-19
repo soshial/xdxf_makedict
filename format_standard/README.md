@@ -1,6 +1,6 @@
                                     XDXF standard;  Draft 034;  19 January 2022
 ## Introduction
-XDXF stands for XML Dictionary Exchange Format, and specifies a **semantic** format for storing dictionaries.
+XDXF stands for _XML Dictionary eXchange Format_, and specifies a **semantic** format for storing dictionaries.
 
 The format is **open and free** to use for everyone. Anyone interested in its further development and popularization are welcome [on Github](https://github.com/soshial/xdxf_makedict/). If you need some help with converting to/from XDXF, you might ask in [XDXF Google group](https://groups.google.com/forum/#!forum/xdxf-format) or on different [converter](https://github.com/ilius/pyglossary) pages.
 
@@ -13,14 +13,15 @@ For more information on advantages of the format, consider reading the article "
 For opponents of using XML for storing dictionary and the problem of storing and parsing big XML-files in RAM, XDXF schema and structure of any dictionary allow to store all word articles on disk with help of hash-tables/. Some dictionary software applies this approach quite efficiently (for example, see [GoldenDict](http://goldendict.org/)).
 Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readable XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
 
-### Changelog (rev. 34) 2022-01-20
-* since rev. 34 the format is only semantic and cannot store any presentational or visual data
-* the language code limitation is removed: all languages that exist in BCP47 standard are supported (use http://schneegans.de/lv/?tags=hy-Latn-IT-arevela for validation)
+### Changelogs
+#### rev. 34 (19 January 2022)
+* since rev. 34 the format is fully semantic and cannot store any presentational or visual data
+* the language code has no limitation: all languages that exist in BCP47 standard are supported (use https://schneegans.de/lv/?tags=hy-Latn-IT-arevela for validation)
 * multilingual dictionaries are now supported: a dictionary may have multiple languages, that are translated from and into. It is also allowed to mark `<k>` and `<def>` tags with `xml:lang`
 * description supports line breaks
 * transcription info can be directly inside `def` tag
 
-### Changelog (rev. 33)
+#### rev. 33 (3 December 2015)
 * `<deftext>` introduced in order to fix multiple errors in DTD scheme
 * `<rref>` tag: added `lctn` and `type` attributes, links are not stored inside the tag anymore
 * `<kref>` tag: `idref` attribute introduced
@@ -33,7 +34,7 @@ Although, there is no software that allows editing dictionaries at the moment, X
 * `<ex>` now might have `<iref>` tag inside
 * `<ex>`, `<tr>`, `<co>` tags now may have user-set attribute values
 
-#### Known limitations:
+### Known limitations:
 * Many dictionary creators wished that XDXF supports some specific grammar forms of their language. Unfortunately, all possible grammar forms for all possible
 languages cannot be formalised in a concise format such as XDXF. Also, supporting tables with grammar forms might over-sophisticate the format. Therefore, we
 resorted to plain-text grammar information.
