@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xdxf SYSTEM "xdxf_strict.dtd">
+<xdxf revision="034">
+    <meta_info>
+        <languages>
+            <from xml:lang="hy-Latn-IT-arevela"/>
+            <from xml:lang="hy-Latn-ES"/>
+            <to xml:lang="en"/>
+            <to xml:lang="lv-LV"/>
+        </languages>
+        <title>Webster's Dictionary</title>
+        <full_title>Webster's Unabridged Dictionary</full_title>
+        <description>
+            Webster's Unabridged Dictionary published 1913 by the Webster Institute.
+            <br/>
+            It has ver extensive lexicon.
+        </description>
+        <file_ver>001</file_ver>
+        <creation_date>07-04-2013</creation_date>
+        <last_edited_date>13-10-2017</last_edited_date>
+        <abbreviations>
+            <abbr_def>
+                <abbr_k>n.</abbr_k>
+                <abbr_v>noun</abbr_v>
+            </abbr_def>
+            <abbr_def>
+                <abbr_k>v.</abbr_k>
+                <abbr_v>verb</abbr_v>
+            </abbr_def>
+            <abbr_def>
+                <abbr_k>Av.</abbr_k>
+                <abbr_k>Ave.</abbr_k>
+                <abbr_v>Avenue</abbr_v>
+            </abbr_def>
+        </abbreviations>
+    </meta_info>
+    <lexicon>
+        <ar>
+            <k xml:lang="en">bet</k>
+            <def>
+                <tr>pronunciation</tr>
+                <gr>anagrams</gr>
+                <def>
+                    <def>
+                        <gr>Noun</gr>
+                        <def>
+                            <deftext>A wager, an agreement between two parties that a stake (usually money) will be paid by the loser to the winner (the winner
+                                being the one who correctly forecast the outcome of an event).
+                            </deftext>
+                            <ex>
+                                <ex_orig>Dylan owes Fletcher $30 from an unsuccessful bet.</ex_orig>
+                            </ex>
+                        </def>
+                        <def>
+                            <deftext>A degree of certainty.</deftext>
+                            <ex>
+                                <ex_orig>It’s a safe bet that it will rain tomorrow.</ex_orig>
+                            </ex>
+                        </def>
+                    </def>
+                    <def>
+                        <gr>Verb</gr>
+                        <deftext>To stake or pledge upon the outcome of an event; to wager.</deftext>
+                        <ex>
+                            <ex_orig>example 1</ex_orig>
+                        </ex>
+                    </def>
+                    <def>
+                        <deftext>To be sure of something; to be able to count on something</deftext>
+                        <ex>
+                            <ex_orig>example 2</ex_orig>
+                        </ex>
+                    </def>
+                    <def>
+                        <deftext>(poker) To place money into the pot in order to require others do the same, usually only used for the first person to place
+                            money in the pot on each round.
+                        </deftext>
+                        <ex>
+                            <ex_orig>example 3</ex_orig>
+                        </ex>
+                    </def>
+                    <etm>Etymology 1</etm>
+                </def>
+                <def>
+                    <def>
+                        <gr>Noun</gr>
+                        <deftext>The letter in Semitic languages</deftext>
+                    </def>
+                    <etm>Etymology 2</etm>
+                </def>
+                <def>
+                    <def>
+                        <gr>Abbreviation</gr>
+                        <deftext>(knitting) between</deftext>
+                    </def>
+                    <etm>Etymology 3</etm>
+                </def>
+            </def>
+        </ar>
+
+        <ar>
+            <k xml:lang="en-US">home</k>
+            <k xml:lang="en-AU">houm</k>
+            <def>
+                <tr>'həum</tr>
+                <gr>
+                    <abbr>n.</abbr>
+                    <rref start="16384" size="512" type="audio/ogg; codecs=opus" lctn="sounds_of_words.opus"/>
+                </gr>
+                <co>XDXF
+                    <iref href="http://xdxf.sourceforge.net">
+                        <b>Home</b>
+                        page
+                    </iref>
+                </co>
+                <def>
+                    <deftext>One's own dwelling place; the house in which one lives.</deftext>
+                </def>
+                <def>
+                    <deftext>One's native land; the place or country in which one dwells.</deftext>
+                </def>
+                <def>
+                    <deftext>The abiding place of the affections.</deftext>
+                    <ex>
+                        <ex_orig>For without hearts there is no home.</ex_orig>
+                    </ex>
+                </def>
+                <def>
+                    <deftext>
+                        <dtrn>дом</dtrn>, at home - дома, у себя;
+                    </deftext>
+                    <ex>
+                        <ex_orig>make yourself at
+                            <mrkd>home</mrkd>
+                        </ex_orig>
+                        <ex_tran>будьте как
+                            <mrkd>дома</mrkd>
+                        </ex_tran>
+                    </ex>
+                    <categ>
+                        <kref idref="fb982hk">Society</kref>
+                    </categ>
+                </def>
+                <sr>
+                    <kref type="rel">home-made</kref>
+                </sr>
+            </def>
+        </ar>
+        <ar>
+            <k id="fb982hk">Society</k>
+            <def>
+                <deftext>Plural form of word <kref>index</kref>.
+                </deftext>
+            </def>
+        </ar>
+        <ar>
+            <k>disc</k>
+            <k>disk</k>
+            <def>
+                <gr>
+                    <abbr>n.</abbr>
+                </gr>
+                <deftext>A flat, circular plate; as, a disk of metal or paper.</deftext>
+            </def>
+        </ar>
+        <ar>
+            <k>CO
+                <sub>2</sub>
+            </k>
+            <def>
+                <deftext>Carbon dioxide (CO<sub>2</sub>) - a heavy odorless gas formed during respiration.
+                </deftext>
+            </def>
+        </ar>
+    </lexicon>
+</xdxf>

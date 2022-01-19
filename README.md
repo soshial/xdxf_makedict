@@ -11,11 +11,12 @@ Moreover, the format has many tags that are specific to dictionaries: etymologie
 
 ### Any drawbacks?
 1. **XML parsing speed**. For opponents of using XML for storing dictionary and the problem of storing and parsing big XML-files in RAM, XDXF schema and structure of any dictionary allow to store all word articles on disk with help of hash-tables/. Some dictionary software applies this approach quite efficiently (for example, see [GoldenDict](http://goldendict.org/)).
-2. **Editor software**. Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readible XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
+2. **Editing software**. Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readable XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
 
 ### Which dictionary software supports XDXF?
-* [Goldendict](https://github.com/goldendict/goldendict) (Win, Linux, MacOS, Android)
-* (please send me other examples, that I dont know of)
+* [Goldendict](https://github.com/goldendict/goldendict) (Win, Linux, MacOS)
+* [Alpus](https://alpusapp.com/) (Win, Linux, MacOS, Android, iOS)
+* (please send me other examples, that are not listed here)
 
 ## What was `makedict`?
 In the beginning of the project a converter was written to facilitate conversions to and from XDXF (`dictd/dsl/sdict/stardict/xdxf → dictd/stardict/xdxf`).
