@@ -24,6 +24,7 @@ Full format specification you may [find here](https://github.com/soshial/xdxf_ma
 ### Which dictionary software supports XDXF?
 * [Goldendict](https://github.com/goldendict/goldendict) (Win, Linux, MacOS)
 * [Alpus](https://alpusapp.com/) (Win, Linux, MacOS, Android, iOS)
+* [QTranslate](https://quest-app.appspot.com/) (Win)
 * (please send me other examples, that are not listed here)
 
 ## What was `makedict`?
