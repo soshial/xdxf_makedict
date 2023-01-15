@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE xdxf SYSTEM "xdxf_strict.dtd">
+<xdxf revision="034">
+    <meta_info>
+        <languages>
+            <from xml:lang="en"/>
+            <to xml:lang="eo"/>
+            <to xml:lang="lv-LV"/>
+            <to xml:lang="es-ES"/>
+            <to xml:lang="zh-cmn-Hant-TW"/>
+        </languages>
+        <title>Multilingual dictionary</title>
+        <full_title>Example of a multilingual dictionary</full_title>
+        <description>
+            This dictionary shows how to compile a dictionary with one-to-many language translation.
+            "k" tag is in English and it is translated into Esperanto, Chinese (Traditional), Spanish (Spain) and Spanish (Argentina).
+        </description>
+        <file_ver>v1.1b</file_ver>
+        <creation_date>15-01-2023</creation_date>
+        <last_edited_date>15-01-2023</last_edited_date>
+    </meta_info>
+    <lexicon>
+        <ar>
+            <k xml:lang="en">cell phone</k>
+            <def>
+                <def xml:lang="es-ES">
+                    <deftext>móvil</deftext>
+                </def>
+                <def xml:lang="es-AR">
+                    <deftext>celular</deftext>
+                </def>
+                <def xml:lang="eo">
+                    <deftext>poŝtelefono</deftext>
+                </def>
+                <def xml:lang="zh-cmn-Hant-TW">
+                    <deftext>手機</deftext>
+                </def>
+            </def>
+        </ar>
+    </lexicon>
+</xdxf>
