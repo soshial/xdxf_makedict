@@ -10,7 +10,7 @@
     <!ATTLIST to xml:lang NMTOKEN #REQUIRED>
 <!ELEMENT title (#PCDATA)>
 <!ELEMENT full_title (#PCDATA)>
-<!ELEMENT description (#PCDATA|br)>
+<!ELEMENT description (#PCDATA|br)*>
 <!ELEMENT publisher (#PCDATA)>
 <!ELEMENT authors (author+)>
 <!ELEMENT author (#PCDATA)>
