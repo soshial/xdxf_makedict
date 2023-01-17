@@ -13,15 +13,15 @@ For more information on advantages of the format, consider reading the article "
 For opponents of using XML for storing dictionary and the problem of storing and parsing big XML-files in RAM, XDXF schema and structure of any dictionary allow to store all word articles on disk with help of hash-tables/. Some dictionary software applies this approach quite efficiently (for example, see [GoldenDict](http://goldendict.org/)).
 Although, there is no software that allows editing dictionaries at the moment, XDXF is a more or less human-readable XML, that is quite easy to edit manually in a text editor even without prior knowledge of the format specifications.
 
-### Changelogs
+### Changelog
 #### rev. 34 (19 January 2022)
-* since rev. 34 the format is fully semantic and cannot store any presentational or visual data
-* the language code has no limitation: all languages that exist in BCP47 standard are supported (use https://schneegans.de/lv/?tags=hy-Latn-IT-arevela for validation)
+* since rev. 34 the format is semantic-only and cannot store any presentational or visual data
+* language codes have no limitations anymore: all languages that exist in BCP47 standard are supported now (all [registered subtags](https://www.iana.org/assignments/lang-subtags-templates/lang-subtags-templates.xhtml), use https://schneegans.de/lv/?tags=hy-Latn-IT-arevela for validation)
 * multilingual dictionaries are now supported: a dictionary may have multiple languages, that are translated from and into. It is also allowed to mark `<k>` and `<def>` tags with `xml:lang`
 * description supports line breaks
 * transcription info can be directly inside `def` tag
 
-#### rev. 33 (3 December 2015)
+#### rev. 33 (15 October 2017)
 * `<deftext>` introduced in order to fix multiple errors in DTD scheme
 * `<rref>` tag: added `lctn` and `type` attributes, links are not stored inside the tag anymore
 * `<kref>` tag: `idref` attribute introduced
@@ -34,10 +34,54 @@ Although, there is no software that allows editing dictionaries at the moment, X
 * `<ex>` now might have `<iref>` tag inside
 * `<ex>`, `<tr>`, `<co>` tags now may have user-set attribute values
 
+#### rev. 32 (09 June 2013)
+* `<phr>` tag removed as it was already present in <ex>
+* `<abr_def>` tag: attribute `type` introduced
+* `<xdxf>` has new obligatory attribute: the `revision` (version) of the format standard the file adheres to
+* visual format is now considered as not recommended
+* `<file_ver>`, `<creation_date>` were made obligatory meta-info
+* examples now adhere to the format specifications (thanks to @lastivka)
+* `<categ>` tag introduced
+* `<ex>` tag `type` attribute might have value `oth` now; `mrkd` tag introduced; attributes `source` and `author` introduced
+* `<kref>` tag: `kcmt` attribute introduced
+* `<def>` tag: `id` attribute is case-sensitive (as in HTML)
+
+#### rev. 31 (29 May 2012)
+* `<meta_info>`, `<lexicon>` were introduced to have simpler structure of the dict file
+* semantic relations' section revamped to reduce the number of tags
+* definition usage frequency attribute added
+* phrasemes (aka phraseologisms) moved into `<ex>` section; also added proverbs to `<ex>`
+* file version and date, dictionary edition and date, dict source url added to `<meta_info>`
+
+#### rev. 30 (29 January 2012)
+* renamed `<abr_def>` -> `<abbr_def>`
+* before this, `<k>` meant two different things article_keys and abbreviation keys. now it's `<k>` and `<abbr_k>`, `<v>` -> `<abbr_v>`
+* two modes (erkIPA and X-SAMPA) for transcription added
+* `<def>` is not optional anymore; might have an id attribute
+* `<ex>` is now extended with `<ex_main>` and `<ex_transl>`
+    (```<ex>
+        <exfrom>he killed kim!</exfrom>
+        <exto>он убил его!</exto>
+        <exto>он умертвил его!</exto>
+    </ex>```)
+* `<syn>, <ant>, <hpr>, <hpn>, <par>, <spv>, <mer>, <hol>, <ent>, <rel>, <etm>, <phr>` introduced
+
+#### rev. 29 (27 September 2011)
+* `<su>` tag has been removed: for that purpose nested `<def>`s should be used instead
+* `<pos>` and `<tense>` merged into one general grammar tag <gr>
+* `<full_name>` renamed into `<full_title>`; `<title>` added
+* `<abr>` renamed into `<abbr>`
+* `<publisher>` and `<authors>` tags added
+* `<tt>` derprecated (little used, hardly known, lonely old html tag)
+* `<nu>` (nu = not-used) tag has been removed (because it violated xml and all representational tags
+    should be stripped away by dictionary software automatically;
+* `<di>` instead introduced necessary tag "dont-index" for mark the text (not tags) to be omitted in the index
+
 ### Known limitations:
 * Many dictionary creators wished that XDXF supports some specific grammar forms of their language. Unfortunately, all possible grammar forms for all possible
 languages cannot be formalised in a concise format such as XDXF. Also, supporting tables with grammar forms might over-sophisticate the format. Therefore, we
 resorted to plain-text grammar information.
+* Tables are not supported at the moment. Please, use images for that.
 
 ## Format description
 ### File structure
